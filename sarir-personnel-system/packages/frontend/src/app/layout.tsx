@@ -1,3 +1,6 @@
+// src/app/layout.tsx
+import { ThemeProvider } from 'next-themes';
+
 export default function RootLayout({
   children,
 }: {
@@ -5,8 +8,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="fa" dir="rtl">
-      <body className="theme-light">
-        {children}
+      <body>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
