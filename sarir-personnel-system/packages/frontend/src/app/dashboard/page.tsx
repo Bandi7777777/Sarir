@@ -6,7 +6,7 @@ import Sidebar from "@/components/ui/Sidebar";
 import Input from "@/components/ui/input";
 import Button from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { toast } from "react-hot-toast"; // اضافه برای toast error/success
+import { toast } from "react-hot-toast";
 import {
   UsersIcon,
   UserPlusIcon,
@@ -32,19 +32,37 @@ type EmployeeRow = {
   created_at?: string;
 };
 
+/* ─────────────── Animations ─────────────── */
+const fadeIn = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } },
+};
+const stagger = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
 /* ─────────────── Small pieces ─────────────── */
 function Metric({
   title, value, hint, accent = "from-cyan-400 to-indigo-500",
 }: { title: string; value: string | number; hint?: string; accent?: string }) {
   return (
     <motion.div
-      whileHover={{ scale: 1.02, y: -2 }}
-      className={`${GLASS2} ${PANELBG2} p-5 relative overflow-hidden cursor-pointer transition-all duration-300`}
+      variants={fadeIn}
+      whileHover={{ scale: 1.05, y: -4 }}
+      className={`${GLASS2} ${PANELBG2} p-6 relative overflow-hidden cursor-pointer transition-all duration-500`}
     >
-      <div className={`absolute -left-10 -top-10 size-44 rounded-full bg-gradient-to-br ${accent} opacity-20`} />
-      <div className="text-xs text-cyan-200/70 font-medium">{title}</div>
-      <div className="text-4xl font-extrabold tracking-tight text-cyan-50 mt-1">{value}</div>
-      {hint && <div className="text-xs opacity-60 mt-1 text-cyan-200/70">{hint}</div>}
+      <div className={`absolute inset-0 bg-gradient-to-br ${accent} opacity-10 animate-gradient-bg`} />
+      <div className="relative z-10">
+        <div className="text-sm text-cyan-200/80 font-medium uppercase tracking-wide">{title}</div>
+        <div className="text-5xl font-black tracking-tight text-cyan-50 mt-2">{value}</div>
+        {hint && <div className="text-sm opacity-70 mt-3 text-cyan-200/80">{hint}</div>}
+      </div>
     </motion.div>
   );
 }
@@ -54,11 +72,13 @@ function Chip({
 }: { active?: boolean; onClick?: () => void; children: React.ReactNode }) {
   return (
     <motion.button
-      whileHover={{ scale: 1.05 }}
+      whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
-      className={`px-3 py-1 rounded-full text-xs transition-all font-medium ${
-        active ? "bg-cyan-400 text-[#0b1220] shadow-sm" : "bg-white/10 text-cyan-100 hover:bg-white/15"
+      className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
+        active
+          ? "bg-gradient-to-r from-turquoise-400 to-orange-500 text-white shadow-lg"
+          : "bg-white/10 text-cyan-100 hover:bg-white/20"
       }`}
     >
       {children}
@@ -69,25 +89,29 @@ function Chip({
 function PersonCard({ e }: { e: EmployeeRow }) {
   return (
     <motion.li
-      whileHover={{ scale: 1.02, y: -1 }}
-      className="p-4 rounded-2xl border border-white/10 bg-white/8 flex items-center justify-between group transition-all duration-300 hover:shadow-[0_12px_36px_rgba(0,0,0,.35)] glow-border-soft"
+      variants={fadeIn}
+      whileHover={{ scale: 1.05, y: -5, boxShadow: "0 20px 40px rgba(0,0,0,0.3)" }}
+      className="p-6 rounded-3xl border border-white/10 bg-white/10 flex items-center justify-between group transition-all duration-500 hover:bg-white/20 glow-border-soft"
     >
-      <div className="flex items-center gap-3">
-        <div className="size-10 rounded-xl grid place-items-center bg-gradient-to-br from-cyan-400 to-indigo-500 text-[#0b1220] shadow-md">
-          <UsersIcon className="h-5 w-5" />
-        </div>
+      <div className="flex items-center gap-4">
+        <motion.div
+          whileHover={{ rotate: 360 }}
+          transition={{ duration: 1, ease: "easeInOut" }}
+          className="size-14 rounded-2xl grid place-items-center bg-gradient-to-br from-cyan-400 to-indigo-500 text-white shadow-xl"
+        >
+          <UsersIcon className="h-7 w-7" />
+        </motion.div>
         <div>
-          <div className="font-semibold text-cyan-50">
-            {e.first_name} {e.last_name}
-          </div>
-          <div className="text-xs text-cyan-200/70">{e.email || "—"}</div>
+          <div className="font-bold text-cyan-50 text-xl">{e.first_name} {e.last_name}</div>
+          <div className="text-sm opacity-80 text-cyan-200">{e.email || "—"}</div>
+          <div className="text-xs opacity-60 text-cyan-300">ثبت: {new Date(e.created_at || "").toLocaleDateString("fa-IR")}</div>
         </div>
       </div>
       <Link
         href={`/personnel/view/${e.id}`}
-        className="text-cyan-300 hover:text-cyan-200 text-sm font-medium transition-colors"
+        className="text-cyan-300 hover:text-indigo-400 text-lg font-bold transition-colors"
       >
-        جزئیات →
+        → جزئیات
       </Link>
     </motion.li>
   );
@@ -110,8 +134,10 @@ export default function Dashboard() {
       const j = await r.json();
       if (!r.ok) throw new Error(j?.error || `HTTP ${r.status}`);
       setEmployees(Array.isArray(j) ? j : []);
+      toast.success("داده‌ها بروزرسانی شد!");
     } catch (e: any) {
       setErrEmp(e?.message || "خطا در دریافت داده");
+      toast.error("خطا در بارگذاری");
     } finally {
       setLoadingEmp(false);
     }
@@ -170,6 +196,7 @@ export default function Dashboard() {
     a.download = "latest_employees.csv";
     a.click();
     URL.revokeObjectURL(a.href);
+    toast.success("فایل CSV دانلود شد");
   }
 
   return (
@@ -191,73 +218,89 @@ export default function Dashboard() {
         style={{ paddingRight: expanded ? "280px" : "80px" }}
       >
         {/* ───────── Left rail: Search + Actions + Metrics ───────── */}
-        <aside className="xl:col-span-3 space-y-4">
+        <aside className="xl:col-span-3 space-y-6">
           {/* Search + quick actions */}
-          <div className={`${GLASS} ${PANELBG} p-5 space-y-3`}>
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.6, type: "spring", stiffness: 80 }}
+            className={`${GLASS} ${PANELBG} p-6 space-y-4`}
+          >
             <div className="relative">
-              <MagnifyingGlassIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-cyan-300/80" />
+              <MagnifyingGlassIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-6 w-6 text-cyan-300/80" />
               <Input
-                placeholder="جستجو…"
+                placeholder="جستجو در پرسنل..."
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                className="pl-10 pr-3 bg-white/5 border-white/10 text-cyan-50 placeholder:text-cyan-200/50 focus:ring-cyan-400/50"
+                className="pl-16 pr-4 py-4 bg-white/5 border-white/10 text-cyan-50 placeholder:text-cyan-200/50 focus:ring-cyan-400/50 rounded-2xl"
               />
             </div>
-            <div className="flex gap-2">
-              <Link href="/personnel/register" className="flex-1">
-                <Button className="w-full bg-gradient-to-r from-cyan-400 to-indigo-500 text-[#0b1220]">
-                  <UserPlusIcon className="h-5 w-5 ml-2" />
-                  ثبت پرسنل
+            <div className="grid grid-cols-2 gap-3">
+              <Link href="/personnel/register">
+                <Button className="w-full bg-gradient-to-r from-cyan-400 to-indigo-500 text-[#0b1220] shadow-lg hover:shadow-xl">
+                  <UserPlusIcon className="h-5 w-5 mr-2" /> ثبت
                 </Button>
               </Link>
               <Button
                 variant="outline"
                 onClick={loadEmployees}
-                className="border-white/20"
+                className="border-white/20 text-cyan-50 hover:bg-white/10"
                 title="به‌روزرسانی"
               >
                 <ArrowPathIcon className="h-5 w-5" />
               </Button>
             </div>
-          </div>
+          </motion.div>
 
           {/* Metrics */}
-          <Metric
-            title="تعداد کل پرسنل"
-            value={loadingEmp ? "…" : total}
-            hint={loadingEmp ? "" : `بروزرسانی: ${new Date().toLocaleTimeString("fa-IR")}`}
-          />
-          <div className="grid grid-cols-2 gap-3">
-            <Metric title="درخواست‌ها" value="12" accent="from-rose-400 to-orange-400" />
-            <Metric title="جلسات" value="3" accent="from-emerald-400 to-lime-400" />
-          </div>
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1, duration: 0.6, type: "spring", stiffness: 80 }}
+            className="space-y-4"
+          >
+            <Metric
+              title="تعداد کل پرسنل"
+              value={loadingEmp ? "…" : total}
+              hint={loadingEmp ? "" : `به‌روزرسانی: ${new Date().toLocaleTimeString("fa-IR")}`}
+            />
+            <div className="grid grid-cols-2 gap-4">
+              <Metric title="درخواست‌ها" value="12" accent="from-rose-400 to-orange-400" />
+              <Metric title="جلسات" value="3" accent="from-emerald-400 to-lime-400" />
+            </div>
+          </motion.div>
 
           {/* Quick links */}
-          <div className={`${GLASS2} ${PANELBG2} p-4 space-y-3`}>
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.6, type: "spring", stiffness: 80 }}
+            className={`${GLASS2} ${PANELBG2} p-6 space-y-4`}
+          >
             <Link href="/personnel/list">
-              <Button variant="outline" className="w-full border-white/20 text-cyan-50">
+              <Button variant="outline" className="w-full border-white/20 text-cyan-50 hover:bg-white/10">
                 پرونده‌های پرسنلی
               </Button>
             </Link>
             <Link href="/reports">
-              <Button variant="outline" className="w-full border-white/20 text-cyan-50">
+              <Button variant="outline" className="w-full border-white/20 text-cyan-50 hover:bg-white/10">
                 گزارش‌ها
               </Button>
             </Link>
-          </div>
+          </motion.div>
         </aside>
 
         {/* ───────── Center: Hero + Latest list ───────── */}
         <main className="xl:col-span-6 space-y-6">
           {/* Hero (Aurora panel) */}
           <motion.header
-            initial={{ y: -16, opacity: 0 }}
+            initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.45 }}
-            className={`${GLASS} ${PANELBG} relative overflow-hidden p-6`}
+            transition={{ duration: 0.7, type: "spring", stiffness: 80 }}
+            className={`${GLASS} ${PANELBG} relative overflow-hidden p-8`}
           >
             <style jsx>{`
-              @keyframes aurora { 0% { transform: translateY(0)} 50% { transform: translateY(-8px)} 100% { transform: translateY(0)} }
+              @keyframes aurora { 0% { transform: translateY(0)} 50% { transform: translateY(-10px)} 100% { transform: translateY(0)} }
             `}</style>
             <div
               className="absolute inset-0 pointer-events-none"
@@ -266,34 +309,31 @@ export default function Dashboard() {
               <svg width="100%" height="100%">
                 <defs>
                   <linearGradient id="wave" x1="0" x2="1" y1="0" y2="1">
-                    <stop offset="0%" stopColor="#22d3ee" stopOpacity=".18" />
-                    <stop offset="100%" stopColor="#6366f1" stopOpacity=".14" />
+                    <stop offset="0%" stopColor="#07657E" stopOpacity=".25" />
+                    <stop offset="100%" stopColor="#F2991F" stopOpacity=".2" />
                   </linearGradient>
                 </defs>
                 <path
-                  d="M0,120 C120,60 260,180 420,120 C600,60 760,140 1000,90 L1000,0 L0,0 Z"
+                  d="M0,150 C150,50 300,200 450,120 C600,50 750,150 900,100 L900,0 L0,0 Z"
                   fill="url(#wave)"
                 />
               </svg>
             </div>
             <div className="relative z-10 flex items-center justify-between">
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-cyan-100">
-                 سیستم مدیریت پرسنل سریر لجستیک
+                <h1 className="text-4xl md:text-5xl font-bold text-turquoise-100 neon-text">
+                  داشبورد پرسنل
                 </h1>
-                <p className="text-cyan-200/70 text-sm mt-1">
-                  دسترسی سریع، آمار زنده, آخرین تغییرات
-                </p>
+                <p className="text-turquoise-200/80 text-xl mt-3">مدیریت هوشمند و جامع</p>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 text-xs text-cyan-200/70">
-                  <BellIcon className="h-5 w-5" />
-                  ۳ اعلان خوانده نشده
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-3 text-lg text-turquoise-200/80">
+                  <BellIcon className="h-8 w-8 animate-glow-border" />
+                  ۳ اعلان
                 </div>
                 <Link href="/personnel/register">
-                  <Button className="bg-gradient-to-r from-cyan-400 to-indigo-500 text-[#0b1220]">
-                    <ArrowRightIcon className="h-5 w-5 ml-2" />
-                    شروع سریع
+                  <Button className="bg-gradient-to-r from-turquoise-400 to-orange-500 text-white shadow-lg hover:shadow-xl px-8 py-4 rounded-xl">
+                    <ArrowRightIcon className="h-6 w-6 mr-3" /> شروع سریع
                   </Button>
                 </Link>
               </div>
@@ -302,82 +342,143 @@ export default function Dashboard() {
 
           {/* Controls over list */}
           <motion.div
-            initial={{ y: 16, opacity: 0 }}
+            initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.35 }}
-            className={`${GLASS2} ${PANELBG2} p-4 flex items-center justify-between`}
+            transition={{ delay: 0.1, duration: 0.6, type: "spring", stiffness: 80 }}
+            className={`${GLASS2} ${PANELBG2} p-8 flex items-center justify-between`}
           >
-            <div className="flex items-center gap-2">
-              <FunnelIcon className="h-5 w-5 text-cyan-300/80" />
-              <Chip active={filter === "all"} onClick={() => setFilter("all")}>همه</Chip>
-              <Chip active={filter === "withEmail"} onClick={() => setFilter("withEmail")}>دارای ایمیل</Chip>
-              <Chip active={filter === "noEmail"} onClick={() => setFilter("noEmail")}>بدون ایمیل</Chip>
+            <div className="flex items-center gap-6">
+              <div className="relative">
+                <MagnifyingGlassIcon className="absolute right-5 top-1/2 -translate-y-1/2 h-6 w-6 text-cyan-300/80" />
+                <Input
+                  placeholder="جستجو در پرسنل..."
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  className="pl-20 pr-5 py-4 bg-white/10 border-white/20 text-cyan-50 placeholder:text-cyan-200/80 focus:border-cyan-400/50 focus:ring-cyan-400/50 rounded-2xl"
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <FunnelIcon className="h-7 w-7 text-cyan-300/80" />
+                <Chip active={filter === "all"} onClick={() => setFilter("all")}>همه</Chip>
+                <Chip active={filter === "withEmail"} onClick={() => setFilter("withEmail")}>دارای ایمیل</Chip>
+                <Chip active={filter === "noEmail"} onClick={() => setFilter("noEmail")}>بدون ایمیل</Chip>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" className="border-white/20" onClick={exportCSV}>خروجی CSV</Button>
-            </div>
+            <Button
+              variant="outline"
+              className="border-white/30 text-white hover:bg-white/20 px-8 py-4 rounded-xl"
+              onClick={exportCSV}
+            >
+              خروجی CSV
+            </Button>
           </motion.div>
 
           {/* Latest people list */}
           <motion.section
-            initial={{ y: 18, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.35 }}
-            className={`${GLASS} ${PANELBG} p-6`}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            variants={stagger}
+            className={`${GLASS} ${PANELBG} p-8`}
           >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-cyan-100">آخرین پرسنل ثبت‌شده</h3>
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-3xl font-bold text-cyan-100">آخرین پرسنل ثبت‌شده</h3>
               <Link href="/personnel/list">
-                <Button variant="outline" className="border-white/20 text-cyan-50">
-                  <UsersIcon className="h-5 w-5 ml-2" />
-                  مشاهده همه
+                <Button
+                  variant="outline"
+                  className="border-white/30 text-white hover:bg-white/20 px-8 py-4 rounded-xl"
+                >
+                  <UsersIcon className="h-6 w-6 mr-3" /> مشاهده همه
                 </Button>
               </Link>
             </div>
-            {errEmp && <div className="text-rose-300 text-sm mb-4">{errEmp}</div>}
+            {errEmp && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-rose-300 text-lg p-6 mb-8 bg-rose-500/10 border border-rose-500/20 rounded-3xl"
+              >
+                {errEmp}
+              </motion.div>
+            )}
             {loadingEmp ? (
-              <div className="grid sm:grid-cols-2 gap-3">
-                {[...Array(8)].map((_, i) => (
-                  <div key={i} className="h-14 rounded-2xl bg-white/8 border border-white/10 animate-pulse" />
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8"
+              >
+                {[...Array(12)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="h-32 rounded-3xl bg-white/10 border border-white/10 animate-pulse-glow"
+                  />
                 ))}
-              </div>
+              </motion.div>
             ) : filteredLatest.length === 0 ? (
-              <div className="opacity-70">موردی یافت نشد.</div>
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-center py-20 text-cyan-200/70 text-xl"
+              >
+                موردی یافت نشد.
+              </motion.div>
             ) : (
-              <ul className="grid sm:grid-cols-2 gap-3">
+              <motion.ul variants={stagger} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredLatest.map((e) => (
                   <PersonCard key={e.id} e={e} />
                 ))}
-              </ul>
+              </motion.ul>
             )}
           </motion.section>
         </main>
 
         {/* ───────── Right: Actions / Alerts ───────── */}
-        <aside className="xl:col-span-3 space-y-4">
-          <div className={`${GLASS} ${PANELBG} p-5`}>
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-cyan-100">اقدامات امروز</h3>
-              <ArrowPathIcon className="h-5 w-5 text-cyan-300/80" />
+        <aside className="xl:col-span-3 space-y-8">
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.2, duration: 0.6, type: "spring", stiffness: 80 }}
+            className={`${GLASS} ${PANELBG} p-8`}
+          >
+            <div className="flex items-center justify-between mb-8">
+              <h3 className="text-3xl font-bold text-cyan-100">اقدامات امروز</h3>
+              <ArrowPathIcon className="h-8 w-8 text-cyan-300/80 animate-glow-border" />
             </div>
-            <ul className="mt-3 space-y-3 text-sm">
-              <li className="p-3 rounded-2xl bg-white/8 border border-white/10">تایید ۲ درخواست مرخصی</li>
-              <li className="p-3 rounded-2xl bg-white/8 border border-white/10">ثبت قرارداد جدید واحد اداری</li>
-              <li className="p-3 rounded-2xl bg-white/8 border border-white/10">بررسی تکمیل مدارک ۳ نفر</li>
+            <ul className="space-y-6 text-xl">
+              <li className="p-8 rounded-3xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 cursor-pointer glow-border-soft">
+                تایید ۲ درخواست مرخصی
+              </li>
+              <li className="p-8 rounded-3xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 cursor-pointer glow-border-soft">
+                ثبت قرارداد جدید واحد اداری
+              </li>
+              <li className="p-8 rounded-3xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 cursor-pointer glow-border-soft">
+                بررسی تکمیل مدارک ۳ نفر
+              </li>
             </ul>
-          </div>
+          </motion.div>
 
-          <div className={`${GLASS} ${PANELBG} p-5`}>
-            <div className="flex items-center gap-2 mb-3">
-              <BellIcon className="h-5 w-5 text-cyan-300/80" />
-              <h3 className="font-semibold text-cyan-100">اعلان‌ها</h3>
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.6, type: "spring", stiffness: 80 }}
+            className={`${GLASS} ${PANELBG} p-8`}
+          >
+            <div className="flex items-center gap-4 mb-8">
+              <BellIcon className="h-8 w-8 text-cyan-300/80 animate-glow-border" />
+              <h3 className="text-3xl font-bold text-cyan-100">اعلان‌ها</h3>
             </div>
-            <ul className="space-y-3 text-sm">
-              <li className="p-3 rounded-2xl bg-white/8 border border-white/10">تمدید بیمه ۵ نفر تا ۳۰ روز آینده</li>
-              <li className="p-3 rounded-2xl bg-white/8 border border-white/10">ویرایش اطلاعات «مرجان خورشید نیها»</li>
-              <li className="p-3 rounded-2xl bg-white/8 border border-white/10">ثبت درخواست اضافه‌کار</li>
+            <ul className="space-y-6 text-xl">
+              <li className="p-8 rounded-3xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 cursor-pointer glow-border-soft">
+                تمدید بیمه ۵ نفر تا ۳۰ روز آینده
+              </li>
+              <li className="p-8 rounded-3xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 cursor-pointer glow-border-soft">
+                ویرایش اطلاعات «مرجان خورشید نیها»
+              </li>
+              <li className="p-8 rounded-3xl bg-white/10 border border-white/10 hover:bg-white/20 transition-all duration-300 cursor-pointer glow-border-soft">
+                ثبت درخواست اضافه‌کار
+              </li>
             </ul>
-          </div>
+          </motion.div>
         </aside>
       </div>
     </div>

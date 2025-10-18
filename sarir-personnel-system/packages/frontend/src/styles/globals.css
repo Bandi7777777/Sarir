@@ -2,154 +2,229 @@
 @import "react-big-calendar/lib/css/react-big-calendar.css";
 @import "react-responsive-carousel/lib/styles/carousel.min.css";
 
-/* ================= Tailwind v4 ================= */
-@import "tailwindcss";
-
-/* ================= Brand Tokens ================= */
-:root{
-  --brand-primary:#07657E;   /* turquoise green */
-  --brand-accent:#F2991F;    /* orange */
-}
+/* ================= Tailwind Layers ================= */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 /* ================= Base Reset ================= */
-*{ box-sizing:border-box; }
-html,body{ height:100%; }
-body{
-  margin:0;
-  font-family: ui-sans-serif, system-ui, "Vazirmatn", "IRANSans", Tahoma;
+@layer base {
+  html, body {
+    @apply antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw;
+    overflow-x: hidden;
+    direction: rtl;
+  }
 }
 
-/* ================= Layout (Sidebar + Content) =================
-   نکته: چون <html dir="rtl"> است، اولین فرزند فلکس (aside) سمت راست می‌نشیند. */
-.layout{
-  display:flex;
-  min-height:100dvh;
-  background:var(--bg-page);
-  color:var(--text-color);
-}
-.layout > aside{
-  flex:0 0 256px;
-  position:sticky; top:0; height:100dvh; z-index:20;
-  background:var(--sidebar-bg);
-  color:var(--sidebar-fg);
-  border-left:1px solid var(--sidebar-border); /* سایدبار راست → مرز سمت چپ */
-  box-shadow:var(--sidebar-shadow);
-}
-.layout > main{
-  flex:1; min-width:0;
-  padding:24px;
-  background:var(--bg-page);
-  color:var(--text-color);
-}
+/* ================== SARIR Brand Tokens ==================
+   - Turquoise: #07657E → hsl(193 89% 26%)
+   - Orange   : #F2991F → hsl(35 89% 54%)
+   - Dark Gray: #2E3234 → hsl(200 6% 19%)
+   Default theme = Dark (for dashboard)
+========================================================= */
+@layer base {
+  :root {
+    --background: 222 49% 8%; /* Dark for dashboard */
+    --foreground: 0 0% 98%;
 
-/* ================= Theme: Light (Global for non-dashboard) =================
-   چند درجه تیره‌تر از قبل: white 80% / primary 20% */
-.theme-light{
-  --bg-page:     color-mix(in oklab, white 80%, var(--brand-primary) 20%);
-  --text-color:  #0B1220;
+    --card: 220 10% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 220 10% 9%;
+    --popover-foreground: 0 0% 98%;
 
-  --sidebar-bg:#FFFFFF; --sidebar-fg:#0B1220;
-  --sidebar-border: color-mix(in oklab, var(--brand-primary) 22%, #e6eef0);
-  --sidebar-shadow: 0 10px 28px rgba(7,101,126,.08);
+    --brand-turquoise: 193 89% 26%; /* #07657E */
+    --brand-orange:    35  89% 54%; /* #F2991F */
+    --brand-gray:      200 6% 19%;  /* #2E3234 */
 
-  /* کارت شیشه‌ای ملایم */
-  --card-bg:     color-mix(in oklab, white 74%, var(--brand-primary) 26% / 10%);
-  --card-fg:     #0B1220;
-  --card-border: color-mix(in oklab, var(--brand-primary) 28%, #d7e6ea);
-  --card-shadow: 0 10px 28px rgba(7,101,126,.12);
-
-  /* فیلد/دکمه */
-  --input-bg:#FFFFFF;
-  --input-border: color-mix(in oklab, var(--brand-primary) 30%, #d1e4e9);
-  --input-focus:  color-mix(in oklab, var(--brand-primary) 70%, white);
-
-  --btn-primary-bg: color-mix(in oklab, var(--brand-primary) 60%, #1fb4c8);
-  --btn-accent-bg:  color-mix(in oklab, var(--brand-accent) 70%, #ffc46a);
+    --primary: var(--brand-turquoise);
+    --primary-foreground: 0 0% 10%;
+    --secondary: 220 14% 16%;
+    --secondary-foreground: 0 0% 98%;
+    --accent: var(--brand-orange);
+    --accent-foreground: 0 0% 10%;
+    --muted: 220 14% 16%;
+    --muted-foreground: 0 0% 65%;
+    --destructive: 0 63% 36%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 220 13% 18%;
+    --input: 220 13% 18%;
+    --ring: 220 91% 71%;
+    --radius: 0.5rem;
+  }
 }
 
-/* پس‌زمینهٔ لطیف */
-.theme-light{
-  background:
-    radial-gradient(900px 340px at 10% -10%,
-      color-mix(in oklab, var(--brand-primary), transparent 88%), transparent),
-    linear-gradient(180deg,
-      color-mix(in oklab, var(--brand-primary), transparent 92%), var(--bg-page));
+/* ================= Layout Shell (Sidebar + Content) ================= */
+/* نکته: چون <html dir="rtl"> است، اولین فرزند فلکس (aside) سمت راست می‌نشیند */
+@layer base {
+  .layout {
+    display: flex;
+    min-height: 100dvh;
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+  .layout > aside {
+    flex: 0 0 256px;
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    z-index: 20;
+    background: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+    border-left: 1px solid hsl(var(--border));
+    box-shadow: 0 10px 28px rgba(7, 101, 126, 0.08);
+  }
+  .layout > main {
+    flex: 1;
+    min-width: 0;
+    padding: 24px;
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
 }
 
-/* ================= Theme: Dashboard (Neon Dark) ================= */
-.theme-dashboard{
-  --bg-page:#0B1020; --text-color:#E5E7EB;
+/* ========== Theme: Light (Global for non-dashboard) ========== */
+/* روشن‌تر (white 85% / turquoise 15%) */
+@layer base {
+  .theme-light {
+    --bg-page: color-mix(in oklab, white 85%, var(--brand-turquoise) 15%);
+    --text-color: #0B1220;
 
-  --sidebar-bg:#111827; --sidebar-fg:#D1D5DB;
-  --sidebar-border: rgba(255,255,255,.12);
-  --sidebar-shadow: 0 10px 28px rgba(0,0,0,.35);
+    --sidebar-bg: #FFFFFF;
+    --sidebar-fg: #0B1220;
+    --sidebar-border: color-mix(in oklab, var(--brand-turquoise) 20%, #e6eef0);
+    --sidebar-shadow: 0 10px 28px rgba(7, 101, 126, 0.08);
 
-  --card-bg: rgba(255,255,255,.06);
-  --card-fg:#E5E7EB;
-  --card-border: rgba(255,255,255,.12);
-  --card-shadow: 0 12px 36px rgba(0,0,0,.35);
-
-  --input-bg: rgba(255,255,255,.06);
-  --input-border: rgba(255,255,255,.22);
-  --input-focus: color-mix(in oklab, var(--brand-primary) 65%, white);
-
-  --btn-primary-bg: linear-gradient(90deg,#22d3ee,#6366f1);
-  --btn-accent-bg:  linear-gradient(90deg,#f2991f,#f7b955);
+    --card-bg: color-mix(in oklab, white 90%, var(--brand-turquoise) 10%);
+    --card-border: color-mix(in oklab, var(--brand-turquoise) 25%, #e0e8eb);
+  }
 }
 
-/* ================= Primitives (یکسان برای همهٔ صفحات غیرِ داشبورد) ================= */
-/* بدون @apply — فقط CSS خالص تا با Tailwind v4 خطا نگیری */
-.card{
-  background:var(--card-bg);
-  color:var(--card-fg);
-  border:1px solid var(--card-border);
-  border-radius:16px;
-  box-shadow:var(--card-shadow);
-  padding:16px;
+/* Enforcement: صفحات غیر داشبورد روشن‌تر */
+.theme-light .layout > main {
+  background: var(--bg-page) !important;
+  color: var(--text-color) !important;
 }
 
-.btn{
-  display:inline-flex; align-items:center; justify-content:center; gap:8px;
-  height:40px; padding:0 16px; border-radius:999px;  /* معادل rounded-full + px-4 */
-  font-size:14px; line-height:20px; font-weight:600;
-  border:1px solid transparent;
-  transition:filter .2s, transform .15s, box-shadow .2s;
-}
-.btn:hover{ filter:brightness(1.05); transform:translateY(-1px); }
-.btn-primary{ color:#0b1220; background:var(--btn-primary-bg); }
-.btn-accent{  color:#0b1220; background:var(--btn-accent-bg); }
-.btn-outline{
-  background:transparent; color:var(--text-color);
-  border-color: color-mix(in oklab, var(--brand-primary) 32%, #ccd);
+/* ================= Custom Classes ================= */
+@layer components {
+  .btn {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition-property: all;
+    transition-duration: 300ms;
+  }
+  .btn-primary {
+    background: linear-gradient(to right, hsl(var(--brand-turquoise)), hsl(var(--brand-orange)));
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  .btn-primary:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
+  .btn-outline {
+    background: transparent;
+    color: hsl(var(--foreground));
+    border-width: 1px;
+    border-color: hsl(var(--border));
+  }
+  .btn-outline:hover {
+    background: hsla(var(--muted), 0.2);
+  }
 }
 
-.input{
-  width:100%; border-radius:12px; padding:.75rem .9rem; outline:none;
-  border:1px solid var(--input-border);
-  background:var(--input-bg);
-  color:var(--text-color);
-  font-size:14px; line-height:20px;
-  transition: box-shadow .2s, border-color .2s;
-}
-.input::placeholder{ color: color-mix(in oklab,var(--text-color) 46%, transparent); }
-.input:focus{
-  border-color:var(--input-focus);
-  box-shadow:0 0 0 3px color-mix(in oklab,var(--input-focus) 36%, transparent);
+/* ================= Utilities ================= */
+@layer utilities {
+  .glow-border {
+    box-shadow: 0 0 10px hsl(var(--brand-turquoise) / 0.15);
+  }
+  .glow-border-soft {
+    box-shadow: 0 0 6px hsl(var(--brand-turquoise) / 0.1);
+  }
+  .input {
+    border-radius: var(--radius);
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    background-color: hsla(var(--background), 0.5);
+    border-width: 1px;
+    border-color: hsl(var(--border));
+    color: hsl(var(--foreground));
+  }
+  .input::placeholder {
+    color: hsl(var(--muted-foreground));
+  }
+  .input:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.85);
+  }
+
+  .neon-text {
+    text-shadow: 0 0 8px hsl(var(--brand-turquoise) / 0.35), 0 0 16px hsl(var(--brand-turquoise) / 0.25);
+  }
 }
 
-.table{
-  width:100%; border-collapse:separate; border-spacing:0; background:#fff;
-  border:1px solid rgba(7,101,126,.15); border-radius:14px; overflow:hidden;
+/* ================= Animations ================= */
+.animate-gradient-bg {
+  background-size: 200% 200%;
+  animation: gradientShift 12s ease-in-out infinite;
 }
-.table th{
-  text-align:right; background:#F8FAFB; color:#0b1220; font-weight:800; font-size:.9rem;
-  padding:.75rem; border-bottom:1px solid rgba(7,101,126,.15);
+@keyframes gradientShift {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 100%; }
+  100% { background-position: 0% 0%; }
 }
-.table td{ padding:.65rem .75rem; border-bottom:1px solid rgba(7,101,126,.09); }
 
-/* ================= Enforcement حداقلی =================
-   اگر صفحه‌ای داخل main بک‌گراند تیره ست کند، نادیده بگیر */
-.theme-light .layout > main{
-  background:var(--bg-page) !important;
-  color:var(--text-color) !important;
+.animate-glow-border {
+  animation: glowBorder 2.2s ease-in-out infinite alternate;
+}
+@keyframes glowBorder {
+  0% { box-shadow: 0 0 10px hsl(var(--brand-turquoise) / 0.15); }
+  100% { box-shadow: 0 0 22px hsl(var(--brand-turquoise) / 0.35); }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.9s ease-out forwards;
+}
+@keyframes slideUp {
+  0% { transform: translateY(50px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.animate-fade-in-down {
+  animation: fade-in-down 0.35s ease-out forwards;
+}
+@keyframes fade-in-down {
+  0% { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ================= Motion Reduction ================= */
+@media (prefers-reduced-motion: reduce) {
+  .animate-gradient-bg,
+  .animate-glow-border,
+  .animate-slide-up,
+  .animate-fade-in-down {
+    animation: none !important;
+  }
+}
+
+/* ================= Kill-Haze (Debug) ================= */
+html._kill-haze * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html._kill-haze body {
+  background: #0b1220 !important;
 }
