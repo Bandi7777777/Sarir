@@ -1,0 +1,17 @@
+/* توکن‌های اختصاصی سایدبار؛ فقط برای سایدبار، وابسته به تم والد */
+
+/* تم روشن (تمام صفحات غیر از داشبورد) */
+.theme-light .sidebar {
+  --sidebar-bg: #ffffff;
+  --sidebar-fg: #0b1220;
+  --sidebar-border: rgba(7,101,126,.15);
+  --sidebar-shadow: 0 10px 28px rgba(7,101,126,.10);
+}
+
+/* تم نئون مخصوص داشبورد */
+.theme-dashboard .sidebar {
+  --sidebar-bg: #111827;         /* خاکستری تیره نرم */
+  --sidebar-fg: #e5e7eb;         /* متن روشن */
+  --sidebar-border: rgba(255,255,255,.12);
+  --sidebar-shadow: 0 10px 28px rgba(0,0,0,.35);
+}

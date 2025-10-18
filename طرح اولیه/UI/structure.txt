@@ -1,0 +1,355 @@
+Folder PATH listing for volume SUNVA
+Volume serial number is 0B24-0EE2
+D:.
+¦   list-structure.bat
+¦   structure.txt
+¦   
++---sarir-personnel-system
+    ¦   .env
+    ¦   .env.example
+    ¦   .gitignore
+    ¦   docker-compose.yml
+    ¦   env.example
+    ¦   main.py
+    ¦   Makefile
+    ¦   package-lock.json
+    ¦   package.json
+    ¦   poetry.lock
+    ¦   README.md
+    ¦   requirements.txt
+    ¦   
+    +---.github
+    ¦   +---workflows
+    ¦           ci.yml
+    ¦           
+    +---assets
+    ¦   +---fonts
+    ¦   ¦       vazir.ttf
+    ¦   ¦       
+    ¦   +---icons
+    ¦   ¦       user.svg
+    ¦   ¦       
+    ¦   +---images
+    ¦           background.jpg
+    ¦           
+    +---docs
+    ¦   ¦   architecture.md
+    ¦   ¦   index.md
+    ¦   ¦   mkdocs.yml
+    ¦   ¦   
+    ¦   +---api
+    ¦   ¦       openapi.json
+    ¦   ¦       
+    ¦   +---development
+    ¦   ¦       architecture.md
+    ¦   ¦       contributing.md
+    ¦   ¦       setup.md
+    ¦   ¦       
+    ¦   +---user
+    ¦           user-guide.md
+    ¦           
+    +---packages
+    ¦   +---backend
+    ¦   ¦   ¦   Dockerfile
+    ¦   ¦   ¦   pyproject.toml
+    ¦   ¦   ¦   
+    ¦   ¦   +---apps
+    ¦   ¦   ¦   +---authentication
+    ¦   ¦   ¦   ¦   ¦   __init__.py
+    ¦   ¦   ¦   ¦   ¦   
+    ¦   ¦   ¦   ¦   +---models
+    ¦   ¦   ¦   ¦   ¦       token.py
+    ¦   ¦   ¦   ¦   ¦       user.py
+    ¦   ¦   ¦   ¦   ¦       
+    ¦   ¦   ¦   ¦   +---services
+    ¦   ¦   ¦   ¦   ¦       auth_service.py
+    ¦   ¦   ¦   ¦   ¦       
+    ¦   ¦   ¦   ¦   +---tests
+    ¦   ¦   ¦   ¦   ¦       test_auth.py
+    ¦   ¦   ¦   ¦   ¦       
+    ¦   ¦   ¦   ¦   +---views
+    ¦   ¦   ¦   ¦           auth_routes.py
+    ¦   ¦   ¦   ¦           
+    ¦   ¦   ¦   +---contracts
+    ¦   ¦   ¦   ¦   ¦   __init__.py
+    ¦   ¦   ¦   ¦   ¦   
+    ¦   ¦   ¦   ¦   +---models
+    ¦   ¦   ¦   ¦   +---services
+    ¦   ¦   ¦   ¦   +---tests
+    ¦   ¦   ¦   ¦   +---views
+    ¦   ¦   ¦   +---insurance
+    ¦   ¦   ¦   ¦   ¦   __init__.py
+    ¦   ¦   ¦   ¦   ¦   
+    ¦   ¦   ¦   ¦   +---models
+    ¦   ¦   ¦   ¦   +---services
+    ¦   ¦   ¦   ¦   +---tests
+    ¦   ¦   ¦   ¦   +---views
+    ¦   ¦   ¦   +---personnel
+    ¦   ¦   ¦   ¦   ¦   __init__.py
+    ¦   ¦   ¦   ¦   ¦   
+    ¦   ¦   ¦   ¦   +---models
+    ¦   ¦   ¦   ¦   ¦       employee.py
+    ¦   ¦   ¦   ¦   ¦       
+    ¦   ¦   ¦   ¦   +---services
+    ¦   ¦   ¦   ¦   ¦       employee_service.py
+    ¦   ¦   ¦   ¦   ¦       
+    ¦   ¦   ¦   ¦   +---tests
+    ¦   ¦   ¦   ¦   ¦       test_employee.py
+    ¦   ¦   ¦   ¦   ¦       
+    ¦   ¦   ¦   ¦   +---views
+    ¦   ¦   ¦   ¦           employee_routes.py
+    ¦   ¦   ¦   ¦           
+    ¦   ¦   ¦   +---reports
+    ¦   ¦   ¦   ¦   ¦   __init__.py
+    ¦   ¦   ¦   ¦   ¦   
+    ¦   ¦   ¦   ¦   +---models
+    ¦   ¦   ¦   ¦   +---services
+    ¦   ¦   ¦   ¦   +---tests
+    ¦   ¦   ¦   ¦   +---views
+    ¦   ¦   ¦   +---shared
+    ¦   ¦   ¦       +---enums
+    ¦   ¦   ¦       ¦       user_role.py
+    ¦   ¦   ¦       ¦       
+    ¦   ¦   ¦       +---schemas
+    ¦   ¦   ¦       ¦       user_schema.py
+    ¦   ¦   ¦       ¦       
+    ¦   ¦   ¦       +---utils
+    ¦   ¦   ¦               date_helpers.py
+    ¦   ¦   ¦               
+    ¦   ¦   +---core
+    ¦   ¦   ¦   ¦   router.py
+    ¦   ¦   ¦   ¦   settings.py
+    ¦   ¦   ¦   ¦   __init__.py
+    ¦   ¦   ¦   ¦   
+    ¦   ¦   ¦   +---middleware
+    ¦   ¦   ¦           authentication.py
+    ¦   ¦   ¦           logging.py
+    ¦   ¦   ¦           
+    ¦   ¦   +---database
+    ¦   ¦   ¦   ¦   schema.py
+    ¦   ¦   ¦   ¦   seed.py
+    ¦   ¦   ¦   ¦   __init__.py
+    ¦   ¦   ¦   ¦   
+    ¦   ¦   ¦   +---migrations
+    ¦   ¦   ¦       +---versions
+    ¦   ¦   ¦               2025_05_28_initial.py
+    ¦   ¦   ¦               
+    ¦   ¦   +---tests
+    ¦   ¦       +---integration
+    ¦   ¦       ¦       test_api_endpoints.py
+    ¦   ¦       ¦       
+    ¦   ¦       +---unit
+    ¦   ¦               test_authentication.py
+    ¦   ¦               test_personnel.py
+    ¦   ¦               
+    ¦   +---frontend
+    ¦       ¦   .eslintrc.json
+    ¦       ¦   .prettierrc
+    ¦       ¦   next-env.d.ts
+    ¦       ¦   next.config.js
+    ¦       ¦   package.json
+    ¦       ¦   tailwind.config.ts
+    ¦       ¦   tsconfig.json
+    ¦       ¦   vitest.config.ts
+    ¦       ¦   vitest.setup.ts
+    ¦       ¦   
+    ¦       +---.next
+    ¦       ¦   ¦   app-build-manifest.json
+    ¦       ¦   ¦   build-manifest.json
+    ¦       ¦   ¦   package.json
+    ¦       ¦   ¦   prerender-manifest.json
+    ¦       ¦   ¦   react-loadable-manifest.json
+    ¦       ¦   ¦   routes-manifest.json
+    ¦       ¦   ¦   trace
+    ¦       ¦   ¦   
+    ¦       ¦   +---cache
+    ¦       ¦   ¦   ¦   .rscinfo
+    ¦       ¦   ¦   ¦   
+    ¦       ¦   ¦   +---images
+    ¦       ¦   ¦   ¦   +---ItPGhPsirYBhTV5IiZjZjEGXvNjTti1EdiCHMgAmCLg
+    ¦       ¦   ¦   ¦   ¦       60.1748551359078.o9sjCkuRtVVGuYEDvEHNi5_Dnawyvv6hppmmGfuOrAE.Vy8iYzE2YS0xOTZjZDJhNGU1MCI.webp
+    ¦       ¦   ¦   ¦   ¦       
+    ¦       ¦   ¦   ¦   +---Z2fmDzHC9OlO30e5aT41tPvAw4wOUz7aZp4mkJ_coeY
+    ¦       ¦   ¦   ¦           60.1748551359082.f1qQZg1qPrcjskCOr05uCUairvtSt2nQ7n4Zq9p_2Fc.Vy8iMTI4MDg4LTE5NmZhYTA3MjZjIg.webp
+    ¦       ¦   ¦   ¦           
+    ¦       ¦   ¦   +---swc
+    ¦       ¦   ¦   ¦   +---plugins
+    ¦       ¦   ¦   ¦       +---v7_windows_x86_64_13.0.0
+    ¦       ¦   ¦   ¦       +---v7_windows_x86_64_9.0.0
+    ¦       ¦   ¦   +---webpack
+    ¦       ¦   ¦       +---client-development
+    ¦       ¦   ¦       ¦       0.pack.gz
+    ¦       ¦   ¦       ¦       1.pack.gz
+    ¦       ¦   ¦       ¦       2.pack.gz
+    ¦       ¦   ¦       ¦       3.pack.gz
+    ¦       ¦   ¦       ¦       4.pack.gz
+    ¦       ¦   ¦       ¦       5.pack.gz
+    ¦       ¦   ¦       ¦       6.pack.gz
+    ¦       ¦   ¦       ¦       7.pack.gz
+    ¦       ¦   ¦       ¦       index.pack.gz
+    ¦       ¦   ¦       ¦       index.pack.gz.old
+    ¦       ¦   ¦       ¦       
+    ¦       ¦   ¦       +---client-development-fallback
+    ¦       ¦   ¦       ¦       0.pack.gz
+    ¦       ¦   ¦       ¦       index.pack.gz
+    ¦       ¦   ¦       ¦       index.pack.gz.old
+    ¦       ¦   ¦       ¦       
+    ¦       ¦   ¦       +---server-development
+    ¦       ¦   ¦               0.pack.gz
+    ¦       ¦   ¦               1.pack.gz
+    ¦       ¦   ¦               10.pack.gz
+    ¦       ¦   ¦               11.pack.gz
+    ¦       ¦   ¦               12.pack.gz
+    ¦       ¦   ¦               13.pack.gz
+    ¦       ¦   ¦               14.pack.gz
+    ¦       ¦   ¦               2.pack.gz
+    ¦       ¦   ¦               3.pack.gz
+    ¦       ¦   ¦               4.pack.gz
+    ¦       ¦   ¦               5.pack.gz
+    ¦       ¦   ¦               6.pack.gz
+    ¦       ¦   ¦               7.pack.gz
+    ¦       ¦   ¦               8.pack.gz
+    ¦       ¦   ¦               9.pack.gz
+    ¦       ¦   ¦               index.pack.gz
+    ¦       ¦   ¦               index.pack.gz.old
+    ¦       ¦   ¦               
+    ¦       ¦   +---server
+    ¦       ¦   ¦   ¦   app-paths-manifest.json
+    ¦       ¦   ¦   ¦   interception-route-rewrite-manifest.js
+    ¦       ¦   ¦   ¦   middleware-build-manifest.js
+    ¦       ¦   ¦   ¦   middleware-manifest.json
+    ¦       ¦   ¦   ¦   middleware-react-loadable-manifest.js
+    ¦       ¦   ¦   ¦   next-font-manifest.js
+    ¦       ¦   ¦   ¦   next-font-manifest.json
+    ¦       ¦   ¦   ¦   pages-manifest.json
+    ¦       ¦   ¦   ¦   server-reference-manifest.js
+    ¦       ¦   ¦   ¦   server-reference-manifest.json
+    ¦       ¦   ¦   ¦   webpack-runtime.js
+    ¦       ¦   ¦   ¦   
+    ¦       ¦   ¦   +---app
+    ¦       ¦   ¦   ¦   ¦   page.js
+    ¦       ¦   ¦   ¦   ¦   page_client-reference-manifest.js
+    ¦       ¦   ¦   ¦   ¦   
+    ¦       ¦   ¦   ¦   +---_not-found
+    ¦       ¦   ¦   ¦           page.js
+    ¦       ¦   ¦   ¦           page_client-reference-manifest.js
+    ¦       ¦   ¦   ¦           
+    ¦       ¦   ¦   +---vendor-chunks
+    ¦       ¦   ¦           @swc.js
+    ¦       ¦   ¦           lucide-react.js
+    ¦       ¦   ¦           next.js
+    ¦       ¦   ¦           
+    ¦       ¦   +---static
+    ¦       ¦   ¦   +---chunks
+    ¦       ¦   ¦   ¦   ¦   app-pages-internals.js
+    ¦       ¦   ¦   ¦   ¦   main-app.js
+    ¦       ¦   ¦   ¦   ¦   polyfills.js
+    ¦       ¦   ¦   ¦   ¦   webpack.js
+    ¦       ¦   ¦   ¦   ¦   _app-pages-browser_node_modules_next_dist_client_dev_noop-turbopack-hmr_js.js
+    ¦       ¦   ¦   ¦   ¦   
+    ¦       ¦   ¦   ¦   +---app
+    ¦       ¦   ¦   ¦       ¦   layout.js
+    ¦       ¦   ¦   ¦       ¦   page.js
+    ¦       ¦   ¦   ¦       ¦   
+    ¦       ¦   ¦   ¦       +---_not-found
+    ¦       ¦   ¦   ¦               page.js
+    ¦       ¦   ¦   ¦               
+    ¦       ¦   ¦   +---css
+    ¦       ¦   ¦   ¦   +---app
+    ¦       ¦   ¦   ¦           layout.css
+    ¦       ¦   ¦   ¦           
+    ¦       ¦   ¦   +---development
+    ¦       ¦   ¦   ¦       _buildManifest.js
+    ¦       ¦   ¦   ¦       _ssgManifest.js
+    ¦       ¦   ¦   ¦       
+    ¦       ¦   ¦   +---webpack
+    ¦       ¦   ¦       ¦   2160a153e0edfb79.webpack.hot-update.json
+    ¦       ¦   ¦       ¦   6068c93af71a19c1.webpack.hot-update.json
+    ¦       ¦   ¦       ¦   633457081244afec._.hot-update.json
+    ¦       ¦   ¦       ¦   72e2a9ea18a2af02.webpack.hot-update.json
+    ¦       ¦   ¦       ¦   8c1ada1a1d6dccb0.webpack.hot-update.json
+    ¦       ¦   ¦       ¦   e9aeaab3d6b751fc.webpack.hot-update.json
+    ¦       ¦   ¦       ¦   f71eab73b3bfefdf.webpack.hot-update.json
+    ¦       ¦   ¦       ¦   webpack.2160a153e0edfb79.hot-update.js
+    ¦       ¦   ¦       ¦   webpack.6068c93af71a19c1.hot-update.js
+    ¦       ¦   ¦       ¦   webpack.72e2a9ea18a2af02.hot-update.js
+    ¦       ¦   ¦       ¦   webpack.8c1ada1a1d6dccb0.hot-update.js
+    ¦       ¦   ¦       ¦   webpack.e9aeaab3d6b751fc.hot-update.js
+    ¦       ¦   ¦       ¦   webpack.f71eab73b3bfefdf.hot-update.js
+    ¦       ¦   ¦       ¦   
+    ¦       ¦   ¦       +---app
+    ¦       ¦   ¦               layout.2160a153e0edfb79.hot-update.js
+    ¦       ¦   ¦               layout.72e2a9ea18a2af02.hot-update.js
+    ¦       ¦   ¦               page.6068c93af71a19c1.hot-update.js
+    ¦       ¦   ¦               page.e9aeaab3d6b751fc.hot-update.js
+    ¦       ¦   ¦               
+    ¦       ¦   +---types
+    ¦       ¦       ¦   cache-life.d.ts
+    ¦       ¦       ¦   package.json
+    ¦       ¦       ¦   
+    ¦       ¦       +---app
+    ¦       ¦               layout.ts
+    ¦       ¦               page.ts
+    ¦       ¦               
+    ¦       +---node_modules
+    ¦       ¦   +---.bin
+    ¦       ¦   +---@esbuild
+    ¦       ¦   +---@next
+    ¦       ¦   +---@swc
+    ¦       ¦   +---@vitest
+    ¦       +---public
+    ¦       ¦   +---fonts
+    ¦       ¦   +---icons
+    ¦       ¦   +---images
+    ¦       ¦           Logo-Sarir.png
+    ¦       ¦           truck-illustration.png
+    ¦       ¦           
+    ¦       +---src
+    ¦           +---app
+    ¦           ¦   ¦   layout.tsx
+    ¦           ¦   ¦   page.tsx
+    ¦           ¦   ¦   
+    ¦           ¦   +---dashboard
+    ¦           ¦           DashboardPage.tsx
+    ¦           ¦           
+    ¦           +---components
+    ¦           ¦   +---dashboard
+    ¦           ¦   ¦       ProgressCircle.tsx
+    ¦           ¦   ¦       
+    ¦           ¦   +---ui
+    ¦           ¦           avatar.tsx
+    ¦           ¦           badge.tsx
+    ¦           ¦           button.tsx
+    ¦           ¦           card.tsx
+    ¦           ¦           Header.tsx
+    ¦           ¦           input.tsx
+    ¦           ¦           modal.tsx
+    ¦           ¦           progress.tsx
+    ¦           ¦           Sidebar.tsx
+    ¦           ¦           tooltip.tsx
+    ¦           ¦           
+    ¦           +---features
+    ¦           ¦   +---dashboard
+    ¦           ¦           Widget.tsx
+    ¦           ¦           
+    ¦           +---hooks
+    ¦           ¦       useAuth.ts
+    ¦           ¦       useTheme.ts
+    ¦           ¦       
+    ¦           +---lib
+    ¦           ¦       utils.ts
+    ¦           ¦       
+    ¦           +---styles
+    ¦           ¦       globals.css
+    ¦           ¦       
+    ¦           +---themes
+    ¦           ¦       dark.ts
+    ¦           ¦       light.ts
+    ¦           ¦       
+    ¦           +---__tests__
+    ¦                   RootLayout.test.tsx
+    ¦                   
+    +---scripts
+            init_db.sh
+            seed_users.py
+            

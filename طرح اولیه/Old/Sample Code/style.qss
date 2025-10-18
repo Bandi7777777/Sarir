@@ -1,0 +1,38 @@
+/* فونت کلی */
+* {
+    font-family: "IRANSans";
+}
+
+/* عنوان */
+#TitleLabel {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2C3E50;
+}
+
+/* دکمه‌ها */
+QPushButton {
+    background-color: #3498DB;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 14px;
+}
+QPushButton:hover {
+    background-color: #2980B9;
+}
+
+/* جدول پرسنل */
+#PersonnelTable {
+    background-color: #ECF0F1;
+    alternate-background-color: #BDC3C7;
+    gridline-color: #95A5A6;
+    border: 1px solid #7F8C8D;
+}
+QHeaderView::section {
+    background-color: #34495E;
+    color: white;
+    padding: 5px;
+    border: none;
+}

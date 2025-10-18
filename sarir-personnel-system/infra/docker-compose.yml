@@ -1,0 +1,7 @@
+# Docker Compose configuration
+version: '3.8'
+services:
+  backend:
+    build: ./packages/backend
+    ports:
+      - '8000:8000'

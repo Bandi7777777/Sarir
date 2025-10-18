@@ -1,0 +1,11 @@
+{
+  "name": "sarir-monorepo",
+  "private": true,
+  "scripts": {
+    "i": "pnpm install",
+    "dev:fe": "pnpm --filter \"./packages/frontend\" run dev -- --port 3300",
+    "build:fe": "pnpm --filter \"./packages/frontend\" run build",
+    "prisma:pull": "pnpm --filter \"./packages/frontend\" exec prisma db pull",
+    "prisma:gen": "pnpm --filter \"./packages/frontend\" exec prisma generate"
+  }
+}

@@ -1,0 +1,3 @@
+[tool.poetry]
+name = 'sarir-backend'
+version = '0.1.0'

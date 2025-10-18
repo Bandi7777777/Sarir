@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["app", "public"]
+}
+
+/// This model contains an expression index which requires additional setup for migrations. Visit https://pris.ly/d/expression-indexes for more info.
+model customers {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  full_name  String
+  phone      String?
+  email      String?  @unique
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now()) @db.Timestamptz(6)
+  updated_at DateTime @default(now()) @db.Timestamptz(6)
+
+  @@index([is_active], map: "idx_customers_is_active")
+  @@schema("app")
+}
+
+model employees {
+  id                             Int       @id @default(autoincrement())
+  personnel_code                 String?   @unique(map: "ix_employees_personnel_code") @db.VarChar
+  first_name                     String?   @db.VarChar
+  last_name                      String?   @db.VarChar
+  father_name                    String?   @db.VarChar
+  gender                         String?   @db.VarChar
+  national_id                    String?   @unique(map: "ix_employees_national_id") @db.VarChar
+  id_number                      String?   @db.VarChar
+  id_serial                      String?   @db.VarChar
+  birth_date                     DateTime? @db.Date
+  death_date                     DateTime? @db.Date
+  issue_date                     DateTime? @db.Date
+  birth_place                    String?   @db.VarChar
+  birth_place_type               String?   @db.VarChar
+  birth_place_code               String?   @db.VarChar
+  issue_place                    String?   @db.VarChar
+  issue_place_type               String?   @db.VarChar
+  issue_place_code               String?   @db.VarChar
+  nationality                    String?   @db.VarChar
+  citizenship                    String?   @db.VarChar
+  religion                       String?   @db.VarChar
+  sect                           String?   @db.VarChar
+  email                          String?   @unique(map: "ix_employees_email") @db.VarChar
+  mobile_phone                   String?   @db.VarChar
+  work_id_code                   String?   @db.VarChar
+  employee_code                  String?   @db.VarChar
+  effective_employee_date        DateTime? @db.Date
+  marital_status                 String?   @db.VarChar
+  effective_marital_date         DateTime? @db.Date
+  military_status                String?   @db.VarChar
+  exemption_type                 String?   @db.VarChar
+  service_area                   String?   @db.VarChar
+  service_branch                 String?   @db.VarChar
+  service_start_date             DateTime? @db.Date
+  service_end_date               DateTime? @db.Date
+  service_duration               String?   @db.VarChar
+  education_level_during_service String?   @db.VarChar
+  address_type                   String?   @db.VarChar
+  address_title                  String?   @db.VarChar
+  city                           String?   @db.VarChar
+  city_type                      String?   @db.VarChar
+  city_code                      String?   @db.VarChar
+  address                        String?   @db.VarChar
+  phone                          String?   @db.VarChar
+  postal_code                    String?   @db.VarChar
+  fax                            String?   @db.VarChar
+  created_at                     DateTime? @db.Timestamp(6)
+
+  @@index([first_name], map: "ix_employees_first_name")
+  @@index([id], map: "ix_employees_id")
+  @@index([last_name], map: "ix_employees_last_name")
+  @@schema("app")
+}
