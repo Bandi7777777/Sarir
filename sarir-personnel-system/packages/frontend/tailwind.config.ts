@@ -1,4 +1,4 @@
-module.exports = {
-  darkMode: 'selector',  // یا 'class' اگر class-based می‌خوای
-  // ...
+/** Tailwind v4 – minimal config */
+export default {
+  content: ["./src/**/*.{ts,tsx,js,jsx,mdx,html}"],
 };

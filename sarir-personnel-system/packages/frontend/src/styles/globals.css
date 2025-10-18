@@ -1,10 +1,14 @@
+/* ================= Vendor CSS ================= */
+@import "react-big-calendar/lib/css/react-big-calendar.css";
+@import "react-responsive-carousel/lib/styles/carousel.min.css";
+
 /* ================= Tailwind v4 ================= */
 @import "tailwindcss";
 
 /* ================= Brand Tokens ================= */
 :root{
-  --brand-primary:#07657E;   /* turquoise green (سازمانی) */
-  --brand-accent:#F2991F;    /* orange (سازمانی) */
+  --brand-primary:#07657E;   /* turquoise green */
+  --brand-accent:#F2991F;    /* orange */
 }
 
 /* ================= Base Reset ================= */
@@ -16,31 +20,31 @@ body{
 }
 
 /* ================= Layout (Sidebar + Content) =================
-   نکته: <html dir="rtl"> → اولین فرزند فلکس (aside) سمت راست می‌نشیند */
+   نکته: چون <html dir="rtl"> است، اولین فرزند فلکس (aside) سمت راست می‌نشیند. */
 .layout{
   display:flex;
   min-height:100dvh;
   background:var(--bg-page);
   color:var(--text-color);
 }
-.layout>aside{
+.layout > aside{
   flex:0 0 256px;
   position:sticky; top:0; height:100dvh; z-index:20;
   background:var(--sidebar-bg);
   color:var(--sidebar-fg);
-  /* سایدبار سمت راست است؛ مرز سمت چپ می‌آید */
-  border-left:1px solid var(--sidebar-border);
+  border-left:1px solid var(--sidebar-border); /* سایدبار راست → مرز سمت چپ */
   box-shadow:var(--sidebar-shadow);
 }
-.layout>main{
+.layout > main{
   flex:1; min-width:0;
-  padding:24px;
+  /* ⛳️ قبلاً 24px بود → همین فضای خالی دور صفحه را ایجاد می‌کرد */
+  padding:0;                       /* ← گاتر بیرونی حذف شد */
   background:var(--bg-page);
   color:var(--text-color);
 }
 
 /* ================= Theme: Light (Global for non-dashboard) =================
-   چند درجه تیره‌تر: white 80% / primary 20% */
+   چند درجه تیره‌تر از قبل: white 80% / primary 20% */
 .theme-light{
   --bg-page:     color-mix(in oklab, white 80%, var(--brand-primary) 20%);
   --text-color:  #0B1220;
@@ -64,7 +68,7 @@ body{
   --btn-accent-bg:  color-mix(in oklab, var(--brand-accent) 70%, #ffc46a);
 }
 
-/* پس‌زمینهٔ لطیف برای صفحات روشن */
+/* پس‌زمینهٔ لطیف */
 .theme-light{
   background:
     radial-gradient(900px 340px at 10% -10%,
@@ -73,8 +77,7 @@ body{
       color-mix(in oklab, var(--brand-primary), transparent 92%), var(--bg-page));
 }
 
-/* ================= Theme: Dashboard (Neon Dark) =================
-   فقط از طریق app/dashboard/layout.tsx اعمال می‌شود */
+/* ================= Theme: Dashboard (Neon Dark) ================= */
 .theme-dashboard{
   --bg-page:#0B1020; --text-color:#E5E7EB;
 
@@ -95,8 +98,8 @@ body{
   --btn-accent-bg:  linear-gradient(90deg,#f2991f,#f7b955);
 }
 
-/* ================= Primitives (یکسان برای تمام صفحات غیرِ داشبورد) ================= */
-/* فقط CSS خالص—هیچ @apply تا Tailwind v4 خطا نده */
+/* ================= Primitives (یکسان برای همهٔ صفحات غیرِ داشبورد) ================= */
+/* بدون @apply — فقط CSS خالص تا با Tailwind v4 خطا نگیری */
 .card{
   background:var(--card-bg);
   color:var(--card-fg);
@@ -105,9 +108,10 @@ body{
   box-shadow:var(--card-shadow);
   padding:16px;
 }
+
 .btn{
   display:inline-flex; align-items:center; justify-content:center; gap:8px;
-  height:40px; padding:0 16px; border-radius:999px;
+  height:40px; padding:0 16px; border-radius:999px;  /* rounded-full + px-4 */
   font-size:14px; line-height:20px; font-weight:600;
   border:1px solid transparent;
   transition:filter .2s, transform .15s, box-shadow .2s;
@@ -121,8 +125,7 @@ body{
 }
 
 .input{
-  width:100%;
-  border-radius:12px; padding:.75rem .9rem; outline:none;
+  width:100%; border-radius:12px; padding:.75rem .9rem; outline:none;
   border:1px solid var(--input-border);
   background:var(--input-bg);
   color:var(--text-color);
@@ -146,8 +149,13 @@ body{
 .table td{ padding:.65rem .75rem; border-bottom:1px solid rgba(7,101,126,.09); }
 
 /* ================= Enforcement حداقلی =================
-   اگر صفحه‌ای داخل main بک‌گراند تیره ست کند، نادیده بگیر (غیر از داشبورد) */
-.theme-light .layout>main{
+   اگر صفحه‌ای داخل main بک‌گراند تیره ست کند، نادیده بگیر */
+.theme-light .layout > main{
   background:var(--bg-page) !important;
   color:var(--text-color) !important;
+}
+
+/* ⛳️ اگر هنوز رِیلِ شناور سمت راست (دکمه‌های ستون عمودی) مزاحم است، خاموشش کن */
+.layout [class*="fixed"][class*="right-"][class*="flex-col"]{
+  display:none !important;
 }
