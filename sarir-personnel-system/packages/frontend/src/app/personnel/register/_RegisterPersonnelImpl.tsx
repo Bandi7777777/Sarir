@@ -85,6 +85,9 @@ export default function RegisterPersonnel() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadStatus, setUploadStatus] = useState<string>("");
 
+  // گام ۲: Badge پویا Manual ⇄ Excel
+  const [mode, setMode] = useState<"Manual" | "Excel">("Manual");
+
   const formValues = watch();
 
   const canSubmit = useMemo(() => {
@@ -193,6 +196,8 @@ export default function RegisterPersonnel() {
       reset();
       setDupEmail(null);
       setDupPCode(null);
+      // گام ۲: بعد از ثبت، به حالت Manual برگرد
+      setMode("Manual");
     } catch (err: any) {
       setSubmitted("err");
       setMessage(err?.message || "خطا در ثبت");
@@ -248,12 +253,39 @@ export default function RegisterPersonnel() {
         setValue("hire_date", formatDate(row[9] || ""));
       }
       setUploadStatus("بارگذاری موفق");
+      // گام ۲: آپلود موفق → حالت Excel
+      setMode("Excel");
     };
     reader.onerror = () => {
       setUploadStatus("خطا در بارگذاری");
     };
     reader.readAsBinaryString(file);
   };
+
+  // گام ۲: دانلود قالب اکسل استاندارد (ستون‌ها مطابق همان ایندکس‌هایی که همین الان می‌خوانی)
+  function downloadPersonnelTemplate() {
+    const wb = XLSX.utils.book_new();
+    const header = [
+      "رزرو(A)",                         // A
+      "واحد",                            // B -> row[1]
+      "کد پرسنلی",                       // C -> row[2]
+      "نام و نام خانوادگی",              // D -> row[3]
+      "سمت",                             // E -> row[4]
+      "کد ملی",                          // F -> row[5]
+      "شماره کارت شناسایی",              // G -> row[6]
+      "مدرک تحصیلی",                     // H -> row[7]
+      "سوابق بیمه",                      // I -> row[8]
+      "تاریخ استخدام (YYYY-MM-DD)",      // J -> row[9]
+    ];
+    const sample = [
+      "", "عملیات", "120045", "علی رضایی", "کارشناس منابع انسانی",
+      "1234567890", "ABC-778899", "کارشناسی", "5 سال", "2024-06-01",
+    ];
+    const data = [header, sample, ["— این ردیف را پاک کنید و داده‌های واقعی را اضافه کنید —"]];
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    XLSX.utils.book_append_sheet(wb, ws, "PersonnelTemplate");
+    XLSX.writeFile(wb, "SARIR_Personnel_Template.xlsx");
+  }
 
   const getEducationLevel = (
     level: string
@@ -290,18 +322,37 @@ export default function RegisterPersonnel() {
       className="min-h-[80vh] w-full px-4 md:px-8 py-8 bg-gradient-to-br from-[#07657E]/5 to-[#F2991F]/5 dark:from-gray-900 dark:to-gray-800"
     >
       <div className="relative mx-auto max-w-6xl rounded-2xl border border-gray-200 bg-white p-8 shadow-lg dark:border-gray-700 dark:bg-gray-800 backdrop-blur-sm">
-        {/* Header – centered + logo (ONLY change requested) */}
+        {/* Header – وسط + لوگو + BADGE */}
         <div
           ref={headerRef}
-          className="mb-8 flex flex-col items-center justify-center text-center"
+          className="mb-6 flex flex-col items-center justify-center text-center"
         >
           <PersonBadgeLogo refEl={logoRef} className="h-16 w-16 mb-4 text-[#07657E]" />
           <h1 className="text-3xl font-bold text-[#07657E] dark:text-white">
             ثبت پرسنل جدید
           </h1>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-            اطلاعات را با دقت تکمیل کنید.
-          </p>
+          <div className="mt-2 flex items-center gap-3">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              اطلاعات را با دقت تکمیل کنید.
+            </p>
+            <span className="inline-flex items-center rounded-full border border-gray-200/70 dark:border-white/10 bg-white/70 dark:bg-gray-900/50 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:text-gray-300 shadow-sm">
+              {mode}
+            </span>
+          </div>
+        </div>
+
+        {/* نوار ابزار کوچک: دانلود قالب اکسل */}
+        <div className="mb-3 flex items-center justify-between gap-4">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            فایل اکسل استاندارد را دانلود کنید یا فایل خود را آپلود کنید:
+          </label>
+          <button
+            type="button"
+            onClick={downloadPersonnelTemplate}
+            className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-[#07657E] shadow-sm hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800 dark:text-white"
+          >
+            دانلود قالب اکسل
+          </button>
         </div>
 
         {/* Upload Excel */}
@@ -333,7 +384,7 @@ export default function RegisterPersonnel() {
           </div>
         </div>
 
-        {/* FORM – all original fields preserved */}
+        {/* فرم — همه فیلدهای خودت حفظ شده */}
         <form
           onSubmit={handleSubmit(onSubmit)}
           suppressHydrationWarning
@@ -416,7 +467,8 @@ export default function RegisterPersonnel() {
             />
           </div>
 
-          {/* More fields (all preserved) */}
+          {/* ... سایر فیلدهای خودت به‌صورت کامل حفظ شده ... */}
+
           <div ref={(el) => el && fieldsRef.current.push(el)}>
             <label className="mb-1 block text-sm font-medium">تاریخ تولد *</label>
             <input

@@ -1,42 +1,30 @@
-"use client";
-import * as React from "react";
+import * as React from "react"
+import { cn } from "@/lib/utils"
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  invalid?: boolean;
-}
-
-function cx(...classes: Array<string | false | null | undefined>) {
-  return classes.filter(Boolean).join(" ");
-}
-
-const base =
-  "w-full rounded-xl border bg-white/5 px-3 py-2 outline-none transition focus-visible:ring-2";
-const normal = "border-white/15 text-white placeholder:text-white/60 focus-visible:ring-[rgba(7,101,126,.45)]";
-const invalid = "border-rose-400/70 text-white placeholder:text-rose-200 focus-visible:ring-rose-300";
+// جلوگیری تایپی و اجرایی از عبور children به <input />
+export type InputProps = Omit<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  "children"
+>
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, invalid: invalidProp, ...props }, ref) => {
-    // Force render only on client to avoid hydration mismatch
-    const [mounted, setMounted] = React.useState(false);
-    React.useEffect(() => {
-      setMounted(true);
-    }, []);
-
-    // If not mounted on client, don't render the input
-    if (!mounted) {
-      return null;
-    }
-
+  ({ className, type = "text", children: _children, ...props }, ref) => {
+    // توجه: children عمداً از props خارج شد تا حتی اگر جایی عبور داده شد، روی <input> پخش نشود
     return (
       <input
         ref={ref}
-        className={cx(base, invalidProp ? invalid : normal, className)}
+        type={type}
+        className={cn(
+          "flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+          className
+        )}
         {...props}
       />
-    );
+    )
   }
-);
-Input.displayName = "Input";
+)
 
-export default Input;
-export { Input };
+Input.displayName = "Input"
+
+export { Input }
+export default Input

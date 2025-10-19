@@ -71,6 +71,9 @@ export default function RegisterDriverImpl() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadStatus, setUploadStatus] = useState<string>("");
 
+  // گام ۲: Badge پویا Manual ⇄ Excel
+  const [mode, setMode] = useState<"Manual" | "Excel">("Manual");
+
   const {
     register,
     handleSubmit,
@@ -201,6 +204,8 @@ export default function RegisterDriverImpl() {
       setDupEmail(null);
       setDupNationalId(null);
       setDupLicense(null);
+      // گام ۲: بعد از ثبت → Manual
+      setMode("Manual");
     } catch (err: any) {
       setSubmitted("err");
       setMessage(err?.message || "خطا در ثبت");
@@ -278,6 +283,8 @@ export default function RegisterDriverImpl() {
           });
         },
       });
+      // گام ۲: آپلود موفق → Excel
+      setMode("Excel");
     };
     reader.onerror = () => {
       setUploadStatus("خطا در بارگذاری");
@@ -297,6 +304,28 @@ export default function RegisterDriverImpl() {
     };
     reader.readAsBinaryString(file);
   };
+
+  // گام ۲: دانلود قالب اکسل درایورها (ستون‌ها مطابق ایندکس‌هایی که الان می‌خوانی: D,F,H,I,J)
+  function downloadDriverTemplate() {
+    const wb = XLSX.utils.book_new();
+    const header = [
+      "رزرو(A)",                  // A
+      "رزرو(B)",                  // B
+      "رزرو(C)",                  // C
+      "نام و نام خانوادگی",       // D -> row[3]
+      "رزرو(E)",                  // E
+      "کد ملی",                   // F -> row[5]
+      "رزرو(G)",                  // G
+      "مدرک تحصیلی",              // H -> row[7]
+      "سوابق بیمه",               // I -> row[8]
+      "تاریخ استخدام (YYYY-MM-DD)", // J -> row[9]
+    ];
+    const sample = ["", "", "", "مهدی محمدی", "", "1234567890", "", "کارشناسی", "3 سال", "2024-06-01"];
+    const data = [header, sample, ["— این ردیف را پاک کنید و داده‌های واقعی را اضافه کنید —"]];
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    XLSX.utils.book_append_sheet(wb, ws, "DriverTemplate");
+    XLSX.writeFile(wb, "SARIR_Driver_Template.xlsx");
+  }
 
   const getEducationLevel = (
     level: string
@@ -335,24 +364,41 @@ export default function RegisterDriverImpl() {
       className="min-h-[80vh] w-full px-4 md:px-8 py-8 bg-gradient-to-br from-[#07657E]/5 to-[#F2991F]/5 dark:from-gray-900 dark:to-gray-800"
     >
       <div className="relative mx-auto max-w-6xl rounded-2xl border border-gray-200 bg-white p-8 shadow-lg dark:border-gray-700 dark:bg-gray-800 backdrop-blur-sm">
-        {/* Header – centered + new clean logo (ONLY change requested) */}
+        {/* Header – وسط + لوگو + BADGE */}
         <motion.div
           ref={headerRef}
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.5 }}
-          className="mb-8 flex flex-col items-center justify-center text-center"
+          className="mb-6 flex flex-col items-center justify-center text-center"
         >
           <TruckLogo className="h-16 w-16 mb-4 text-[#07657E]" />
           <div className="text-center">
             <h1 className="text-3xl font-bold text-[#07657E] dark:text-white">
               ثبت راننده جدید
             </h1>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-              اطلاعات را با دقت تکمیل کنید.
-            </p>
+            <div className="mt-2 flex items-center gap-3">
+              <p className="text-sm text-gray-600 dark:text-gray-400">اطلاعات را با دقت تکمیل کنید.</p>
+              <span className="inline-flex items-center rounded-full border border-gray-200/70 dark:border-white/10 bg-white/70 dark:bg-gray-900/50 px-2.5 py-0.5 text-xs font-medium text-gray-700 dark:text-gray-300 shadow-sm">
+                {mode}
+              </span>
+            </div>
           </div>
         </motion.div>
+
+        {/* نوار ابزار: دانلود قالب اکسل */}
+        <div className="mb-3 flex items-center justify-between gap-4">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            فایل اکسل استاندارد را دانلود کنید یا فایل خود را آپلود کنید:
+          </label>
+          <button
+            type="button"
+            onClick={downloadDriverTemplate}
+            className="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-[#07657E] shadow-sm hover:bg-gray-50 dark:border-white/10 dark:bg-gray-800 dark:text-white"
+          >
+            دانلود قالب اکسل
+          </button>
+        </div>
 
         {/* Upload Excel */}
         <div className="mb-8">
@@ -383,7 +429,7 @@ export default function RegisterDriverImpl() {
           </div>
         </div>
 
-        {/* FORM – all original fields preserved */}
+        {/* فرم — همه فیلدهای خودت حفظ شده */}
         <motion.section
           initial="hidden"
           whileInView="show"
