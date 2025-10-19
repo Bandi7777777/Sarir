@@ -1,6 +1,5 @@
-// page.tsx (Server Component)
 import type { Metadata, Viewport } from "next";
-import RegisterPersonnel from "./RegisterPersonnel"; // مستقیم import کنید، بدون dynamic اگر لازم نیست
+import RegisterPersonnel from "./RegisterPersonnel";
 
 export const metadata: Metadata = {
   title: "ثبت پرسنل | SARIR",
