@@ -1,17 +1,19 @@
 "use client";
+
+import Sidebar from "@/components/ui/Sidebar";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import Input from "@/components/ui/input";
 import { PlusIcon } from "@heroicons/react/24/solid";
 
-export default function RegisterContract() {
+export default function RegisterBoardMember() {
   const [expanded, setExpanded] = useState(false);
   const [formData, setFormData] = useState({
-    title: "",
-    party: "",
-    date: "",
-    amount: "",
+    name: "",
+    email: "",
+    phone: "",
+    position: "",
   });
   const [notifications, setNotifications] = useState<string[]>([]);
 
@@ -22,13 +24,14 @@ export default function RegisterContract() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setNotifications(["قرارداد با موفقیت ثبت شد!"]);
+    setNotifications(["عضو هیئت مدیره با موفقیت ثبت شد!"]);
     setTimeout(() => setNotifications([]), 3000);
     console.log("Form submitted:", formData);
   };
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-[#EAF6F9] to-[#A3D8F4] dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-white animate-gradient-bg">
+      <Sidebar expanded={expanded} setExpanded={setExpanded} />
       <div
         className="flex-1 p-4 md:p-8 space-y-8 transition-all duration-300"
         style={{ paddingRight: expanded ? "280px" : "80px" }}
@@ -40,7 +43,7 @@ export default function RegisterContract() {
           className="sticky top-0 z-40 bg-white/90 dark:bg-gray-800/90 backdrop-blur-lg p-6 rounded-b-xl shadow-xl"
         >
           <h1 className="text-4xl md:text-5xl font-bold text-[#0A8A9F] dark:text-[#66B2FF] animate-neon-text">
-            ثبت قرارداد جدید
+            ثبت عضو هیئت مدیره جدید
           </h1>
         </motion.header>
 
@@ -73,53 +76,54 @@ export default function RegisterContract() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-lg text-[#0A8A9F] dark:text-[#66B2FF] mb-2">
-                عنوان قرارداد
+                نام و نام خانوادگی
               </label>
               <Input
                 type="text"
-                name="title"
-                value={formData.title}
+                name="name"
+                value={formData.name}
                 onChange={handleInputChange}
                 className="w-full p-3 rounded-lg bg-white/50 dark:bg-gray-700 border-none focus:ring-2 focus:ring-[#0A8A9F] text-lg"
-                placeholder="مثال: قرارداد حمل و نقل"
+                placeholder="مثال: علی محمدی"
               />
             </div>
             <div>
               <label className="block text-lg text-[#0A8A9F] dark:text-[#66B2FF] mb-2">
-                طرف قرارداد
+                ایمیل
+              </label>
+              <Input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                className="w-full p-3 rounded-lg bg-white/50 dark:bg-gray-700 border-none focus:ring-2 focus:ring-[#0A8A9F] text-lg"
+                placeholder="مثال: ali@example.com"
+              />
+            </div>
+            <div>
+              <label className="block text-lg text-[#0A8A9F] dark:text-[#66B2FF] mb-2">
+                شماره تلفن
+              </label>
+              <Input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleInputChange}
+                className="w-full p-3 rounded-lg bg-white/50 dark:bg-gray-700 border-none focus:ring-2 focus:ring-[#0A8A9F] text-lg"
+                placeholder="مثال: 09123456789"
+              />
+            </div>
+            <div>
+              <label className="block text-lg text-[#0A8A9F] dark:text-[#66B2FF] mb-2">
+                سمت
               </label>
               <Input
                 type="text"
-                name="party"
-                value={formData.party}
+                name="position"
+                value={formData.position}
                 onChange={handleInputChange}
                 className="w-full p-3 rounded-lg bg-white/50 dark:bg-gray-700 border-none focus:ring-2 focus:ring-[#0A8A9F] text-lg"
-                placeholder="مثال: شرکت X"
-              />
-            </div>
-            <div>
-              <label className="block text-lg text-[#0A8A9F] dark:text-[#66B2FF] mb-2">
-                تاریخ قرارداد
-              </label>
-              <Input
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleInputChange}
-                className="w-full p-3 rounded-lg bg-white/50 dark:bg-gray-700 border-none focus:ring-2 focus:ring-[#0A8A9F] text-lg"
-              />
-            </div>
-            <div>
-              <label className="block text-lg text-[#0A8A9F] dark:text-[#66B2FF] mb-2">
-                مبلغ قرارداد
-              </label>
-              <Input
-                type="number"
-                name="amount"
-                value={formData.amount}
-                onChange={handleInputChange}
-                className="w-full p-3 rounded-lg bg-white/50 dark:bg-gray-700 border-none focus:ring-2 focus:ring-[#0A8A9F] text-lg"
-                placeholder="مثال: 10000000"
+                placeholder="مثال: عضو هیئت مدیره"
               />
             </div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -128,7 +132,7 @@ export default function RegisterContract() {
                 className="w-full bg-[#0A8A9F] hover:bg-[#007A9A] text-white text-lg py-3 rounded-lg"
               >
                 <PlusIcon className="h-6 w-6 mr-2" />
-                ثبت قرارداد
+                ثبت عضو هیئت مدیره
               </Button>
             </motion.div>
           </form>
@@ -137,7 +141,6 @@ export default function RegisterContract() {
     </div>
   );
 }
-
 
 
 

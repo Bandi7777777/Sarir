@@ -1,6 +1,4 @@
 "use client";
-
-import Sidebar from "@/components/ui/Sidebar";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -32,7 +30,6 @@ export default function RegisterPersonnel() {
 
   return (
     <div className="flex min-h-screen bg-gradient-to-br from-[#EAF6F9] to-[#A3D8F4] dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-white animate-gradient-bg">
-      <Sidebar expanded={expanded} setExpanded={setExpanded} />
       <div
         className="flex-1 p-4 md:p-8 space-y-8 transition-all duration-300"
         style={{ paddingRight: expanded ? "280px" : "80px" }}
@@ -142,6 +139,7 @@ export default function RegisterPersonnel() {
     </div>
   );
 }
+
 
 
 

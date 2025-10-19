@@ -1,6 +1,5 @@
 import "../styles/globals.css";
 import type { ReactNode } from "react";
-import Sidebar from "@/components/ui/Sidebar";
 
 export const metadata = {
   title: "سامانه پرسنلی سریر",
@@ -16,13 +15,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       style={{ colorScheme: "light" }}
       suppressHydrationWarning
     >
-      {/* هیچ تمی روی body نگذار؛ تم پیش‌فرض را روی .layout اعمال می‌کنیم */}
-      <body className="min-h-dvh antialiased" suppressHydrationWarning>
-        {/* پیش‌فرض = روشنِ ملایم → theme-light روی خودِ layout */}
-        <div className="layout theme-light">
-          <aside>
-            <Sidebar />
-          </aside>
+      {/* تم سراسری فقط روی صفحات غیر از داشبورد */}
+      <body className="theme-light min-h-dvh antialiased" suppressHydrationWarning>
+        {/* سایدبار فعلاً حذف شده؛ صفحه‌ها تمام عرض می‌شن */}
+        <div className="layout">
           <main>{children}</main>
         </div>
       </body>

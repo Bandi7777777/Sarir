@@ -1,161 +1,428 @@
-/* ================= Vendor CSS ================= */
-@import "react-big-calendar/lib/css/react-big-calendar.css";
-@import "react-responsive-carousel/lib/styles/carousel.min.css";
-
-/* ================= Tailwind v4 ================= */
 @import "tailwindcss";
 
-/* ================= Brand Tokens ================= */
-:root{
-  --brand-primary:#07657E;   /* turquoise green */
-  --brand-accent:#F2991F;    /* orange */
+/* برند – مدرن و جذاب با تمرکز بر ظرافت */
+:root {
+  --brand-primary: #07657E; /* turquoise deep - default for board */
+  --brand-accent: #F2991F;  /* orange vibrant - default for personnel */
+  --brand-secondary: #1FB4C8; /* turquoise light */
+  --brand-highlight: #FFC46A; /* orange soft */
+  --radius-sm: 6px;         /* کوچک برای دکمه‌ها */
+  --radius-md: 12px;        /* متوسط برای کارت‌ها */
+  --radius-lg: 20px;        /* بزرگ برای پنل‌ها */
+  --shadow-sm: 0 2px 8px rgba(7,101,126,0.08); /* سایه نرم */
+  --shadow-md: 0 6px 20px rgba(7,101,126,0.12); /* عمق متوسط */
+  --shadow-lg: 0 12px 32px rgba(7,101,126,0.18); /* عمق بیشتر برای hover */
+  --glow-border: inset 0 0 0 1px rgba(255,255,255,0.15), 0 0 8px rgba(7,101,126,0.25); /* glow ظریف */
+  --glow-border-soft: inset 0 0 0 1px rgba(255,255,255,0.1), 0 0 4px rgba(7,101,126,0.15);
+  --neon-glow: 0 0 10px rgba(242,153,31,0.4), 0 0 20px rgba(7,101,126,0.25); /* neon نرم */
+  --animation-duration: 0.25s; /* انیمیشن سریع و ظریف */
+  --turquoise-900: #054f62;
+  --turquoise-800: #1a9aad;
+  --turquoise-700: #07657e;
+  --turquoise-600: #1fb4c8;
+  --turquoise-500: #2ec4d8;
+  --turquoise-400: #4dd3e7;
+  --orange-500: #f2991f;
+  --orange-400: #ffac3d;
 }
 
-/* ================= Base Reset ================= */
-*{ box-sizing:border-box; }
-html,body{ height:100%; }
-body{
-  margin:0;
+/* تم‌های جداگانه برای صفحات */
+.board-theme {
+  --brand-primary: #07657E; /* تم آبی برای هیئت */
+  --brand-accent: #1FB4C8;
+  --bg-page: linear-gradient(145deg, #e6f7ff 60%, #b3e5fc);
+  --text-color: #001f3f;
+}
+
+.personnel-theme {
+  --brand-primary: #F2991F; /* تم نارنجی برای پرسنل */
+  --brand-accent: #FFC46A;
+  --bg-page: linear-gradient(145deg, #fff7e6 60%, #ffe7ba);
+  --text-color: #4a2700;
+}
+
+/* پایه – ریست مدرن با تمرکز بر ظرافت و عملکرد */
+* { 
+  box-sizing: border-box; 
+  -webkit-font-smoothing: antialiased; 
+  -moz-osx-font-smoothing: grayscale; 
+  transition: color var(--animation-duration) ease, background var(--animation-duration) ease, transform var(--animation-duration) ease, box-shadow var(--animation-duration) ease;
+} 
+
+html, body { 
+  height: 100%; 
+  overflow-x: hidden; 
+  scroll-behavior: smooth;
+  margin: 0;
+} 
+
+body {
+  margin: 0;
   font-family: ui-sans-serif, system-ui, "Vazirmatn", "IRANSans", Tahoma;
+  font-size: clamp(13px, 1vw + 11px, 15px);
+  background: var(--bg-page);
+  position: relative;
+  display: grid;
+  place-items: start;
 }
 
-/* ================= Layout (Sidebar + Content) =================
-   نکته: چون <html dir="rtl"> است، اولین فرزند فلکس (aside) سمت راست می‌نشیند. */
-.layout{
-  display:flex;
-  min-height:100dvh;
-  background:var(--bg-page);
-  color:var(--text-color);
-}
-.layout > aside{
-  flex:0 0 256px;
-  position:sticky; top:0; height:100dvh; z-index:20;
-  background:var(--sidebar-bg);
-  color:var(--sidebar-fg);
-  border-left:1px solid var(--sidebar-border); /* سایدبار راست → مرز سمت چپ */
-  box-shadow:var(--sidebar-shadow);
-}
-.layout > main{
-  flex:1; min-width:0;
-  /* ⛳️ قبلاً 24px بود → همین فضای خالی دور صفحه را ایجاد می‌کرد */
-  padding:0;                       /* ← گاتر بیرونی حذف شد */
-  background:var(--bg-page);
-  color:var(--text-color);
+body::before { 
+  content: "";
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: radial-gradient(circle at top right, rgba(7,101,126,0.06), transparent 50%), radial-gradient(circle at bottom left, rgba(242,153,31,0.04), transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+  animation: gradient-pulse 12s infinite alternate ease-in-out;
 }
 
-/* ================= Theme: Light (Global for non-dashboard) =================
-   چند درجه تیره‌تر از قبل: white 80% / primary 20% */
-.theme-light{
-  --bg-page:     color-mix(in oklab, white 80%, var(--brand-primary) 20%);
-  --text-color:  #0B1220;
-
-  --sidebar-bg:#FFFFFF; --sidebar-fg:#0B1220;
-  --sidebar-border: color-mix(in oklab, var(--brand-primary) 22%, #e6eef0);
-  --sidebar-shadow: 0 10px 28px rgba(7,101,126,.08);
-
-  /* کارت شیشه‌ای ملایم */
-  --card-bg:     color-mix(in oklab, white 74%, var(--brand-primary) 26% / 10%);
-  --card-fg:     #0B1220;
-  --card-border: color-mix(in oklab, var(--brand-primary) 28%, #d7e6ea);
-  --card-shadow: 0 10px 28px rgba(7,101,126,.12);
-
-  /* فیلد/دکمه */
-  --input-bg:#FFFFFF;
-  --input-border: color-mix(in oklab, var(--brand-primary) 30%, #d1e4e9);
-  --input-focus:  color-mix(in oklab, var(--brand-primary) 70%, white);
-
-  --btn-primary-bg: color-mix(in oklab, var(--brand-primary) 60%, #1fb4c8);
-  --btn-accent-bg:  color-mix(in oklab, var(--brand-accent) 70%, #ffc46a);
+@keyframes gradient-pulse {
+  0% { opacity: 0.9; transform: scale(1); }
+  100% { opacity: 0.7; transform: scale(1.02); }
 }
 
-/* پس‌زمینهٔ لطیف */
-.theme-light{
-  background:
-    radial-gradient(900px 340px at 10% -10%,
-      color-mix(in oklab, var(--brand-primary), transparent 88%), transparent),
-    linear-gradient(180deg,
-      color-mix(in oklab, var(--brand-primary), transparent 92%), var(--bg-page));
+/* چیدمان – مینیمال با grid و فضاهای تمیز */
+.layout {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100dvh;
+  width: 100vw;
+  background: var(--bg-page);
+  color: var(--text-color);
+  gap: 0;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.6s ease;
+  margin: 0;
+  padding: 0;
 }
 
-/* ================= Theme: Dashboard (Neon Dark) ================= */
-.theme-dashboard{
-  --bg-page:#0B1020; --text-color:#E5E7EB;
-
-  --sidebar-bg:#111827; --sidebar-fg:#D1D5DB;
-  --sidebar-border: rgba(255,255,255,.12);
-  --sidebar-shadow: 0 10px 28px rgba(0,0,0,.35);
-
-  --card-bg: rgba(255,255,255,.06);
-  --card-fg:#E5E7EB;
-  --card-border: rgba(255,255,255,.12);
-  --card-shadow: 0 12px 36px rgba(0,0,0,.35);
-
-  --input-bg: rgba(255,255,255,.06);
-  --input-border: rgba(255,255,255,.22);
-  --input-focus: color-mix(in oklab, var(--brand-primary) 65%, white);
-
-  --btn-primary-bg: linear-gradient(90deg,#22d3ee,#6366f1);
-  --btn-accent-bg:  linear-gradient(90deg,#f2991f,#f7b955);
+.layout::after { 
+  content: "";
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.03), transparent 50%);
+  pointer-events: none;
+  z-index: -1;
+  animation: texture-fade 6s infinite alternate ease;
 }
 
-/* ================= Primitives (یکسان برای همهٔ صفحات غیرِ داشبورد) ================= */
-/* بدون @apply — فقط CSS خالص تا با Tailwind v4 خطا نگیری */
-.card{
-  background:var(--card-bg);
-  color:var(--card-fg);
-  border:1px solid var(--card-border);
-  border-radius:16px;
-  box-shadow:var(--card-shadow);
-  padding:16px;
+@keyframes texture-fade {
+  0% { opacity: 0.4; }
+  100% { opacity: 0.2; }
 }
 
-.btn{
-  display:inline-flex; align-items:center; justify-content:center; gap:8px;
-  height:40px; padding:0 16px; border-radius:999px;  /* rounded-full + px-4 */
-  font-size:14px; line-height:20px; font-weight:600;
-  border:1px solid transparent;
-  transition:filter .2s, transform .15s, box-shadow .2s;
-}
-.btn:hover{ filter:brightness(1.05); transform:translateY(-1px); }
-.btn-primary{ color:#0b1220; background:var(--btn-primary-bg); }
-.btn-accent{  color:#0b1220; background:var(--btn-accent-bg); }
-.btn-outline{
-  background:transparent; color:var(--text-color);
-  border-color: color-mix(in oklab, var(--brand-primary) 32%, #ccd);
+.layout > main {
+  flex: 1; 
+  min-width: 0;
+  padding: clamp(20px, 3vw, 40px) 0;
+  background: transparent;
+  color: var(--text-color);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+  width: 100%;
 }
 
-.input{
-  width:100%; border-radius:12px; padding:.75rem .9rem; outline:none;
-  border:1px solid var(--input-border);
-  background:var(--input-bg);
-  color:var(--text-color);
-  font-size:14px; line-height:20px;
-  transition: box-shadow .2s, border-color .2s;
-}
-.input::placeholder{ color: color-mix(in oklab,var(--text-color) 46%, transparent); }
-.input:focus{
-  border-color:var(--input-focus);
-  box-shadow:0 0 0 3px color-mix(in oklab,var(--input-focus) 36%, transparent);
+/* تم روشن – gradients نرم و blends ظریف */
+.theme-light {
+  --bg-page: linear-gradient(145deg, #f9fafb 60%, color-mix(in oklab, #f9fafb 85%, var(--brand-primary) 15%));
+  --text-color: #0B1220;
+
+  --card-bg: rgba(255,255,255,0.95);
+  --card-fg: #0B1220;
+  --card-border: rgba(7,101,126,0.08);
+  --card-shadow: var(--shadow-md);
+
+  --input-bg: rgba(255,255,255,0.95);
+  --input-border: rgba(7,101,126,0.08);
+  --input-focus: color-mix(in oklab, var(--brand-primary) 60%, white);
+
+  --btn-primary-bg: linear-gradient(100deg, var(--brand-primary), var(--brand-secondary) 80%);
+  --btn-accent-bg: linear-gradient(100deg, var(--brand-accent), var(--brand-highlight) 80%);
 }
 
-.table{
-  width:100%; border-collapse:separate; border-spacing:0; background:#fff;
-  border:1px solid rgba(7,101,126,.15); border-radius:14px; overflow:hidden;
+/* dark mode – transitions نرم و base متعادل */
+@media (prefers-color-scheme: dark) {
+  .theme-light {
+    --bg-page: linear-gradient(145deg, #1e293b 60%, color-mix(in oklab, #1e293b 85%, var(--brand-primary) 15%));
+    --text-color: #f1f5f9;
+    --card-bg: rgba(30,41,59,0.95);
+    --card-fg: #f1f5f9;
+    --card-border: rgba(7,101,126,0.12);
+    --input-bg: rgba(30,41,59,0.95);
+    --input-border: rgba(7,101,126,0.12);
+    --input-focus: color-mix(in oklab, var(--brand-primary) 60%, #1e293b);
+    --btn-primary-bg: linear-gradient(100deg, color-mix(in oklab, var(--brand-primary) 85%, #1e293b), var(--brand-primary));
+    --btn-accent-bg: linear-gradient(100deg, color-mix(in oklab, var(--brand-accent) 85%, #1e293b), var(--brand-accent));
+  }
 }
-.table th{
-  text-align:right; background:#F8FAFB; color:#0b1220; font-weight:800; font-size:.9rem;
-  padding:.75rem; border-bottom:1px solid rgba(7,101,126,.15);
-}
-.table td{ padding:.65rem .75rem; border-bottom:1px solid rgba(7,101,126,.09); }
 
-/* ================= Enforcement حداقلی =================
-   اگر صفحه‌ای داخل main بک‌گراند تیره ست کند، نادیده بگیر */
-.theme-light .layout > main{
-  background:var(--bg-page) !important;
-  color:var(--text-color) !important;
+/* کارت‌ها – hover نرم و glow ظریف */
+.card {
+  background: var(--card-bg);
+  color: var(--card-fg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--animation-duration) ease, box-shadow var(--animation-duration) ease, border-color var(--animation-duration) ease;
+  position: relative;
+  overflow: hidden;
+  will-change: transform, box-shadow;
 }
 
-/* ⛳️ اگر هنوز رِیلِ شناور سمت راست (دکمه‌های ستون عمودی) مزاحم است، خاموشش کن */
-.layout [class*="fixed"][class*="right-"][class*="flex-col"]{
-  display:none !important;
+.card::before {
+  content: "";
+  position: absolute;
+  top: -1px; left: -1px; right: -1px; bottom: -1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--brand-primary) 20%, var(--brand-accent) 80%);
+  opacity: 0;
+  transition: opacity var(--animation-duration);
+  z-index: -1;
+  filter: blur(8px);
+}
+
+.card:hover::before {
+  opacity: 0.15;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: color-mix(in oklab, var(--brand-primary) 20%, transparent);
+}
+
+/* دکمه‌ها – gradient نرم، hover ظریف */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 1.3rem;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  transition: transform var(--animation-duration), box-shadow var(--animation-duration), background var(--animation-duration);
+  gap: 0.4rem;
+  position: relative;
+  will-change: transform;
+}
+
+.btn::after {
+  content: "";
+  position: absolute;
+  top: -3px; left: -3px; right: -3px; bottom: -3px;
+  border-radius: inherit;
+  background: var(--neon-glow);
+  opacity: 0;
+  transition: opacity var(--animation-duration);
+  z-index: -1;
+  filter: blur(6px);
+}
+
+.btn:hover::after {
+  opacity: 0.8;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary {
+  color: white;
+  background: var(--btn-primary-bg);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(100deg, var(--brand-secondary), var(--brand-primary) 80%);
+}
+
+.btn-accent {
+  color: white;
+  background: var(--btn-accent-bg);
+}
+
+.btn-accent:hover {
+  background: linear-gradient(100deg, var(--brand-highlight), var(--brand-accent) 80%);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--text-color);
+  border-color: color-mix(in oklab, var(--brand-primary) 25%, #d1d5db);
+}
+
+.btn-add:hover {
+  background: linear-gradient(100deg, #4dd3e7, #2ec4d8 80%);
+}
+
+.btn-import:hover {
+  background: linear-gradient(100deg, #ffac3d, #f2991f 80%);
+}
+
+.btn-export:hover {
+  background: linear-gradient(100deg, #1fb4c8, #07657e 80%);
+}
+
+.btn-reminder:hover {
+  background: linear-gradient(100deg, #2ec4d8, #1fb4c8 80%);
+}
+
+.btn-refresh:hover {
+  color: #1a9aad;
+}
+
+.btn-delete {
+  color: #ef4444;
+}
+
+.btn-delete:hover {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* اینپوت‌ها – focus ring نرم، placeholder ظریف */
+.input {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  padding: 0.7rem 1rem;
+  outline: none;
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text-color);
+  font-size: 14px;
+  transition: box-shadow var(--animation-duration), border-color var(--animation-duration);
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.03);
+  accent-color: var(--brand-primary);
+}
+
+.input::placeholder {
+  color: color-mix(in oklab, var(--text-color) 40%, transparent);
+}
+
+.input:hover {
+  background: color-mix(in oklab, var(--input-bg), white 5%);
+}
+
+.input:focus {
+  border-color: var(--input-focus);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--input-focus) 30%, transparent);
+}
+
+/* جدول‌ها – مینیمال با hover نرم */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: white;
+  border: 1px solid rgba(7,101,126,0.08);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.table th {
+  text-align: right;
+  background: #f9fafb;
+  color: #0b1220;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.7rem;
+  border-bottom: 1px solid rgba(7,101,126,0.08);
+}
+
+.table td {
+  padding: 0.6rem 0.7rem;
+  border-bottom: 1px solid rgba(7,101,126,0.08);
+  transition: background var(--animation-duration);
+}
+
+.table tr:nth-child(even) td {
+  background: #f9fafb;
+}
+
+.table tr:hover td {
+  background: color-mix(in oklab, #f9fafb, var(--brand-accent) 5%);
+}
+
+/* اسکرولبار – مدرن و ظریف */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(7,101,126,0.3);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background var(--animation-duration);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(7,101,126,0.5);
+}
+
+/* media query – رسپانسیو ظریف */
+@container (max-width: 768px) {
+  .layout > main {
+    padding: 16px 0;
+  }
+  .btn {
+    font-size: 13px;
+    padding: 0.6rem 1rem;
+  }
+  .input {
+    font-size: 13px;
+  }
+  .card {
+    border-radius: var(--radius-sm);
+  }
+}
+
+@media (max-width: 768px) {
+  .layout > main {
+    padding: 16px 0;
+  }
+  .btn {
+    font-size: 13px;
+    padding: 0.6rem 1rem;
+  }
+  .input {
+    font-size: 13px;
+  }
+  .card {
+    border-radius: var(--radius-sm);
+  }
+}
+
+/* کلاس‌های اضافی – برای glass و انیمیشن‌های زیبا */
+.glass-panel {
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.1);
+  background: rgba(255,255,255,0.05);
+}
+
+.neon-text {
+  text-shadow: 0 0 4px rgba(242,153,31,0.3), 0 0 8px rgba(7,101,126,0.2);
+}
+
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.05) 25%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.05) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.8s infinite ease-in-out;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }

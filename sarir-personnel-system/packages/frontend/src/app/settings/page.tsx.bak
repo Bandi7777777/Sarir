@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Sidebar from "@/components/ui/Sidebar";
 import { motion } from "framer-motion"; // تغییر: اضافه
 import { toast } from "react-hot-toast"; // تغییر: اضافه
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ export default function Settings() {
 
   return (
     <div className="theme-light flex min-h-screen bg-gradient-to-br from-[#EAF6F9] to-[#A3D8F4] dark:from-gray-900 dark:to-gray-800 text-gray-900 dark:text-white animate-gradient-bg"> {/* تغییر: تم */}
+      <Sidebar expanded={expanded} setExpanded={setExpanded} />
       <div className="flex-1 p-4 md:p-8 space-y-8 transition-all duration-300" style={{ paddingRight: expanded ? "280px" : "80px" }}>
         <motion.header
           initial={{ y: -50, opacity: 0 }}

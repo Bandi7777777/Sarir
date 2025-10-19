@@ -2,8 +2,6 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useState } from "react";
-import Sidebar from "@/components/ui/Sidebar";
-
 const DonutChart = dynamic(() => import("@/app/dashboard/DonutChart"), { ssr: false });
 
 type Row = { id:number; first_name:string; last_name:string; email?:string|null; position?:string|null; created_at?:string };
@@ -57,7 +55,6 @@ export default function PersonnelStatsPage() {
       dir="rtl"
       className="flex min-h-screen text-slate-900 bg-gradient-to-br from-[#F2FAFD] via-[#E9F4FA] to-[#DDEEF7]"
     >
-      <Sidebar expanded={expanded} setExpanded={setExpanded} />
       <main
         className="flex-1 p-6 md:p-10 space-y-8"
         style={{ paddingRight: expanded ? "280px" : "80px" }}
@@ -122,5 +119,6 @@ export default function PersonnelStatsPage() {
     </div>
   );
 }
+
 
 

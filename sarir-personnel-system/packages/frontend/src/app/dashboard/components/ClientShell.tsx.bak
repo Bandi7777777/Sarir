@@ -44,7 +44,8 @@ const ClientShell: FC<{ initialEmployees: Employee[] }> = ({ initialEmployees })
         {/* Row 1: Quick actions + KPIs + Clock */}
         <div className="neon-card col-span-12 lg:col-span-3 p-4">
           <h2 className="section-title">اکشن‌های سریع</h2>
-          </div>
+          <QuickActions />
+        </div>
 
         <div className="neon-card col-span-12 lg:col-span-7 p-4">
           <h2 className="section-title">شاخص‌های کلیدی (KPI)</h2>
@@ -100,4 +101,3 @@ const ClientShell: FC<{ initialEmployees: Employee[] }> = ({ initialEmployees })
 };
 
 export default ClientShell;
-

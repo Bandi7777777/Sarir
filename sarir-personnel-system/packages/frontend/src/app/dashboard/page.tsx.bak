@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import Sidebar from "@/components/ui/Sidebar";
 import Input from "@/components/ui/input";
 import Button from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -182,6 +183,8 @@ export default function Dashboard() {
     >
       {/* خطوط مش‌بک‌گراند برای عمق بصری */}
       <div className="pointer-events-none absolute inset-0 opacity-[.10] [background:repeating-linear-gradient(90deg,rgba(255,255,255,.14)_0_1px,transparent_1px_28px),repeating-linear-gradient(0deg,rgba(255,255,255,.10)_0_1px,transparent_1px_28px)]" />
+
+      <Sidebar expanded={expanded} setExpanded={setExpanded} />
 
       <div
         className="flex-1 p-4 md:p-8 gap-6 grid grid-cols-1 xl:grid-cols-12"

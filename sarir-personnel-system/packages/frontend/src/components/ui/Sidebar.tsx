@@ -46,8 +46,7 @@ type Category = {
 export default function Sidebar(props: SidebarProps) {
   const { expanded: expandedProp, setExpanded: setExpandedProp } = props;
 
-  /* جلوگیری از تکرار سایدبار: اگر نمونهٔ دیگری از سایدبار وجود داشت، این یکی را مخفی کن
-     (ترتیب هوک‌ها ثابت می‌ماند؛ خروجی null نمی‌دهیم، فقط hidden می‌کنیم) */
+  /* جلوگیری از تکرار سایدبار */
   const rootRef = useRef<HTMLElement>(null);
   const [isClone, setIsClone] = useState(false);
   useEffect(() => {
@@ -64,7 +63,7 @@ export default function Sidebar(props: SidebarProps) {
     };
   }, []);
 
-  // کنترل باز/جمع
+  // کنترل باز/جمع با Hover
   const [expandedState, setExpandedState] = useState<boolean>(() => !!expandedProp);
   useEffect(() => {
     if (typeof expandedProp === "boolean") setExpandedState(expandedProp);
@@ -74,13 +73,9 @@ export default function Sidebar(props: SidebarProps) {
 
   const pathname = usePathname();
 
-  // نمونه‌ی سبک بَج‌ها (در صورت نیاز بعدها وصل می‌کنی)
   const [notifCount, setNotifCount] = useState<number | undefined>();
   const [driversCount, setDriversCount] = useState<number | undefined>();
-  useEffect(() => {
-    setNotifCount(undefined);
-    setDriversCount(undefined);
-  }, []);
+  useEffect(() => { setNotifCount(undefined); setDriversCount(undefined); }, []);
 
   const CATEGORIES: Category[] = useMemo(
     () => [
@@ -90,19 +85,19 @@ export default function Sidebar(props: SidebarProps) {
         icon: (cls = "h-5 w-5") => <HomeIcon className={cls} />,
         items: [
           { href: "/dashboard",      label: "داشبورد",     icon: (c="h-4 w-4") => <HomeIcon className={c} /> },
-          { href: "/board/list",     label: "هیئت‌مدیره",  icon: (c="h-4 w-4") => <BuildingOffice2Icon className={c} /> },
-          { href: "/personnel/list", label: "کارکنان",     icon: (c="h-4 w-4") => <UsersIcon className={c} /> },
+          { href: "/board/list",     label: "هیئت‌مديره",  icon: (c="h-4 w-4") => <BuildingOffice2Icon className={c} /> },
+          { href: "/personnel/list", label: "كاركنان",     icon: (c="h-4 w-4") => <UsersIcon className={c} /> },
           { href: "/drivers/list",   label: "رانندگان",    icon: (c="h-4 w-4") => <TruckIcon className={c} />, badge: driversCount },
         ],
       },
       {
         key: "actions",
-        label: "عملیات",
+        label: "عمليات",
         icon: (cls = "h-5 w-5") => <UserPlusIcon className={cls} />,
         items: [
-          { href: "/personnel/register", label: "ثبت کارمند", icon: (c="h-4 w-4") => <UserPlusIcon className={c} /> },
+          { href: "/personnel/register", label: "ثبت كارمند", icon: (c="h-4 w-4") => <UserPlusIcon className={c} /> },
           { href: "/drivers/register",   label: "ثبت راننده", icon: (c="h-4 w-4") => <TruckIcon className={c} /> },
-          { href: "/tools/import",       label: "ورود از اکسل", icon: (c="h-4 w-4") => <ArrowUpTrayIcon className={c} /> },
+          { href: "/tools/import",       label: "ورود از اكسل", icon: (c="h-4 w-4") => <ArrowUpTrayIcon className={c} /> },
         ],
       },
       {
@@ -110,7 +105,7 @@ export default function Sidebar(props: SidebarProps) {
         label: "آمار و گزارش",
         icon: (cls = "h-5 w-5") => <ChartPieIcon className={cls} />,
         items: [
-          { href: "/stats/personnel", label: "آمار کارکنان",   icon: (c="h-4 w-4") => <ChartPieIcon className={c} /> },
+          { href: "/stats/personnel", label: "آمار كاركنان",   icon: (c="h-4 w-4") => <ChartPieIcon className={c} /> },
           { href: "/stats/drivers",   label: "آمار رانندگان",  icon: (c="h-4 w-4") => <PresentationChartBarIcon className={c} /> },
           { href: "/reports",         label: "گزارش‌ها",        icon: (c="h-4 w-4") => <ClipboardDocumentListIcon className={c} /> },
           { href: "/notifications",   label: "اعلان‌ها",        icon: (c="h-4 w-4") => <BellIcon className={c} />, badge: notifCount },
@@ -130,13 +125,15 @@ export default function Sidebar(props: SidebarProps) {
 
   const isActive = (href: string) => (href === "/dashboard" ? pathname === href : pathname.startsWith(href));
 
+  if (isClone) return null;
+
   return (
     <nav
       ref={rootRef as any}
       role="navigation"
       aria-label="Sidebar"
       data-root-sidebar="true"
-      className={`h-screen transition-[width] duration-200 ${isClone ? "hidden" : ""}`}
+      className="h-screen transition-[width] duration-200"
       style={{ width: isExpanded ? 256 : 72 }}
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
@@ -165,22 +162,20 @@ export default function Sidebar(props: SidebarProps) {
           </Link>
         </div>
 
-        {/* کتگوری‌ها */}
+        {/* آیتم‌ها */}
         <ul className="mt-1 px-2 space-y-2">
           {CATEGORIES.map((cat) => {
             const open = isExpanded && openCategory === cat.key;
             const hoverOpen = !isExpanded && hoverCategory === cat.key;
+
             return (
               <li key={cat.key} className="relative">
-                {/* دکمه کتگوری */}
                 <button
                   type="button"
                   className={`${BTN_BASE} ${isExpanded ? "gap-3 px-2.5 py-2" : "justify-center py-2"} ${
                     cat.items.some((it) => isActive(it.href)) || open || hoverOpen ? BTN_ACTIVE : BTN_IDLE
                   }`}
-                  onClick={() => {
-                    if (isExpanded) setOpenCategory((p) => (p === cat.key ? null : cat.key));
-                  }}
+                  onClick={() => { if (isExpanded) setOpenCategory((p) => (p === cat.key ? null : cat.key)); }}
                   onMouseEnter={() => !isExpanded && handleHover(cat.key)}
                   onMouseLeave={() => !isExpanded && handleHover(null)}
                   aria-expanded={!!(open || hoverOpen)}

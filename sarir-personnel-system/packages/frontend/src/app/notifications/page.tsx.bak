@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import Sidebar from "@/components/ui/Sidebar";
 import { Button } from "@/components/ui/button";
 import Input from "@/components/ui/input";
 import { motion } from "framer-motion";
@@ -345,6 +346,7 @@ export default function NotificationsPage() {
       dir="rtl"
       className="flex min-h-screen text-slate-900 bg-gradient-to-br from-[#F2FAFD] via-[#E9F4FA] to-[#DDEEF7]"
     >
+      <Sidebar expanded={expanded} setExpanded={setExpanded} />
       <main
         className="flex-1 p-6 md:p-10 space-y-8 transition-all"
         style={{ paddingRight: expanded ? "256px" : "72px" }}
@@ -559,6 +561,5 @@ export default function NotificationsPage() {
     </div>
   );
 }
-
 
 
