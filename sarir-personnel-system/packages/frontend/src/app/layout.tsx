@@ -1,3 +1,5 @@
+import ChunkReload from './_components/ChunkReload';
+
 import "../styles/globals.css";
 import type { ReactNode } from "react";
 import { ToastProvider } from "@/components/ui/toast";

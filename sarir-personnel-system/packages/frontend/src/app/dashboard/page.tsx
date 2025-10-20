@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Input from "@/components/ui/input";
-import Button from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import { motion } from "framer-motion";
 import { toast } from "react-hot-toast"; // اضافه برای toast error/success
 import {
