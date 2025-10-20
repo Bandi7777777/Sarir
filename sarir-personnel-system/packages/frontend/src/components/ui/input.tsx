@@ -1,7 +1,6 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-// ممنوع‌کردن عبور children به <input />
 export type InputProps = Omit<
   React.InputHTMLAttributes<HTMLInputElement>,
   "children"
@@ -9,8 +8,6 @@ export type InputProps = Omit<
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type = "text", children: _children, ...props }, ref) => {
-    // توجه: children عمداً از props حذف شد تا حتی اگر جایی اشتباهاً پاس داده شد،
-    // روی <input> پخش نشود و خطای void-element رخ ندهد.
     return (
       <input
         ref={ref}

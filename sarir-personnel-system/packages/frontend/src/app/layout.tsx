@@ -1,5 +1,6 @@
 import "../styles/globals.css";
 import type { ReactNode } from "react";
+import { ToastProvider } from "@/components/ui/toast";
 
 export const metadata = {
   title: "سامانه پرسنلی سریر",
@@ -15,12 +16,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       style={{ colorScheme: "light" }}
       suppressHydrationWarning
     >
-      {/* تم سراسری فقط روی صفحات غیر از داشبورد */}
       <body className="theme-light min-h-dvh antialiased" suppressHydrationWarning>
-        {/* سایدبار فعلاً حذف شده؛ صفحه‌ها تمام عرض می‌شن */}
-        <div className="layout">
-          <main>{children}</main>
-        </div>
+        <ToastProvider>
+          <div className="layout">
+            <main>{children}</main>
+          </div>
+        </ToastProvider>
       </body>
     </html>
   );
