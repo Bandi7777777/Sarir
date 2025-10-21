@@ -22,7 +22,7 @@
     "typeRoots": ["./node_modules/@types", "./src/types"],
     "plugins": [{ "name": "next" }],
     "forceConsistentCasingInFileNames": true,
-    "types": ["@types/react", "@types/node", "jspdf-autotable"]
+    "types": ["@types/react", "@types/node"]
   },
   "include": ["next-env.d.ts", "src/**/*", "src/**/*.ts", "src/**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]

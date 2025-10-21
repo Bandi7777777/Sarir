@@ -1,2 +1,14 @@
 packages:
-  - "packages/*"
+  - 'packages/*'
+
+onlyBuiltDependencies:
+  - '@firebase/util'
+  - '@prisma/client'
+  - '@prisma/engines'
+  - '@tailwindcss/oxide'
+  - core-js
+  - prisma
+  - protobufjs
+  - react-vertical-timeline-component
+  - sharp
+  - unrs-resolver

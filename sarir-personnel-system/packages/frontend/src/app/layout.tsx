@@ -3,6 +3,7 @@ import ChunkReload from './_components/ChunkReload';
 import "../styles/globals.css";
 import type { ReactNode } from "react";
 import { ToastProvider } from "@/components/ui/toast";
+import QueryProvider from "@/app/providers/QueryProvider";
 
 export const metadata = {
   title: "سامانه پرسنلی سریر",
@@ -19,11 +20,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       suppressHydrationWarning
     >
       <body className="theme-light min-h-dvh antialiased" suppressHydrationWarning>
-        <ToastProvider>
-          <div className="layout">
-            <main>{children}</main>
-          </div>
-        </ToastProvider>
+        <QueryProvider>
+          <ToastProvider>
+            <div className="layout">
+              <main>{children}</main>
+            </div>
+          </ToastProvider>
+        </QueryProvider>
       </body>
     </html>
   );

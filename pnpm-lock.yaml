@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '':
+        specifier: link:/
+        version: link:../../../..
       '@tanstack/react-query':
         specifier: ^5.90.5
         version: 5.90.5(react@19.2.0)

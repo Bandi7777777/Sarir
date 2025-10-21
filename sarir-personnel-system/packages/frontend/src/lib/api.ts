@@ -1,28 +1,26 @@
-const BASE = process.env.NEXT_PUBLIC_BACKEND_URL || '';
+import { logApi } from "@/lib/telemetry";
 
-export async function getPersonnel() {
-  const res = await fetch(`${BASE}/personnel`, { cache: 'no-store' });
-  if (!res.ok) throw new Error('Failed to load personnel');
-  return res.json();
-}
+export async function api<T>(input: string, init?: RequestInit): Promise<T> {
+  const started = performance.now();
+  let OK = true, status = 0;
 
-export async function createPersonnel(payload: {
-  first_name: string; last_name: string;
-  emp_code?: string; phone?: string; email?: string; position?: string;
-  department_id?: string;
-}) {
-  const res = await fetch(`${BASE}/personnel`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) {
-    let msg = 'Failed to create personnel';
-    try { const j = await res.json(); msg = j?.detail || j?.error || msg; } catch {}
-    throw new Error(msg);
+  try {
+    const res = await fetch(input, {
+      ...init,
+      headers: {
+        "Content-Type": "application/json",
+        ...(init?.headers || {}),
+      },
+    });
+    status = res.status;
+    if (!res.ok) {
+      OK = false;
+      const text = await res.text().catch(() => "");
+      throw new Error(text || `HTTP ${res.status}`);
+    }
+    return (await res.json()) as T;
+  } finally {
+    const elapsed = performance.now() - started;
+    logApi({ url: input, ok: OK, status, ms: Math.round(elapsed) });
   }
-  return res.json();
 }
-
-
-
