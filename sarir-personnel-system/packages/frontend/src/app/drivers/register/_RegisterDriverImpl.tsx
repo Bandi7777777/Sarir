@@ -2,16 +2,22 @@
 
 import { useState, useRef, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { toast } from "react-hot-toast";
-import { Button } from "@/components/ui/button";
 import Input from "@/components/ui/input";
-import { PlusIcon } from "@heroicons/react/24/solid";
-import { gsap } from "gsap";
+import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import * as XLSX from "xlsx";
+
+/* ثبت پلاگین GSAP فقط روی کلاینت */
+if (typeof window !== "undefined") {
+  try {
+    gsap.registerPlugin(useGSAP);
+  } catch {
+    /* no-op */
+  }
+}
 
 /* Animations */
 const rise = {
@@ -71,7 +77,7 @@ export default function RegisterDriverImpl() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [uploadStatus, setUploadStatus] = useState<string>("");
 
-  // گام ۲: Badge پویا Manual ⇄ Excel
+  // Badge پویا Manual ⇄ Excel
   const [mode, setMode] = useState<"Manual" | "Excel">("Manual");
 
   const {
@@ -204,8 +210,7 @@ export default function RegisterDriverImpl() {
       setDupEmail(null);
       setDupNationalId(null);
       setDupLicense(null);
-      // گام ۲: بعد از ثبت → Manual
-      setMode("Manual");
+      setMode("Manual"); // بعد از ثبت → Manual
     } catch (err: any) {
       setSubmitted("err");
       setMessage(err?.message || "خطا در ثبت");
@@ -283,8 +288,7 @@ export default function RegisterDriverImpl() {
           });
         },
       });
-      // گام ۲: آپلود موفق → Excel
-      setMode("Excel");
+      setMode("Excel"); // آپلود موفق → Excel
     };
     reader.onerror = () => {
       setUploadStatus("خطا در بارگذاری");
@@ -305,19 +309,19 @@ export default function RegisterDriverImpl() {
     reader.readAsBinaryString(file);
   };
 
-  // گام ۲: دانلود قالب اکسل درایورها (ستون‌ها مطابق ایندکس‌هایی که الان می‌خوانی: D,F,H,I,J)
+  // دانلود قالب اکسل درایورها
   function downloadDriverTemplate() {
     const wb = XLSX.utils.book_new();
     const header = [
-      "رزرو(A)",                  // A
-      "رزرو(B)",                  // B
-      "رزرو(C)",                  // C
-      "نام و نام خانوادگی",       // D -> row[3]
-      "رزرو(E)",                  // E
-      "کد ملی",                   // F -> row[5]
-      "رزرو(G)",                  // G
-      "مدرک تحصیلی",              // H -> row[7]
-      "سوابق بیمه",               // I -> row[8]
+      "رزرو(A)", // A
+      "رزرو(B)", // B
+      "رزرو(C)", // C
+      "نام و نام خانوادگی", // D -> row[3]
+      "رزرو(E)", // E
+      "کد ملی", // F -> row[5]
+      "رزرو(G)", // G
+      "مدرک تحصیلی", // H -> row[7]
+      "سوابق بیمه", // I -> row[8]
       "تاریخ استخدام (YYYY-MM-DD)", // J -> row[9]
     ];
     const sample = ["", "", "", "مهدی محمدی", "", "1234567890", "", "کارشناسی", "3 سال", "2024-06-01"];
@@ -429,241 +433,243 @@ export default function RegisterDriverImpl() {
           </div>
         </div>
 
-        {/* فرم — همه فیلدهای خودت حفظ شده */}
-        <motion.section
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          variants={stagger}
-          className="p-6"
-        >
-          <div ref={(el) => el && fieldsRef.current.push(el)} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div>
-              <label className="mb-1 block text-sm font-medium">نام *</label>
-              <input
-                {...register("first_name")}
-                onFocus={() => handleFocus("first_name")}
-                onBlur={handleBlur}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
-                placeholder="نام"
-              />
-              {errors.first_name && (
-                <p className="mt-1 text-xs text-red-600">{errors.first_name.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium">نام خانوادگی *</label>
-              <input
-                {...register("last_name")}
-                onFocus={() => handleFocus("last_name")}
-                onBlur={handleBlur}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
-                placeholder="نام خانوادگی"
-              />
-              {errors.last_name && (
-                <p className="mt-1 text-xs text-red-600">{errors.last_name.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium">کد ملی *</label>
-              <input
-                {...register("national_id")}
-                onFocus={() => handleFocus("national_id")}
-                onBlur={() => {
-                  handleBlur();
-                  onBlurNationalId();
-                }}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
-              />
-              {errors.national_id && (
-                <p className="mt-1 text-xs text-red-600">{errors.national_id.message}</p>
-              )}
-              {dupNationalId === true && (
-                <p className="mt-1 text-xs text-orange-600">کد ملی تکراری است.</p>
-              )}
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium">تاریخ تولد *</label>
-              <input
-                type="date"
-                {...register("date_of_birth")}
-                onFocus={() => handleFocus("date_of_birth")}
-                onBlur={handleBlur}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
-              />
-              {errors.date_of_birth && (
-                <p className="mt-1 text-xs text-red-600">{errors.date_of_birth.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium">جنسیت *</label>
-              <select
-                {...register("gender")}
-                onFocus={() => handleFocus("gender")}
-                onBlur={handleBlur}
-                defaultValue=""
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
-              >
-                <option value="" disabled>انتخاب کنید</option>
-                <option value="male">مرد</option>
-                <option value="female">زن</option>
-                <option value="other">سایر</option>
-              </select>
-              {errors.gender && (
-                <p className="mt-1 text-xs text-red-600">{errors.gender.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium">شماره موبایل *</label>
-              <input
-                {...register("phone")}
-                onFocus={() => handleFocus("phone")}
-                onBlur={handleBlur}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
-                placeholder="09xxxxxxxxx"
-              />
-              {errors.phone && (
-                <p className="mt-1 text-xs text-red-600">{errors.phone.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium">ایمیل</label>
-              <input
-                {...register("email")}
-                onFocus={() => handleFocus("email")}
-                onBlur={() => {
-                  handleBlur();
-                  onBlurEmail();
-                }}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E] ltr"
-                placeholder="name@example.com"
-              />
-              {errors.email && (
-                <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>
-              )}
-              {dupEmail === true && (
-                <p className="mt-1 text-xs text-orange-600">ایمیل تکراری است.</p>
-              )}
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium">شماره گواهینامه *</label>
-              <input
-                {...register("license_number")}
-                onFocus={() => handleFocus("license_number")}
-                onBlur={() => {
-                  handleBlur();
-                  onBlurLicense();
-                }}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
-              />
-              {errors.license_number && (
-                <p className="mt-1 text-xs text-red-600">{errors.license_number.message}</p>
-              )}
-              {dupLicense === true && (
-                <p className="mt-1 text-xs text-orange-600">شماره گواهینامه تکراری است.</p>
-              )}
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium">تاریخ انقضای گواهینامه *</label>
-              <input
-                type="date"
-                {...register("license_expiry")}
-                onFocus={() => handleFocus("license_expiry")}
-                onBlur={handleBlur}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
-              />
-              {errors.license_expiry && (
-                <p className="mt-1 text-xs text-red-600">{errors.license_expiry.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium">نوع خودرو *</label>
-              <input
-                {...register("vehicle_type")}
-                onFocus={() => handleFocus("vehicle_type")}
-                onBlur={handleBlur}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
-              />
-              {errors.vehicle_type && (
-                <p className="mt-1 text-xs text-red-600">{errors.vehicle_type.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium">آدرس</label>
-              <input
-                {...register("address")}
-                onFocus={() => handleFocus("address")}
-                onBlur={handleBlur}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
-              />
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium">تاریخ استخدام *</label>
-              <input
-                type="date"
-                {...register("hire_date")}
-                onFocus={() => handleFocus("hire_date")}
-                onBlur={handleBlur}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
-              />
-              {errors.hire_date && (
-                <p className="mt-1 text-xs text-red-600">{errors.hire_date.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="mb-1 block text-sm font-medium">سوابق بیمه</label>
-              <input
-                {...register("insurance_history")}
-                onFocus={() => handleFocus("insurance_history")}
-                onBlur={handleBlur}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
-              />
-            </div>
-
-            <div className="md:col-span-2 lg:col-span-1">
-              <label className="mb-1 block text-sm font-medium">مدرک تحصیلی *</label>
-              <select
-                {...register("education_level")}
-                onFocus={() => handleFocus("education_level")}
-                onBlur={handleBlur}
-                defaultValue=""
-                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
-              >
-                <option value="" disabled>انتخاب کنید</option>
-                <option value="diplom">دیپلم</option>
-                <option value="kardani">کاردانی</option>
-                <option value="karshenasi">کارشناسی</option>
-                <option value="arshad">کارشناسی ارشد</option>
-                <option value="doctora">دکتری</option>
-                <option value="other">سایر</option>
-              </select>
-              {errors.education_level && (
-                <p className="mt-1 text-xs text-red-600">{errors.education_level.message}</p>
-              )}
-            </div>
-          </div>
-
-          <button
-            ref={buttonRef}
-            type="submit"
-            disabled={!canSubmit || loading}
-            className="mt-6 w-full rounded-md bg-gradient-to-r from-[#07657E] to-[#F2991F] px-6 py-3 text-white font-medium shadow-sm hover:brightness-105 transition-all disabled:opacity-50"
+        {/* فرم — همه فیلدها */}
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <motion.section
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            variants={stagger}
+            className="p-6"
           >
-            {loading ? "در حال ثبت..." : "ثبت اطلاعات"}
-          </button>
-        </motion.section>
+            <div ref={(el) => el && fieldsRef.current.push(el)} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div>
+                <label className="mb-1 block text-sm font-medium">نام *</label>
+                <input
+                  {...register("first_name")}
+                  onFocus={() => handleFocus("first_name")}
+                  onBlur={handleBlur}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
+                  placeholder="نام"
+                />
+                {errors.first_name && (
+                  <p className="mt-1 text-xs text-red-600">{errors.first_name.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium">نام خانوادگی *</label>
+                <input
+                  {...register("last_name")}
+                  onFocus={() => handleFocus("last_name")}
+                  onBlur={handleBlur}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
+                  placeholder="نام خانوادگی"
+                />
+                {errors.last_name && (
+                  <p className="mt-1 text-xs text-red-600">{errors.last_name.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium">کد ملی *</label>
+                <input
+                  {...register("national_id")}
+                  onFocus={() => handleFocus("national_id")}
+                  onBlur={() => {
+                    handleBlur();
+                    onBlurNationalId();
+                  }}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
+                />
+                {errors.national_id && (
+                  <p className="mt-1 text-xs text-red-600">{errors.national_id.message}</p>
+                )}
+                {dupNationalId === true && (
+                  <p className="mt-1 text-xs text-orange-600">کد ملی تکراری است.</p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium">تاریخ تولد *</label>
+                <input
+                  type="date"
+                  {...register("date_of_birth")}
+                  onFocus={() => handleFocus("date_of_birth")}
+                  onBlur={handleBlur}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
+                />
+                {errors.date_of_birth && (
+                  <p className="mt-1 text-xs text-red-600">{errors.date_of_birth.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium">جنسیت *</label>
+                <select
+                  {...register("gender")}
+                  onFocus={() => handleFocus("gender")}
+                  onBlur={handleBlur}
+                  defaultValue=""
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
+                >
+                  <option value="" disabled>انتخاب کنید</option>
+                  <option value="male">مرد</option>
+                  <option value="female">زن</option>
+                  <option value="other">سایر</option>
+                </select>
+                {errors.gender && (
+                  <p className="mt-1 text-xs text-red-600">{errors.gender.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium">شماره موبایل *</label>
+                <input
+                  {...register("phone")}
+                  onFocus={() => handleFocus("phone")}
+                  onBlur={handleBlur}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
+                  placeholder="09xxxxxxxxx"
+                />
+                {errors.phone && (
+                  <p className="mt-1 text-xs text-red-600">{errors.phone.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium">ایمیل</label>
+                <input
+                  {...register("email")}
+                  onFocus={() => handleFocus("email")}
+                  onBlur={() => {
+                    handleBlur();
+                    onBlurEmail();
+                  }}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E] ltr"
+                  placeholder="name@example.com"
+                />
+                {errors.email && (
+                  <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>
+                )}
+                {dupEmail === true && (
+                  <p className="mt-1 text-xs text-orange-600">ایمیل تکراری است.</p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium">شماره گواهینامه *</label>
+                <input
+                  {...register("license_number")}
+                  onFocus={() => handleFocus("license_number")}
+                  onBlur={() => {
+                    handleBlur();
+                    onBlurLicense();
+                  }}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
+                />
+                {errors.license_number && (
+                  <p className="mt-1 text-xs text-red-600">{errors.license_number.message}</p>
+                )}
+                {dupLicense === true && (
+                  <p className="mt-1 text-xs text-orange-600">شماره گواهینامه تکراری است.</p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium">تاریخ انقضای گواهینامه *</label>
+                <input
+                  type="date"
+                  {...register("license_expiry")}
+                  onFocus={() => handleFocus("license_expiry")}
+                  onBlur={handleBlur}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
+                />
+                {errors.license_expiry && (
+                  <p className="mt-1 text-xs text-red-600">{errors.license_expiry.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium">نوع خودرو *</label>
+                <input
+                  {...register("vehicle_type")}
+                  onFocus={() => handleFocus("vehicle_type")}
+                  onBlur={handleBlur}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
+                />
+                {errors.vehicle_type && (
+                  <p className="mt-1 text-xs text-red-600">{errors.vehicle_type.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium">آدرس</label>
+                <input
+                  {...register("address")}
+                  onFocus={() => handleFocus("address")}
+                  onBlur={handleBlur}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium">تاریخ استخدام *</label>
+                <input
+                  type="date"
+                  {...register("hire_date")}
+                  onFocus={() => handleFocus("hire_date")}
+                  onBlur={handleBlur}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
+                />
+                {errors.hire_date && (
+                  <p className="mt-1 text-xs text-red-600">{errors.hire_date.message}</p>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium">سوابق بیمه</label>
+                <input
+                  {...register("insurance_history")}
+                  onFocus={() => handleFocus("insurance_history")}
+                  onBlur={handleBlur}
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
+                />
+              </div>
+
+              <div className="md:col-span-2 lg:col-span-1">
+                <label className="mb-1 block text-sm font-medium">مدرک تحصیلی *</label>
+                <select
+                  {...register("education_level")}
+                  onFocus={() => handleFocus("education_level")}
+                  onBlur={handleBlur}
+                  defaultValue=""
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:border-[#07657E]"
+                >
+                  <option value="" disabled>انتخاب کنید</option>
+                  <option value="diplom">دیپلم</option>
+                  <option value="kardani">کاردانی</option>
+                  <option value="karshenasi">کارشناسی</option>
+                  <option value="arshad">کارشناسی ارشد</option>
+                  <option value="doctora">دکتری</option>
+                  <option value="other">سایر</option>
+                </select>
+                {errors.education_level && (
+                  <p className="mt-1 text-xs text-red-600">{errors.education_level.message}</p>
+                )}
+              </div>
+            </div>
+
+            <button
+              ref={buttonRef}
+              type="submit"
+              disabled={!canSubmit || loading}
+              className="mt-6 w-full rounded-md bg-gradient-to-r from-[#07657E] to-[#F2991F] px-6 py-3 text-white font-medium shadow-sm hover:brightness-105 transition-all disabled:opacity-50"
+            >
+              {loading ? "در حال ثبت..." : "ثبت اطلاعات"}
+            </button>
+          </motion.section>
+        </form>
 
         {submitted && (
           <div

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import "react-tooltip/dist/react-tooltip.css";
 import Input from "@/components/ui/input";
 import Button from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion"; // انیمیشن‌های پیشرفته

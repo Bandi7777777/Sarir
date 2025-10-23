@@ -1,18 +1,14 @@
 {
   "name": "sarir-monorepo",
   "private": true,
-  "version": "0.1.0",
-  "packageManager": "pnpm@10.18.3",
-  "workspaces": [
-    "sarir-personnel-system/packages/*"
-  ],
-  "scripts": {
-    "i": "pnpm install",
-    "dev:fe": "pnpm --filter \"./sarir-personnel-system/packages/frontend\" run dev -- --port 3300",
-    "build:fe": "pnpm --filter \"./sarir-personnel-system/packages/frontend\" run build",
-    "prisma:pull": "pnpm --filter \"./sarir-personnel-system/packages/frontend\" exec prisma db pull",
-    "prisma:gen": "pnpm --filter \"./sarir-personnel-system/packages/frontend\" exec prisma generate"
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=20.18.0"
   },
-  "dependencies": {},
-  "devDependencies": {}
+  "scripts": {
+    "install:all": "pnpm install",
+    "dev": "pnpm -C packages/frontend dev",
+    "build": "pnpm -C packages/frontend build",
+    "start": "pnpm -C packages/frontend start"
+  }
 }

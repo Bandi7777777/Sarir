@@ -1,53 +1,22 @@
-// packages/frontend/src/components/ui/button.tsx
-'use client';
+"use client";
 
-import * as React from 'react';
-import { cva, type VariantProps } from 'class-variance-authority';
+import * as React from "react";
 
-// اگر cn در "@/lib/utils" داری، از آن ایمپورت کن و تابع زیر را حذف کن:
-// import { cn } from '@/lib/utils';
-function cn(...classes: Array<string | undefined | null | false>) {
-  return classes.filter(Boolean).join(' ');
-}
-
-const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
-  {
-    variants: {
-      variant: {
-        default: 'bg-primary text-primary-foreground hover:opacity-90',
-        outline: 'border border-border bg-transparent hover:bg-accent/30',
-        ghost: 'bg-transparent hover:bg-accent/20',
-        link: 'bg-transparent underline-offset-4 hover:underline',
-      },
-      size: {
-        default: 'h-10 px-4 py-2',
-        sm: 'h-9 px-3',
-        lg: 'h-11 px-6',
-        icon: 'h-10 w-10 p-0',
-      },
-    },
-    defaultVariants: { variant: 'default', size: 'default' },
-  }
-);
-
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean;
-}
+type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  variant?: "default" | "outline";
+};
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, ...props }, ref) => (
-    <button
-      ref={ref}
-      className={cn(buttonVariants({ variant, size }), className)}
-      {...props}
-    />
-  )
+  ({ className = "", variant = "default", ...props }, ref) => {
+    const base =
+      "inline-flex items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none";
+    const styles =
+      variant === "outline"
+        ? "border border-[#07657E] text-[#07657E] bg-transparent hover:bg-[#07657E]/5"
+        : "bg-gradient-to-r from-[#07657E] to-[#F2991F] text-white hover:brightness-105";
+    return <button ref={ref} className={`${base} ${styles} ${className}`} {...props} />;
+  }
 );
-Button.displayName = 'Button';
+Button.displayName = "Button";
 
-// ✅ هم named اکسپورت می‌کنیم هم default تا هر استایلی از ایمپورت کار کند
-export { Button, buttonVariants };
 export default Button;

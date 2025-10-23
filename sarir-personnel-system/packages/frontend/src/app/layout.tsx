@@ -1,16 +1,13 @@
-import ChunkReload from './_components/ChunkReload';
-
+import type { Metadata } from "next";
 import "../styles/globals.css";
-import type { ReactNode } from "react";
-import { ToastProvider } from "@/components/ui/toast";
-import QueryProvider from "@/app/providers/QueryProvider";
+import ClientProviders from "./ClientProviders";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "سامانه پرسنلی سریر",
   description: "سیستم مدیریت منابع انسانی سریر لجستیک",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="fa"
@@ -20,13 +17,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       suppressHydrationWarning
     >
       <body className="theme-light min-h-dvh antialiased" suppressHydrationWarning>
-        <QueryProvider>
-          <ToastProvider>
-            <div className="layout">
-              <main>{children}</main>
-            </div>
-          </ToastProvider>
-        </QueryProvider>
+        <ClientProviders>
+          <div className="layout">
+            <main>{children}</main>
+          </div>
+        </ClientProviders>
       </body>
     </html>
   );
