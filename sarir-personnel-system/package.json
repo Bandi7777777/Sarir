@@ -10,5 +10,8 @@
     "dev": "pnpm -C packages/frontend dev",
     "build": "pnpm -C packages/frontend build",
     "start": "pnpm -C packages/frontend start"
+  },
+  "dependencies": {
+    "pako": "2.1.0"
   }
 }

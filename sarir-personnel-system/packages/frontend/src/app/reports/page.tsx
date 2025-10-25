@@ -14,8 +14,7 @@ import {
   Settings2, Columns, Layers, Share2, X, Check, Pencil, Play, Clock, Building2, Filter,
   Activity, Briefcase, UserCheck, DollarSign, Globe, Star, AlertOctagon, PieChartIcon,
   UsersRound, BadgeCheck, BriefcaseBusiness, Rotate3D, BarChart3, LineChartIcon, RadarIcon,
-  FileWarning, Cake, Stethoscope, ClipboardCheck, Award, ClipboardList, HeartPulse, Brain,
-  Upload // Added Upload here to fix the error
+  FileWarning, Cake, Stethoscope, ClipboardCheck, Award, ClipboardList, HeartPulse, Brain, Upload
 } from "lucide-react";
 import { motion } from "framer-motion";
 

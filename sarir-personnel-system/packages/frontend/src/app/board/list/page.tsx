@@ -1,498 +1,440 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
-import "react-tooltip/dist/react-tooltip.css";
-import Input from "@/components/ui/input";
-import Button from "@/components/ui/button";
-import { motion, AnimatePresence } from "framer-motion"; // انیمیشن‌های پیشرفته
-import { toast } from "react-hot-toast"; // feedback بصری
+import { motion } from "framer-motion";
+import { toast } from "react-hot-toast";
 import {
-  UsersIcon,
-  UserPlusIcon,
-  MagnifyingGlassIcon,
-  BellIcon,
-  ClipboardDocumentListIcon,
-  ArrowRightIcon,
-  ArrowPathIcon,
-  FunnelIcon,
-  BuildingOffice2Icon,
-  PencilIcon, // new icon for edit
-  TrashIcon, // new icon for delete
-  XMarkIcon, // icon for closing modal
-  ChartBarIcon, // new icon for stats
-  CalendarIcon, // new icon for meetings
-  DocumentTextIcon // new icon for reports
+  UserPlusIcon, MagnifyingGlassIcon, ArrowPathIcon, BuildingOffice2Icon,
+  PencilIcon, TrashIcon, XMarkIcon, CalendarIcon, BellAlertIcon,
+  ArrowsUpDownIcon,
 } from "@heroicons/react/24/solid";
-import { Tooltip as ReactTooltip } from "react-tooltip"; // tooltip for details
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, Tooltip as ChartTooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
-/* ─────────────── Theme helpers ─────────────── */
-const GLASS = "backdrop-blur-xl border border-gray-400 rounded-3xl shadow-[0_15px_40px_rgba(0,0,0,.25)] glow-border"; // کمی تیره‌تر
-const GLASS2 = "backdrop-blur-xl border border-gray-400 rounded-2xl shadow-[0_8px_25px_rgba(0,0,0,.2)] glow-border-soft";
-const PANELBG = "bg-white/40 dark:bg-gray-900/60"; // کمی تیره‌تر و جذاب‌تر
-const PANELBG2 = "bg-white/30 dark:bg-gray-900/50";
+/* Colors + tiny UI */
+const CC = { teal: "#07657E", cyan: "#1FB4C8", orange: "#F2991F", dark: "#2E3234" };
+const card = "bg-white/85 backdrop-blur-md border border-white/40 shadow-sm rounded-2xl";
 
-/* ─────────────── Animations ─────────────── */
-const rise = {
-  hidden: { y: 15, opacity: 0 },
-  show: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 140, damping: 18, ease: "easeOut" } },
-};
-const stagger = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
-    },
-  },
-};
-const modalVariants = {
-  hidden: { opacity: 0, scale: 0.96 },
-  show: { opacity: 1, scale: 1, transition: { duration: 0.3, ease: "easeOut" } },
-};
-const listItemVariants = {
-  hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
-  exit: { opacity: 0, y: -10, transition: { duration: 0.3, ease: "easeIn" } },
-};
+function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
+  const { className, ...rest } = props;
+  return (
+    <input
+      {...rest}
+      suppressHydrationWarning
+      autoComplete="off"
+      data-1p-ignore
+      className={`border rounded-md px-3 py-2 focus:outline-none focus:ring w-full ${className || ""}`}
+    />
+  );
+}
+function Btn(props: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "solid" | "ghost" | "danger" }) {
+  const { className, variant = "solid", ...rest } = props;
+  const base =
+    variant === "ghost" ? "px-3 py-2 rounded-md hover:bg-gray-100" :
+    variant === "danger" ? "px-3 py-2 rounded-md text-white bg-red-500 hover:bg-red-600" :
+    "px-3 py-2 rounded-md text-white";
+  return <button {...rest} className={`${base} ${className || ""}`} style={variant==="solid" ? { background: `linear-gradient(90deg, ${CC.teal}, ${CC.cyan})` } : {}} />;
+}
 
-/* ─────────────── Types ─────────────── */
+/* Types */
 type BoardRow = { id: number; name: string; role: string; phone?: string };
+type AssemblyType = "annual" | "ordinaryExtra" | "extraordinary";
+type AssemblyStatus = "planned" | "held" | "published";
+type Assembly = { id: number; title: string; type: AssemblyType; year?: number; date: string; time: string; status: AssemblyStatus };
 
-/* ─────────────── Modal Components ─────────────── */
-function EditModal({ isOpen, onClose, member }: { isOpen: boolean; onClose: () => void; member: BoardRow | null }) {
-  if (!isOpen || !member) return null;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast.success("ویرایش ذخیره شد! (placeholder)");
-    onClose();
-  };
-
-  return (
-    <motion.div
-      initial="hidden"
-      animate="show"
-      exit="hidden"
-      variants={modalVariants}
-      className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-sm"
-    >
-      <div className="bg-white/90 p-6 rounded-xl shadow-2xl w-96">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-turquoise-900">ویرایش عضو: {member.name}</h2>
-          <Button onClick={onClose} className="text-gray-600 hover:text-gray-900">
-            <XMarkIcon className="h-6 w-6" />
-          </Button>
-        </div>
-        <form onSubmit={handleSubmit}>
-          <Input defaultValue={member.name} placeholder="نام" className="mb-4" />
-          <Input defaultValue={member.role} placeholder="نقش" className="mb-4" />
-          <Input defaultValue={member.phone} placeholder="شماره تماس" className="mb-4" />
-          <Button type="submit" className="w-full bg-gradient-to-r from-turquoise-400 to-orange-500 text-white">
-            ذخیره تغییرات
-          </Button>
-        </form>
-      </div>
-    </motion.div>
-  );
+/* CSV / ICS */
+function downloadCSV(rows: string[][], name = "export.csv") {
+  const csv = rows.map(r => r.join(",")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8;" }));
+  a.download = name; a.click(); URL.revokeObjectURL(a.href);
+}
+function downloadICS(as: Assembly) {
+  const dt = `${as.date.replaceAll("-", "")}T${as.time.replaceAll(":", "")}00`;
+  const ics = [
+    "BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//SARIR-BOARD//FA","METHOD:PUBLISH","BEGIN:VEVENT",
+    `UID:${crypto.randomUUID()}@sarir.local`,`DTSTAMP:${dt}Z`,`DTSTART:${dt}Z`,`DTEND:${dt}Z`,
+    `SUMMARY:${as.title}`,`DESCRIPTION:نوع: ${as.type} | وضعیت: ${as.status}${as.year ? " | سال " + as.year : ""}`,
+    "END:VEVENT","END:VCALENDAR",
+  ].join("\r\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" }));
+  a.download = `${as.title || "meeting"}.ics`; a.click(); URL.revokeObjectURL(a.href);
+  toast("iCal ساخته شد");
 }
 
-function DeleteModal({ isOpen, onClose, onConfirm }: { isOpen: boolean; onClose: () => void; onConfirm: () => void }) {
-  if (!isOpen) return null;
-
-  return (
-    <motion.div
-      initial="hidden"
-      animate="show"
-      exit="hidden"
-      variants={modalVariants}
-      className="fixed inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-sm"
-    >
-      <div className="bg-white/90 p-6 rounded-xl shadow-2xl w-96">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-turquoise-900">تایید حذف</h2>
-          <Button onClick={onClose} className="text-gray-600 hover:text-gray-900">
-            <XMarkIcon className="h-6 w-6" />
-          </Button>
-        </div>
-        <p className="mb-4 text-turquoise-800">آیا مطمئن هستید که می‌خواهید این عضو را حذف کنید؟</p>
-        <div className="flex gap-4">
-          <Button onClick={onClose} className="flex-1 bg-gray-300 text-gray-900 hover:bg-gray-400">
-            لغو
-          </Button>
-          <Button onClick={onConfirm} className="flex-1 bg-red-500 text-white hover:bg-red-600">
-            حذف
-          </Button>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-/* ─────────────── Small pieces ─────────────── */
-function Chip({
-  active,
-  onClick,
-  children,
-}: {
-  active?: boolean;
-  onClick?: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <motion.button
-      whileHover={{ scale: 1.05, boxShadow: "0 2px 6px rgba(0,0,0,0.1)" }}
-      whileTap={{ scale: 0.95 }}
-      onClick={onClick}
-      className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 ${
-        active
-          ? "bg-gradient-to-r from-turquoise-400 to-orange-500 text-white shadow-md"
-          : "bg-gray-300 text-turquoise-900 hover:bg-gray-400 hover:shadow-md"
-      }`}
-      aria-label={children.toString()}
-    >
-      {children}
-    </motion.button>
-  );
-}
-
-function BoardCard({ member, onEdit, onDelete }: { member: BoardRow; onEdit: () => void; onDelete: () => void }) {
-  return (
-    <motion.li
-      whileHover={{ scale: 1.03, y: -5, boxShadow: "0 20px 40px rgba(0,0,0,0.3)" }} // shadow قوی‌تر برای جذابیت
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ type: "spring", stiffness: 80, damping: 12, ease: "easeInOut" }}
-      className="p-6 rounded-2xl border border-gray-400 bg-white/40 flex items-center justify-between group hover:bg-white/50 transition-all duration-300 glow-border-soft"
-      data-tooltip-id={`tooltip-${member.id}`}
-      aria-label={`کارت عضو: ${member.name}`}
-    >
-      <div className="flex items-center gap-4">
-        <motion.div
-          whileHover={{ rotate: 360, scale: 1.1 }}
-          transition={{ duration: 1, ease: "easeInOut" }}
-          className="size-12 rounded-xl grid place-items-center bg-gradient-to-br from-turquoise-400 to-orange-500 text-white shadow-lg"
-        >
-          <BuildingOffice2Icon className="h-6 w-6" />
-        </motion.div>
-        <div>
-          <div className="font-bold text-turquoise-900 text-lg">{member.name}</div>
-          <div className="text-sm opacity-70 text-turquoise-800">{member.role}</div>
-          <div className="text-xs opacity-60 text-turquoise-700">{member.phone || "—"}</div>
-        </div>
-      </div>
-      <div className="flex items-center gap-2">
-        <Button
-          className="p-2 rounded-full bg-transparent text-turquoise-600 hover:text-turquoise-900 hover:bg-turquoise-200/80 transition-all duration-300"
-          onClick={onEdit}
-          aria-label={`ویرایش عضو: ${member.name}`}
-        >
-          <PencilIcon className="h-5 w-5" />
-        </Button>
-        <Button
-          className="p-2 rounded-full bg-transparent text-red-600 hover:text-red-900 hover:bg-red-200/80 transition-all duration-300"
-          onClick={onDelete}
-          aria-label={`حذف عضو: ${member.name}`}
-        >
-          <TrashIcon className="h-5 w-5" />
-        </Button>
-        <Link
-          href={`/board/view/${member.id}`}
-          className="text-turquoise-600 hover:text-orange-500 font-semibold transition-colors"
-          aria-label={`جزئیات عضو: ${member.name}`}
-        >
-          جزئیات →
-        </Link>
-      </div>
-      <ReactTooltip
-        id={`tooltip-${member.id}`}
-        place="top"
-        content={`تماس: ${member.phone || "موجود نیست"}`}
-        className="bg-gray-800 text-white p-2 rounded-md"
-      />
-    </motion.li>
-  );
-}
-
-/* ─────────────── Stats Card ─────────────── */
-function StatsCard() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className={`${GLASS2} ${PANELBG2} p-6 flex flex-col md:flex-row gap-4 justify-around`}
-    >
-      <div className="flex items-center gap-3">
-        <ChartBarIcon className="h-8 w-8 text-turquoise-600" />
-        <div>
-          <div className="text-2xl font-bold text-turquoise-900">3</div>
-          <div className="text-sm text-turquoise-700">تعداد اعضا</div>
-        </div>
-      </div>
-      <div className="flex items-center gap-3">
-        <UsersIcon className="h-8 w-8 text-orange-500" />
-        <div>
-          <div className="text-2xl font-bold text-turquoise-900">1</div>
-          <div className="text-sm text-turquoise-700">رئیس هیئت</div>
-        </div>
-      </div>
-      <div className="flex items-center gap-3">
-        <BuildingOffice2Icon className="h-8 w-8 text-turquoise-600" />
-        <div>
-          <div className="text-2xl font-bold text-turquoise-900">2</div>
-          <div className="text-sm text-turquoise-700">اعضای عادی</div>
-        </div>
-      </div>
-      <div className="flex items-center gap-3">
-        <CalendarIcon className="h-8 w-8 text-green-500" />
-        <div>
-          <div className="text-2xl font-bold text-turquoise-900">5</div>
-          <div className="text-sm text-turquoise-700">جلسات برگزار شده</div>
-        </div>
-      </div>
-      <div className="flex items-center gap-3">
-        <DocumentTextIcon className="h-8 w-8 text-blue-500" />
-        <div>
-          <div className="text-2xl font-bold text-turquoise-900">12</div>
-          <div className="text-sm text-turquoise-700">گزارش‌های تصمیم‌گیری</div>
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-/* ─────────────── Page ─────────────── */
 export default function BoardMembersList() {
   const [search, setSearch] = useState("");
-  const [filterRole, setFilterRole] = useState<"all" | "chair" | "member">("all");
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [selectedMember, setSelectedMember] = useState<BoardRow | null>(null);
+  const [roleFilter, setRoleFilter] = useState<"all"|"chair"|"member">("all");
+  const [sortBy, setSortBy] = useState<"name"|"role">("name");
 
-  const data = useMemo<BoardRow[]>(
-    () => [
-      { id: 1, name: "علی محمدی", role: "رئیس هیئت‌مدیره", phone: "09123456789" },
-      { id: 2, name: "سارا کریمی", role: "عضو هیئت‌مدیره", phone: "09129876543" },
-      { id: 3, name: "محمد رضایی", role: "عضو هیئت‌مدیره", phone: "09121234567" },
-    ],
-    [],
-  );
+  const [editOpen, setEditOpen] = useState(false);
+  const [delOpen, setDelOpen] = useState(false);
+  const [selected, setSelected] = useState<BoardRow | null>(null);
+
+  const [members, setMembers] = useState<BoardRow[]>([
+    { id: 1, name: "علی محمدی", role: "رئیس هیئت‌مدیره", phone: "09123456789" },
+    { id: 2, name: "سارا احمدی", role: "عضو هیئت‌مدیره", phone: "09187654321" },
+    { id: 3, name: "رضا کریمی", role: "عضو هیئت‌مدیره" },
+  ]);
 
   const filtered = useMemo(() => {
     const k = search.trim().toLowerCase();
-    let list = data;
-    if (filterRole === "chair") list = list.filter((x) => x.role.includes("رئیس"));
-    if (filterRole === "member") list = list.filter((x) => x.role.includes("عضو"));
-    if (k) list = list.filter((x) => `${x.name} ${x.role}`.toLowerCase().includes(k));
+    let list = members;
+    if (roleFilter === "chair") list = list.filter(x => x.role.includes("رئیس"));
+    if (roleFilter === "member") list = list.filter(x => x.role.includes("عضو"));
+    if (k) list = list.filter(x => (`${x.name} ${x.role} ${x.phone || ""}`).toLowerCase().includes(k));
+    list = [...list].sort((a, b) => (a[sortBy] || "").localeCompare((b as any)[sortBy] || ""));
     return list;
-  }, [data, filterRole, search]);
+  }, [members, roleFilter, search, sortBy]);
 
-  /* CSV export با استفاده از modern Blob API */
-  function exportCSV() {
-    const rows = [
-      ["نام", "نقش", "شماره تماس"],
-      ...filtered.map((m) => [m.name, m.role, m.phone || ""]),
-    ];
-    const csv = rows.map((r) => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "board_members.csv";
-    a.click();
-    URL.revokeObjectURL(a.href);
-    toast.success("فایل CSV دانلود شد!");
-  }
-
-  /* توابع برای modal */
-  function openEditModal(member: BoardRow) {
-    setSelectedMember(member);
-    setEditModalOpen(true);
-  }
-
-  function openDeleteModal(member: BoardRow) {
-    setSelectedMember(member);
-    setDeleteModalOpen(true);
-  }
-
-  function handleDeleteConfirm() {
-    toast.error("عضو حذف شد! (placeholder)");
-    setDeleteModalOpen(false);
-  }
-
-  // Define barChartData and pieChartData based on data (similar to personnel file)
   const stats = useMemo(() => {
-    const total = data.length;
-    const chairs = data.filter((x) => x.role.includes("رئیس")).length;
-    const members = data.filter((x) => x.role.includes("عضو")).length;
-    return { total, chairs, members };
-  }, [data]);
+    const total = members.length;
+    const chairs = members.filter(x => x.role.includes("رئیس")).length;
+    const m = members.filter(x => x.role.includes("عضو")).length;
+    return { total, chairs, members: m };
+  }, [members]);
+  const barData = [{ name: "کل", value: stats.total }, { name: "رئیس", value: stats.chairs }, { name: "عضو", value: stats.members }];
+  const pieData = [{ value: stats.chairs, fill: CC.orange }, { value: stats.members, fill: CC.teal }];
 
-  const barChartData = [
-    { name: "کل", value: stats.total, fill: "#07657E" },
-    { name: "رئیس", value: stats.chairs, fill: "#F2991F" },
-    { name: "عضو", value: stats.members, fill: "#1FB4C8" },
+  /* KPI Strip */
+  const kpis = [
+    { t:"کل اعضا", v: stats.total },
+    { t:"رئیس", v: stats.chairs },
+    { t:"اعضا", v: stats.members },
+    { t:"مجامع باز", v: 0 }, // بعداً با API
   ];
 
-  const pieChartData = [
-    { name: "رئیس", value: stats.chairs, fill: "#07657E" },
-    { name: "عضو", value: stats.members, fill: "#F2991F" },
-  ];
+  /* Meetings */
+  const [assemblies, setAssemblies] = useState<Assembly[]>([]);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [newAsm, setNewAsm] = useState<{ title: string; type: AssemblyType; year?: number; date: string; time: string; status: AssemblyStatus }>({
+    title: "جلسه هیئت‌مدیره", type: "annual", year: undefined, date: "", time: "10:00", status: "planned",
+  });
+
+  /* Filters for assemblies */
+  const [asmType, setAsmType] = useState<"all"|AssemblyType>("all");
+  const [asmStatus, setAsmStatus] = useState<"all"|AssemblyStatus>("all");
+  const filteredAsm = assemblies.filter(a =>
+    (asmType==="all" || a.type===asmType) && (asmStatus==="all" || a.status===asmStatus)
+  );
+
+  /* Warn for near meetings ≤ 72h */
+  useEffect(() => {
+    const now = new Date();
+    assemblies.forEach((m) => {
+      const dt = new Date(`${m.date}T${m.time}`);
+      const diffH = (dt.getTime() - now.getTime()) / 36e5;
+      if (m.status === "planned" && diffH >= 0 && diffH <= 72) {
+        toast.custom(
+          <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-amber-900 flex items-center gap-2">
+            <BellAlertIcon className="h-5 w-5" />
+            <span>اخطار: جلسه نزدیک — {dt.toLocaleString("fa-IR")}</span>
+          </div>
+        );
+      }
+    });
+  }, [assemblies]);
+
+  function exportMembersCSV() {
+    downloadCSV([["نام","نقش","شماره تلفن"], ...filtered.map(m => [m.name, m.role, m.phone || ""])], "board_members.csv");
+    toast.success("CSV دانلود شد");
+  }
+  function exportAssembliesCSV() {
+    const rows = [["عنوان","نوع","سال/تاریخ","ساعت","وضعیت"], ...filteredAsm.map(a=>[
+      a.title, a.type, a.year?`سال ${a.year}`:a.date, a.time, a.status
+    ])];
+    downloadCSV(rows, "assemblies.csv"); toast.success("CSV مجامع دانلود شد");
+  }
+  function createAssembly() {
+    if (!newAsm.date) return toast.error("تاریخ را وارد کن");
+    if (!newAsm.time) return toast.error("ساعت را وارد کن");
+    if (newAsm.type === "annual" && !newAsm.year) return toast.error("سال مالی لازم است");
+    const id = assemblies.length ? Math.max(...assemblies.map(a => a.id)) + 1 : 1;
+    setAssemblies(s => [{ id, ...newAsm }, ...s]);
+    setCreateOpen(false); toast.success("مجمع ایجاد شد");
+  }
+  function deleteMember() {
+    if (!selected) return;
+    setMembers(s => s.filter(x => x.id !== selected.id));
+    setDelOpen(false); toast("حذف شد");
+  }
 
   return (
-    <div
-      dir="rtl"
-      className="flex min-h-screen text-turquoise-900 relative overflow-hidden"
-      style={{
-        background:
-          "radial-gradient(120rem 70rem at 120% -10%, rgba(7,101,126,.18), transparent), radial-gradient(100rem 60rem at -10% 120%, rgba(242,153,31,.18), transparent), #a0aec0",
-      }}
-    >
-      <div className="pointer-events-none absolute inset-0 opacity-[.08] [background:repeating-linear-gradient(90deg,rgba(0,0,0,.25)_0_1px,transparent_1px_28px),repeating-linear-gradient(0deg,rgba(0,0,0,.2)_0_1px,transparent_1px_28px)]" />
+    <div dir="rtl" className="min-h-screen relative"
+      style={{ background: "radial-gradient(110rem 60rem at 110% -20%, rgba(7,101,126,.14), transparent), radial-gradient(100rem 60rem at -10% 120%, rgba(242,153,31,.14), transparent), #eef3f7" }}>
+      <div className="pointer-events-none absolute inset-0 opacity-[.06]" style={{ background: "repeating-linear-gradient(90deg,rgba(0,0,0,.2) 0 1px,transparent 1px 28px),repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 28px)" }} />
 
-      <div className="flex-1 p-6 md:p-8 gap-6 overflow-hidden flex flex-col">
-        <motion.header
-          initial={{ y: -15, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="backdrop-blur-sm border border-gray-200/30 rounded-xl shadow-sm bg-white/80 p-4 flex items-center justify-between"
-        >
-          <div>
-            <h1 className="text-2xl font-bold text-turquoise-900">
-              اعضای هیئت‌مدیره ({filtered.length})
-            </h1>
-            <p className="text-sm text-turquoise-600 mt-1">مدیریت و نظارت</p>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              className="bg-gradient-to-r from-turquoise-500 to-turquoise-600 text-white rounded-lg px-4 py-2 text-sm shadow-sm transition-all duration-300 btn-add"
-              onClick={() => toast("در حال توسعه!")}
-            >
-              <UserPlusIcon className="h-4 w-4 mr-2" /> افزودن
-            </Button>
-          </div>
-        </motion.header>
+      {/* Header */}
+      <header className={`${card} mx-4 md:mx-8 mt-6 p-4 flex items-center justify-between`}>
+        <div>
+          <h1 className="text-2xl font-bold" style={{ color: CC.teal }}>اعضای هیئت‌مدیره ({filtered.length})</h1>
+          <p className="text-sm" style={{ color: `${CC.teal}CC` }}>مدیریت اعضا | ایجاد مجمع | اخطار جلسات نزدیک</p>
+        </div>
+        <div className="flex gap-2">
+          <Link href="/board/register"><Btn><UserPlusIcon className="h-4 w-4 mr-2 inline-block" /> افزودن عضو</Btn></Link>
+          <Btn onClick={() => setCreateOpen(true)}><CalendarIcon className="h-4 w-4 mr-2 inline-block" /> ایجاد مجمع</Btn>
+        </div>
+      </header>
 
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          animate="show"
-          className="backdrop-blur-sm border border-gray-200/30 rounded-xl shadow-sm bg-white/80 p-4 grid md:grid-cols-2 gap-6"
-        >
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-3">
-              <motion.div variants={rise} className="p-3 rounded-lg bg-turquoise-50/50 border border-turquoise-100 shadow-inner">
-                <h3 className="text-xs font-medium text-turquoise-700">تعداد اعضا</h3>
-                <p className="text-xl font-bold text-turquoise-900">3</p>
-              </motion.div>
-              <motion.div variants={rise} className="p-3 rounded-lg bg-orange-50/50 border border-orange-100 shadow-inner">
-                <h3 className="text-xs font-medium text-orange-700">رئیس هیئت</h3>
-                <p className="text-xl font-bold text-orange-900">1</p>
-              </motion.div>
-              <motion.div variants={rise} className="p-3 rounded-lg bg-turquoise-50/50 border border-turquoise-100 shadow-inner">
-                <h3 className="text-xs font-medium text-turquoise-700">اعضای عادی</h3>
-                <p className="text-xl font-bold text-turquoise-900">2</p>
-              </motion.div>
-              <motion.div variants={rise} className="p-3 rounded-lg bg-green-50/50 border border-green-100 shadow-inner">
-                <h3 className="text-xs font-medium text-green-700">جلسات</h3>
-                <p className="text-xl font-bold text-green-900">5</p>
-              </motion.div>
-              <motion.div variants={rise} className="p-3 rounded-lg bg-blue-50/50 border border-blue-100 shadow-inner">
-                <h3 className="text-xs font-medium text-blue-700">گزارش‌ها</h3>
-                <p className="text-xl font-bold text-blue-900">12</p>
-              </motion.div>
-            </div>
-            <Button
-              onClick={exportCSV}
-              className="w-full bg-gradient-to-r from-turquoise-500 to-turquoise-600 text-white rounded-lg py-2 text-sm shadow-sm transition-all duration-300 btn-export"
-            >
-              خروجی CSV
-            </Button>
+      {/* KPI Strip */}
+      <div className="mx-4 md:mx-8 mt-4 grid md:grid-cols-4 gap-3">
+        {[
+          { t:"کل اعضا", v: stats.total },
+          { t:"رئیس", v: stats.chairs },
+          { t:"اعضا", v: stats.members },
+          { t:"مجامع باز", v: assemblies.filter(a=>a.status==="planned").length },
+        ].map((k,i)=>(
+          <div key={i} className="p-3 rounded-xl bg-white/80 border shadow text-center">
+            <div className="text-xs text-gray-500">{k.t}</div>
+            <div className="text-xl font-bold" style={{ color: CC.teal }}>{k.v}</div>
           </div>
-          <motion.div variants={rise} className="space-y-4">
-            <div className="h-32">
-              <ResponsiveContainer>
-                <BarChart data={barChartData}>
-                  <XAxis dataKey="name" stroke="#07657E" fontSize={12} />
-                  <YAxis stroke="#07657E" fontSize={12} />
-                  <Tooltip wrapperStyle={{ fontSize: "12px", background: "white", border: "1px solid #e5e7eb" }} />
-                  <Bar dataKey="value" radius={4} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-            <div className="h-32">
-              <ResponsiveContainer>
-                <PieChart>
-                  <Pie data={pieChartData} dataKey="value" outerRadius={60} label={false}>
-                    {pieChartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                  <Tooltip wrapperStyle={{ fontSize: "12px", background: "white", border: "1px solid #e5e7eb" }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </motion.div>
-        </motion.div>
-
-        <motion.div
-          initial={{ y: 15, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="backdrop-blur-sm border border-gray-200/30 rounded-xl shadow-sm bg-white/80 p-3 flex items-center gap-3"
-        >
-          <MagnifyingGlassIcon className="h-5 w-5 text-turquoise-600" />
-          <Input
-            placeholder="جستجو نام یا نقش..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 bg-transparent border-none text-turquoise-900 placeholder:text-turquoise-500 focus:outline-none text-sm"
-          />
-          <div className="flex gap-2">
-            <Chip active={filterRole === "all"} onClick={() => setFilterRole("all")}>همه</Chip>
-            <Chip active={filterRole === "chair"} onClick={() => setFilterRole("chair")}>رئیس</Chip>
-            <Chip active={filterRole === "member"} onClick={() => setFilterRole("member")}>عضو</Chip>
-          </div>
-          <Button
-            className="text-turquoise-600 hover:text-turquoise-800 p-1 btn-refresh"
-            onClick={() => toast("رفرش شد!")}
-          >
-            <ArrowPathIcon className="h-5 w-5" />
-          </Button>
-        </motion.div>
-
-        <motion.section
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          variants={stagger}
-          className="flex-1 overflow-y-auto space-y-6"
-        >
-          {filtered.length === 0 ? (
-            <div className="text-center py-8 text-turquoise-600">
-              موردی یافت نشد.
-            </div>
-          ) : (
-            <motion.ul variants={stagger} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <AnimatePresence>
-                {filtered.map((e) => (
-                  <BoardCard
-                    key={e.id}
-                    member={e}
-                    onEdit={() => openEditModal(e)}
-                    onDelete={() => openDeleteModal(e)}
-                  />
-                ))}
-              </AnimatePresence>
-            </motion.ul>
-          )}
-        </motion.section>
+        ))}
       </div>
 
-      <EditModal isOpen={editModalOpen} onClose={() => setEditModalOpen(false)} member={selectedMember} />
-      <DeleteModal isOpen={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} onConfirm={handleDeleteConfirm} />
+      {/* Stats + Charts */}
+      <section className={`${card} mx-4 md:mx-8 mt-4 p-4 grid md:grid-cols-2 gap-6`}>
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="p-3 rounded-lg border border-[#07657E]/20 bg-[#07657E]/10">
+              <h3 className="text-xs" style={{ color: `${CC.teal}CC` }}>تعداد اعضا</h3>
+              <p className="text-xl font-bold" style={{ color: CC.dark }}>{stats.total}</p>
+            </div>
+            <div className="p-3 rounded-lg border border-[#F2991F]/25 bg-[#F2991F]/10">
+              <h3 className="text-xs" style={{ color: `${CC.orange}CC` }}>رئیس هیئت</h3>
+              <p className="text-xl font-bold" style={{ color: CC.dark }}>{stats.chairs}</p>
+            </div>
+            <div className="p-3 rounded-lg border border-[#1FB4C8]/25 bg-[#1FB4C8]/10">
+              <h3 className="text-xs" style={{ color: `${CC.teal}CC` }}>اعضای عادی</h3>
+              <p className="text-xl font-bold" style={{ color: CC.dark }}>{stats.members}</p>
+            </div>
+            <div className="p-3 rounded-lg border border-blue-500/25 bg-blue-500/10">
+              <h3 className="text-xs text-blue-700/80">گزارش‌ها</h3>
+              <p className="text-xl font-bold" style={{ color: CC.dark }}>12</p>
+            </div>
+          </div>
+          <Btn onClick={exportMembersCSV}>خروجی CSV اعضا</Btn>
+        </div>
+        <div className="space-y-4">
+          <div className="h-32 bg-white/70 rounded-lg border border-white/40">
+            <ResponsiveContainer>
+              <BarChart data={barData}>
+                <XAxis dataKey="name" stroke={CC.teal} fontSize={12} />
+                <YAxis stroke={CC.teal} fontSize={12} />
+                <ChartTooltip wrapperStyle={{ fontSize: "12px", background: "white", border: "1px solid #e5e7eb" }} />
+                <Bar dataKey="value" radius={4} fill={CC.teal} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="h-32 bg-white/70 rounded-lg border border-white/40">
+            <ResponsiveContainer>
+              <PieChart>
+                <Pie data={[{ value: stats.chairs, fill: CC.orange }, { value: stats.members, fill: CC.teal }]} dataKey="value" outerRadius={60} label={false}>
+                  <Cell fill={CC.orange} /><Cell fill={CC.teal} />
+                </Pie>
+                <ChartTooltip wrapperStyle={{ fontSize: "12px", background: "white", border: "1px solid #e5e7eb" }} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </section>
+
+      {/* Toolbar */}
+      <section className={`${card} mx-4 md:mx-8 mt-4 p-3 flex flex-wrap gap-3 items-center`}>
+        <MagnifyingGlassIcon className="h-5 w-5" style={{ color: CC.teal }} />
+        <Input placeholder="جستجو نام/نقش/شماره…" value={search} onChange={(e) => setSearch(e.target.value)} className="flex-1 bg-transparent border-none placeholder:text-gray-500" />
+        <div className="flex gap-2">
+          <button onClick={() => setRoleFilter("all")}    className={`px-3 py-1 rounded-full text-sm ${roleFilter==="all"?"bg-[#07657E] text-white":"bg-gray-200 text-[#07657E]"}`}>همه</button>
+          <button onClick={() => setRoleFilter("chair")}  className={`px-3 py-1 rounded-full text-sm ${roleFilter==="chair"?"bg-[#07657E] text-white":"bg-gray-200 text-[#07657E]"}`}>رئیس</button>
+          <button onClick={() => setRoleFilter("member")} className={`px-3 py-1 rounded-full text-sm ${roleFilter==="member"?"bg-[#07657E] text-white":"bg-gray-200 text-[#07657E]"}`}>عضو</button>
+        </div>
+        <div className="ml-auto flex gap-2">
+          <button onClick={() => setSortBy(sortBy === "name" ? "role" : "name")} className="px-3 py-1.5 rounded-md border bg-white hover:bg-gray-50 text-sm">
+            <ArrowsUpDownIcon className="h-4 w-4 inline-block ml-1" /> سورت: {sortBy === "name" ? "نام" : "نقش"}
+          </button>
+          <Btn variant="ghost" onClick={() => toast("رفرش شد")}><ArrowPathIcon className="h-5 w-5" /></Btn>
+        </div>
+      </section>
+
+      {/* Members */}
+      <section className="mx-4 md:mx-8 my-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filtered.map((m) => (
+          <motion.li key={m.id} whileHover={{ y: -4 }} className={`${card} p-5 flex items-center justify-between`}>
+            <div className="flex items-center gap-4">
+              <div className="size-12 rounded-xl grid place-items-center text-white shadow" style={{ background: `linear-gradient(135deg, ${CC.teal}, ${CC.cyan})` }}>
+                <BuildingOffice2Icon className="h-6 w-6" />
+              </div>
+              <div>
+                <div className="font-bold" style={{ color: CC.dark }}>{m.name}</div>
+                <div className="text-sm" style={{ color: CC.teal }}>{m.role}</div>
+                <div className="text-xs text-gray-600">{m.phone || "—"}</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-1">
+              <Btn variant="ghost" onClick={() => { setSelected(m); setEditOpen(true); }} aria-label={`ویرایش ${m.name}`}><PencilIcon className="h-5 w-5" /></Btn>
+              <Btn variant="ghost" onClick={() => { setSelected(m); setDelOpen(true); }} aria-label={`حذف ${m.name}`}><TrashIcon className="h-5 w-5 text-red-500" /></Btn>
+              <Link href={`/board/view/${m.id}`} className="font-semibold" style={{ color: CC.teal }}>جزئیات →</Link>
+            </div>
+          </motion.li>
+        ))}
+        {filtered.length === 0 && <div className={`${card} p-10 text-center`} style={{ color: `${CC.teal}CC` }}>موردی یافت نشد.</div>}
+      </section>
+
+      {/* Assemblies */}
+      <section className={`${card} mx-4 md:mx-8 mb-10 p-4`}>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-xl font-bold" style={{ color: CC.teal }}>مجامع ({assemblies.length})</h2>
+          <div className="flex items-center gap-2">
+            <select value={asmType} onChange={e=>setAsmType(e.target.value as any)} className="border rounded-md px-2 py-1 text-sm">
+              <option value="all">همهٔ انواع</option>
+              <option value="annual">عادی سالانه</option>
+              <option value="ordinaryExtra">به‌طور فوق‌العاده</option>
+              <option value="extraordinary">فوق‌العاده</option>
+            </select>
+            <select value={asmStatus} onChange={e=>setAsmStatus(e.target.value as any)} className="border rounded-md px-2 py-1 text-sm">
+              <option value="all">همهٔ وضعیت‌ها</option>
+              <option value="planned">برنامه‌ریزی‌شده</option>
+              <option value="held">برگزارشده</option>
+              <option value="published">منتشرشده</option>
+            </select>
+            <button onClick={exportAssembliesCSV} className="px-3 py-1.5 rounded-md border bg-white hover:bg-gray-50 text-sm">CSV مجامع</button>
+            <Btn onClick={() => setCreateOpen(true)}><CalendarIcon className="h-5 و-5 mr-2 inline-block" /> ایجاد مجمع جدید</Btn>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm border border-gray-200 rounded-lg overflow-hidden">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-3 py-2 text-right">عنوان</th>
+                <th className="px-3 py-2 text-right">نوع</th>
+                <th className="px-3 py-2 text-right">سال/تاریخ</th>
+                <th className="px-3 py-2 text-right">ساعت</th>
+                <th className="px-3 py-2 text-right">وضعیت</th>
+                <th className="px-3 py-2 text-right">خروجی</th>
+                <th className="px-3 py-2 text-right">اقدامات</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredAsm.length === 0 && <tr><td className="px-3 py-3 text-center text-gray-500" colSpan={7}>موردی برای نمایش نیست.</td></tr>}
+              {filteredAsm.map((a) => (
+                <tr key={a.id} className="border-t">
+                  <td className="px-3 py-2">{a.title}</td>
+                  <td className="px-3 py-2">{a.type === "annual" ? "عادی سالانه" : a.type === "ordinaryExtra" ? "به‌طور فوق‌العاده" : "فوق‌العاده"}</td>
+                  <td className="px-3 py-2">{a.year ? `سال ${a.year}` : a.date}</td>
+                  <td className="px-3 py-2">{a.time}</td>
+                  <td className="px-3 py-2">
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${a.status==="planned"?"bg-amber-100 text-amber-800":a.status==="held"?"bg-emerald-100 text-emerald-800":"bg-blue-100 text-blue-800"}`}>
+                      {a.status==="planned"?"برنامه‌ریزی‌شده":a.status==="held"?"برگزارشده":"منتشرشده"}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2">
+                    <button onClick={() => downloadICS(a)} className="px-2 py-1 rounded-md border bg-white hover:bg-gray-50 text-xs">iCal</button>
+                  </td>
+                  <td className="px-3 py-2">
+                    <div className="flex gap-2">
+                      <Btn variant="ghost"><PencilIcon className="h-5 w-5" /></Btn>
+                      <Btn variant="danger"><TrashIcon className="h-5 w-5" /></Btn>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      {/* Create Assembly Modal */}
+      {createOpen && (
+        <div className="fixed inset-0 z-50 bg-black/40 grid place-items-center p-4">
+          <div className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-bold" style={{ color: CC.teal }}>ایجاد مجمع جدید</h3>
+              <button onClick={() => setCreateOpen(false)} className="p-1 rounded hover:bg-gray-100">
+                <XMarkIcon className="h-6 w-6 text-gray-600" />
+              </button>
+            </div>
+            <div className="grid md:grid-cols-2 gap-3">
+              <div className="flex flex-col gap-1">
+                <label className="text-sm">عنوان</label>
+                <Input value={newAsm.title} onChange={(e)=> setNewAsm(p=>({ ...p, title:e.target.value }))} placeholder="جلسه هیئت‌مدیره" />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm">نوع مجمع</label>
+                <select value={newAsm.type} onChange={(e)=> setNewAsm(p=>({ ...p, type: e.target.value as AssemblyType }))} className="border rounded-md px-3 py-2">
+                  <option value="annual">مجمع عمومی عادی سالانه</option>
+                  <option value="ordinaryExtra">مجمع عمومی به‌طور فوق‌العاده</option>
+                  <option value="extraordinary">مجمع عمومی فوق‌العاده</option>
+                </select>
+              </div>
+              {newAsm.type === "annual" && (
+                <div className="flex flex-col gap-1">
+                  <label className="text-sm">سال مالی</label>
+                  <Input type="number" placeholder="مثلاً 1404" onChange={(e)=> setNewAsm(p=>({ ...p, year: Number(e.target.value)||undefined }))} />
+                </div>
+              )}
+              <div className="flex flex-col gap-1">
+                <label className="text-sm">تاریخ</label>
+                <Input type="date" onChange={(e)=> setNewAsm(p=>({ ...p, date: e.target.value }))} />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm">ساعت</label>
+                <Input type="time" value={newAsm.time} onChange={(e)=> setNewAsm(p=>({ ...p, time: e.target.value }))} />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm">وضعیت</label>
+                <select value={newAsm.status} onChange={(e)=> setNewAsm(p=>({ ...p, status: e.target.value as AssemblyStatus }))} className="border rounded-md px-3 py-2">
+                  <option value="planned">برنامه‌ریزی‌شده</option>
+                  <option value="held">برگزارشده</option>
+                  <option value="published">منتشرشده</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-5 flex items-center justify-end gap-2">
+              <button onClick={()=> setCreateOpen(false)} className="px-4 py-2 rounded-md border bg-white hover:bg-gray-50">انصراف</button>
+              <Btn onClick={createAssembly}>ثبت مجمع</Btn>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Modal */}
+      {delOpen && (
+        <div className="fixed inset-0 z-50 bg-black/40 grid place-items-center p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex justify-between items-center mb-3">
+              <div className="font-bold" style={{ color: CC.teal }}>حذف عضو</div>
+              <button onClick={() => setDelOpen(false)}><XMarkIcon className="h-6 w-6 text-gray-600" /></button>
+            </div>
+            <p className="text-sm">آیا از حذف <b>{selected?.name}</b> مطمئنی؟</p>
+            <div className="mt-4 flex justify-end gap-2">
+              <button onClick={() => setDelOpen(false)} className="px-3 py-1.5 rounded-md border">انصراف</button>
+              <Btn variant="danger" onClick={deleteMember}>حذف</Btn>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {editOpen && (
+        <div className="fixed inset-0 z-50 bg-black/40 grid place-items-center p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl">
+            <div className="flex justify-between items-center mb-3">
+              <div className="font-bold" style={{ color: CC.teal }}>ویرایش: {selected?.name}</div>
+              <button onClick={() => setEditOpen(false)}><XMarkIcon className="h-6 w-6 text-gray-600" /></button>
+            </div>
+            <div className="grid gap-3">
+              <Input defaultValue={selected?.name} placeholder="نام" />
+              <Input defaultValue={selected?.role} placeholder="نقش" />
+              <Input defaultValue={selected?.phone} placeholder="شماره تماس" />
+            </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <button onClick={() => setEditOpen(false)} className="px-3 py-1.5 rounded-md border">بستن</button>
+              <Btn onClick={() => { toast.success("ذخیره شد (نمونه)"); setEditOpen(false); }}>ذخیره</Btn>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
