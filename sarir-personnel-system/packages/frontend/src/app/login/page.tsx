@@ -24,7 +24,9 @@ export default function LoginPage() {
                 width={350}
                 height={130}
                 className="mx-auto drop-shadow-2xl animate-glow-logo"
-                style={{ filter: "drop-shadow(0 0 24px rgba(0, 123, 255, 0.35))" }}
+                style={{
+                  filter: "drop-shadow(0 0 24px rgba(0, 123, 255, 0.35))",
+                }}
                 priority
               />
               <div className="w-full" style={{ transform: "translateY(-38px)" }}>
@@ -33,7 +35,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* ستون راست: گرادیان + SARIR بالا + کامیون + شعار */}
+          {/* ستون راست: گرادیان + SARIR بالا + متن خوش‌آمد + کامیون + شعار */}
           <div
             className="relative w-full md:w-1/2 flex justify-center items-center p-4 md:p-6 bg-transparent text-white overflow-hidden"
             style={{
@@ -63,8 +65,8 @@ export default function LoginPage() {
 
             {/* محتوا: SARIR بالا + متن خوش‌آمد + کامیون + شعار */}
             <div className="relative z-20 text-center flex flex-col items-center justify-between gap-3 animate-slide-right mt-[-120px]">
-              {/* SARIR LOGISTIC — 2cm پایین‌تر (≈32px) تا از قاب بیرون نزند */}
-              <div className="mb 12 animate-sarir-drift translate-y-[132px]">
+              {/* SARIR LOGISTIC */}
+              <div className="mb-12 animate-sarir-drift translate-y-[132px]">
                 <span
                   className="text-[36px] md:text-[64px] font-extrabold bg-gradient-to-r from-[#66C2FF] to-[#99DBFF] bg-clip-text text-transparent tracking-[.08em]"
                   style={{
@@ -78,15 +80,15 @@ export default function LoginPage() {
                 </span>
               </div>
 
-              {/* متن خوش‌آمد — 2cm پایین‌تر */}
-              <h1 className="text-[14px] md:text-[18px] font-extrabold leading-relaxed drop-shadow-[0_6px_12px_rgba(0,0,0,0.3)] animate-text-reveal bg-gradient-to-r from-[#B3E5FC] to-[#E0F4FA] bg-clip-text text-transparent translate-y-[232px]">
+              {/* متن خوش‌آمد */}
+              <h1 className="text-[14px] md:text-[18px] font-extrabold leading-relaxed drop-shadow-[0_6px_12px_rgba(0,0,0,0.3)] animate-text-reveal bg-gradient-to-r from-[#B3E5FC] to-[#E0F4FA] bg-clip-text text-transparent translate-y-[172px]">
                 به سامانه هوشمند مدیریت پرسنل
                 <br />
                 سریر لجستیک خوش آمدید!
               </h1>
 
-              {/* کامیون — 2cm بالاتر برای قرارگیری دقیق روی محور میانی */}
-              <div className="relative w-fit mx-auto mb-[-61px] -translate-y-[2px]">
+              {/* کامیون */}
+              <div className="relative w-fit mx-auto mb-[-61px] -translate-y-[80px]">
                 <Image
                   src="/images/truck.png"
                   alt="truck"
@@ -102,7 +104,7 @@ export default function LoginPage() {
               </div>
 
               {/* شعار */}
-              <p className="text-[14px] md:text-[16px] font-medium tracking-widest opacity-95 drop-shadow-[0_6px_12px_rgba(0,0,0,0.3)] animate-text-reveal bg-gradient-to-r from-[#C7ECFF] to-[#E6FAFF] bg-clip-text text-transparent font-['Vazirmatn'] mt-[142px]">
+              <p className="text-[14px] md:text-[16px] font-medium tracking-widest opacity-95 drop-shadow-[0_6px_12px_rgba(0,0,0,0.3)] animate-text-reveal bg-gradient-to-r from-[#C7ECFF] to-[#E6FAFF] bg-clip-text text-transparent font-['Vazirmatn'] mt-[82px]">
                 A NEW TRACK OF SUCCESS
               </p>
             </div>
@@ -110,167 +112,127 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* انیمیشن‌ها و افکت‌ها */}
+      {/* 🎨 انیمیشن‌ها، افکت‌ها + دکمه ورود حرفه‌ای و سازمانی + مرکزسازی عمودی محتوا در input/button */}
       <style jsx global>{`
         .animate-gradient-bg {
           background-size: 180% 180%;
           animation: gradient-pan 24s ease infinite;
         }
         @keyframes gradient-pan {
-          0% {
-            background-position: 0% 0%;
-          }
-          50% {
-            background-position: 100% 100%;
-          }
-          100% {
-            background-position: 0% 0%;
-          }
+          0% { background-position: 0% 0%; }
+          50% { background-position: 100% 100%; }
+          100% { background-position: 0% 0%; }
         }
 
         .animate-glow-border {
           box-shadow: 0 20px 80px -20px rgba(7, 101, 126, 0.35),
-            0 0 0 1px rgba(255, 255, 255, 0.25) inset;
+                      0 0 0 1px rgba(255, 255, 255, 0.25) inset;
         }
 
-        .animate-glow-logo {
-          animation: logo-glow 6s ease-in-out infinite;
-        }
+        .animate-glow-logo { animation: logo-glow 6s ease-in-out infinite; }
         @keyframes logo-glow {
-          0%,
-          100% {
-            filter: drop-shadow(0 0 24px rgba(0, 123, 255, 0.35));
-          }
-          50% {
-            filter: drop-shadow(0 0 36px rgba(0, 123, 255, 0.45));
-          }
+          0%,100% { filter: drop-shadow(0 0 24px rgba(0,123,255,0.35)); }
+          50%     { filter: drop-shadow(0 0 36px rgba(0,123,255,0.45)); }
         }
 
-        /* حرکت افقی آرام برای SARIR LOGISTIC */
-        .animate-sarir-drift {
-          animation: sarir-drift 9s ease-in-out infinite;
-        }
+        .animate-sarir-drift { animation: sarir-drift 9s ease-in-out infinite; }
         @keyframes sarir-drift {
-          0% {
-            transform: translateX(-10px);
-          }
-          50% {
-            transform: translateX(14px);
-          }
-          100% {
-            transform: translateX(-10px);
-          }
+          0% { transform: translateX(-10px); }
+          50% { transform: translateX(14px); }
+          100% { transform: translateX(-10px); }
         }
 
         .animate-slide-right {
-          animation: slide-right 0.8s cubic-bezier(0.22, 0.78, 0.24, 0.99) both 0.05s;
+          animation: slide-right .8s cubic-bezier(.22,.78,.24,.99) both .05s;
         }
         @keyframes slide-right {
-          from {
-            opacity: 0;
-            transform: translateX(18px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
+          from { opacity:0; transform:translateX(18px); }
+          to   { opacity:1; transform:translateX(0); }
         }
 
-        .animate-text-reveal {
-          animation: text-reveal 0.9s ease both 0.2s;
-        }
+        .animate-text-reveal { animation: text-reveal .9s ease both .2s; }
         @keyframes text-reveal {
-          from {
-            opacity: 0;
-            filter: blur(6px);
-          }
-          to {
-            opacity: 1;
-            filter: blur(0);
-          }
+          from { opacity:0; filter:blur(6px); }
+          to   { opacity:1; filter:blur(0); }
         }
 
-        /* کامیون: شناور عمودی + چپ‌و‌راست */
         .animate-truck-combo {
           animation: truck-float 3.4s ease-in-out infinite alternate,
-            truck-sway 5.8s ease-in-out infinite;
+                     truck-sway 5.8s ease-in-out infinite;
           will-change: transform, filter;
-          filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.22))
-            drop-shadow(0 0 28px rgba(102, 178, 255, 0.28));
+          filter: drop-shadow(0 0 16px rgba(255,255,255,.22))
+                  drop-shadow(0 0 28px rgba(102,178,255,.28));
         }
         @keyframes truck-float {
-          from {
-            transform: translateY(-6px) scale(2.25);
-          }
-          to {
-            transform: translateY(-14px) scale(2.25);
-          }
+          from { transform: translateY(-6px) scale(2.25); }
+          to   { transform: translateY(-14px) scale(2.25); }
         }
         @keyframes truck-sway {
-          0% {
-            transform: translateX(-8px) translateY(-10px) scale(2.25);
-          }
-          50% {
-            transform: translateX(10px) translateY(-10px) scale(2.25);
-          }
-          100% {
-            transform: translateX(-8px) translateY(-10px) scale(2.25);
-          }
+          0%   { transform: translateX(-8px) translateY(-10px) scale(2.25); }
+          50%  { transform: translateX(10px) translateY(-10px) scale(2.25); }
+          100% { transform: translateX(-8px) translateY(-10px) scale(2.25); }
         }
 
-        /* پارتیکل‌ها */
-        .animate-particle-1,
-        .animate-particle-2,
-        .animate-particle-3 {
-          will-change: transform;
+        .animate-particle-1, .animate-particle-2, .animate-particle-3 { will-change: transform; }
+        .animate-particle-1 { top:18%; left:14%; animation: particle-1 14s linear infinite; }
+        .animate-particle-2 { bottom:22%; right:10%; animation: particle-2 16s linear infinite; }
+        .animate-particle-3 { top:52%; right:36%; animation: particle-3 12s linear infinite; }
+        @keyframes particle-1 { 0%{transform:translate(0,0) scale(1);} 50%{transform:translate(40px,-30px) scale(1.2);} 100%{transform:translate(0,0) scale(1);} }
+        @keyframes particle-2 { 0%{transform:translate(0,0) scale(1);} 50%{transform:translate(-36px,24px) scale(.85);} 100%{transform:translate(0,0) scale(1);} }
+        @keyframes particle-3 { 0%{transform:translate(0,0);} 50%{transform:translate(22px,-40px);} 100%{transform:translate(0,0);} }
+
+        /* ✅ دکمه ورود: حرفه‌ای، مینیمال، سازمانی (سبز تیره + فونت روشن) */
+        button[type="submit"] {
+          color: #f7fafc !important;       /* فونت روشن و خوانا */
+          background: #07657E !important;  /* سبز تیره سازمانی */
+          border: 1px solid rgba(0,0,0,0.04);
+          border-radius: 9999px;
+          padding: 0 1.25rem;
+          height: 48px;                    /* ← ارتفاع ثابت */
+          line-height: 48px;               /* ← متن دقیقاً وسط عمودی */
+          font-weight: 600;
+          letter-spacing: .2px;
+          box-shadow:
+            0 6px 16px rgba(7,101,126,.28),
+            0 1px 0 rgba(255,255,255,.35) inset;
+          transition:
+            transform .15s ease,
+            box-shadow .15s ease,
+            filter .15s ease,
+            background-color .15s ease;
+          display: inline-flex;            /* ← تضمین وسط‌شدن */
+          align-items: center;
+          justify-content: center;
         }
-        .animate-particle-1 {
-          top: 18%;
-          left: 14%;
-          animation: particle-1 14s linear infinite;
+        button[type="submit"]:hover {
+          filter: brightness(1.06);
+          transform: translateY(-1px);
+          box-shadow:
+            0 10px 22px rgba(7,101,126,.36),
+            0 1px 0 rgba(255,255,255,.45) inset;
         }
-        .animate-particle-2 {
-          bottom: 22%;
-          right: 10%;
-          animation: particle-2 16s linear infinite;
+        button[type="submit"]:active {
+          transform: translateY(0);
+          filter: brightness(0.98);
+          box-shadow:
+            0 6px 14px rgba(7,101,126,.24),
+            0 1px 0 rgba(255,255,255,.30) inset;
         }
-        .animate-particle-3 {
-          top: 52%;
-          right: 36%;
-          animation: particle-3 12s linear infinite;
+        button[type="submit"]:focus-visible {
+          outline: 2px solid rgba(255,255,255,.85);
+          outline-offset: 2px;
+          box-shadow:
+            0 0 0 3px rgba(7,101,126,.35),
+            0 6px 16px rgba(7,101,126,.28);
         }
-        @keyframes particle-1 {
-          0% {
-            transform: translate(0, 0) scale(1);
-          }
-          50% {
-            transform: translate(40px, -30px) scale(1.2);
-          }
-          100% {
-            transform: translate(0, 0) scale(1);
-          }
-        }
-        @keyframes particle-2 {
-          0% {
-            transform: translate(0, 0) scale(1);
-          }
-          50% {
-            transform: translate(-36px, 24px) scale(0.85);
-          }
-          100% {
-            transform: translate(0, 0) scale(1);
-          }
-        }
-        @keyframes particle-3 {
-          0% {
-            transform: translate(0, 0);
-          }
-          50% {
-            transform: translate(22px, -40px);
-          }
-          100% {
-            transform: translate(0, 0);
-          }
+
+        /* ✅ ورودی‌های نام کاربری و کلمه عبور: متن دقیقاً وسط کادر */
+        form input[type="text"],
+        form input[type="password"] {
+          height: 48px !important;         /* ← ارتفاع یکنواخت */
+          line-height: 48px !important;    /* ← متن دقیقاً وسط عمودی */
+          padding-top: 0 !important;       /* ← حذف هل‌دادن به پایین */
+          padding-bottom: 0 !important;
         }
       `}</style>
     </main>
