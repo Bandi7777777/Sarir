@@ -66,3 +66,6 @@ class User(Base):
 
     def __repr__(self) -> str:  # debugging-friendly
         return f"<User {self.username} ({self.public_id})>"
+    .m,;lfdg
+32132321
+32132123
