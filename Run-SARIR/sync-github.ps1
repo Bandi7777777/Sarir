@@ -5,86 +5,83 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-# ---------- Helpers (ANSI-safe, ASCII-only) ----------
-function C([string]$txt, [string]$code) {
-  $esc = [char]27
-  return "$esc[$code" + "m$txt$esc[0m"
-}
-function StripAnsi([string]$s) {
-  return ([regex]::Replace($s, "`e\[[0-9;]*m", ""))
-}
-function Pad([string]$s, [int]$w) {
-  $plain = StripAnsi $s
-  $pad = $w - $plain.Length
-  if ($pad -lt 0) { $pad = 0 }
-  return $s + (' ' * $pad)
-}
-function DrawTable2Cols($title, $rows) {
-  # rows: array of @{Name=''; Value=''}
-  $nameWidth  = 0
-  $valueWidth = 0
-  foreach ($r in $rows) {
-    $n = [string]$r.Name
-    $v = [string]$r.Value
-    if ((StripAnsi $n).Length -gt $nameWidth)  { $nameWidth  = (StripAnsi $n).Length }
-    if ((StripAnsi $v).Length -gt $valueWidth) { $valueWidth = (StripAnsi $v).Length }
-  }
-  if ($nameWidth  -lt 6)  { $nameWidth  = 6  }
-  if ($valueWidth -lt 10) { $valueWidth = 10 }
+function WInfo([string]$m){ Write-Host "[i]  $m" -ForegroundColor Cyan }
+function WOk([string]$m){ Write-Host "[OK] $m" -ForegroundColor Green }
+function WErr([string]$m){ Write-Host "[X]  $m" -ForegroundColor Red }
 
-  $top    = '+' + ('-'*($nameWidth+2)) + '+' + ('-'*($valueWidth+2)) + '+'
-  $sep    = $top
-  $bottom = $top
+# ---- helpers: fixed-width console tables (no ANSI) ----
+function Write-Cell([string]$text, [int]$width, [System.ConsoleColor]$color=[System.ConsoleColor]::Gray){
+  $plain = $text
+  if ($plain.Length -gt $width) { $plain = $plain.Substring(0, $width) }
+  $pad = $width - $plain.Length
+  $orig = $Host.UI.RawUI.ForegroundColor
+  $Host.UI.RawUI.ForegroundColor = $color
+  Write-Host -NoNewline $plain
+  $Host.UI.RawUI.ForegroundColor = $orig
+  if ($pad -gt 0) { Write-Host -NoNewline (" " * $pad) }
+}
 
-  if ($title -and $title -ne '') {
-    $t = " " + $title + " "
-    $line = $top
-    Write-Host (C $line '36')
-  } else {
-    Write-Host $top
+function Draw-Table2([string]$title, [hashtable[]]$rows){
+  if (-not $rows) { return }
+  $w1 = 14
+  $w2 = 88
+  $bar = "+" + ("-"*($w1+2)) + "+" + ("-"*($w2+2)) + "+"
+
+  Write-Host ""
+  Write-Host $bar
+  if ($title){
+    Write-Host "| " -NoNewline
+    Write-Cell $title $w1 ([System.ConsoleColor]::Magenta)
+    Write-Host " | " -NoNewline
+    Write-Cell "" $w2
+    Write-Host " |"
+    Write-Host $bar
   }
 
   # header
-  $h1 = C(' Field ', '97;44') # white on blue
-  $h2 = C(' Value ', '97;44')
-  $hLeft  = Pad((C('Field','93')), $nameWidth)   # yellow
-  $hRight = Pad((C('Value','93')), $valueWidth)  # yellow
-  $header = '|' + ' ' + $hLeft + ' ' + '|' + ' ' + $hRight + ' ' + '|'
-  Write-Host $header
-  Write-Host $sep
+  Write-Host "| " -NoNewline
+  Write-Cell "Field" $w1 ([System.ConsoleColor]::Yellow)
+  Write-Host " | " -NoNewline
+  Write-Cell "Value" $w2 ([System.ConsoleColor]::Yellow)
+  Write-Host " |"
+  Write-Host $bar
 
-  foreach ($r in $rows) {
-    $n = Pad([string]$r.Name,  $nameWidth)
-    $v = Pad([string]$r.Value, $valueWidth)
-    Write-Host ('|' + ' ' + $n + ' ' + '|' + ' ' + $v + ' ' + '|')
+  foreach($r in $rows){
+    $field = [string]$r.Field
+    $value = [string]$r.Value
+    $col = [System.ConsoleColor]::Gray
+    if ($r.ContainsKey('Color') -and $r.Color) { $col = $r.Color }
+
+    Write-Host "| " -NoNewline
+    Write-Cell $field $w1 ([System.ConsoleColor]::Gray)
+    Write-Host " | " -NoNewline
+    Write-Cell $value $w2 $col
+    Write-Host " |"
   }
-  Write-Host $bottom
+  Write-Host $bar
 }
 
-function DrawTable1Col($title, $items) {
-  # items: array of strings
+function Draw-Table1([string]$title, [string[]]$items){
   if (-not $items -or $items.Count -eq 0) { return }
-  $w = 0
-  foreach ($x in $items) {
-    if ((StripAnsi $x).Length -gt $w) { $w = (StripAnsi $x).Length }
-  }
-  if ($w -lt 5) { $w = 5 }
-  $top = '+' + ('-'*($w+2)) + '+'
-  Write-Host (C $top '36') # cyan
-  if ($title -and $title -ne '') {
-    $caption = Pad($title, $w)
-    Write-Host ('|' + ' ' + (C $caption '95') + ' ' + '|') # magenta title
-    Write-Host $top
-  }
-  foreach ($x in $items) {
-    Write-Host ('|' + ' ' + (Pad $x $w) + ' ' + '|')
-  }
-  Write-Host $top
-}
+  $w = ($items | ForEach-Object { $_.Length } | Measure-Object -Maximum).Maximum
+  if ($w -lt 10) { $w = 10 }
+  $bar = "+" + ("-"*($w+2)) + "+"
 
-function WInfo([string]$m){ Write-Host (C "[i]" "36") " $m" }      # cyan
-function WOk([string]$m){ Write-Host (C "[OK]" "92") " $m" }       # bright green
-function WErr([string]$m){ Write-Host (C "[X]" "91") " $m" }       # bright red
+  Write-Host ""
+  Write-Host $bar
+  if ($title){
+    Write-Host "| " -NoNewline
+    Write-Cell $title $w ([System.ConsoleColor]::Magenta)
+    Write-Host " |"
+    Write-Host $bar
+  }
+  foreach($x in $items){
+    Write-Host "| " -NoNewline
+    Write-Cell $x $w ([System.ConsoleColor]::Cyan)
+    Write-Host " |"
+  }
+  Write-Host $bar
+}
 
 # ---------- logging ----------
 $ScriptPath = $PSCommandPath
@@ -106,9 +103,7 @@ $UpstreamStr  = ""
 $Branch       = ""
 
 try {
-  if (-not (Test-Path -LiteralPath $RepoRoot)) {
-    WErr ("RepoRoot not found: " + $RepoRoot); throw "RepoRootMissing"
-  }
+  if (-not (Test-Path -LiteralPath $RepoRoot)) { WErr ("RepoRoot not found: " + $RepoRoot); throw "RepoRootMissing" }
 
   Set-Location -LiteralPath $RepoRoot
   WInfo ("Repo: " + (Get-Location))
@@ -184,25 +179,20 @@ catch {
 finally {
   Stop-Transcript | Out-Null
 
-  # ---------- Colored Tables ----------
-  Write-Host ""
   $rows = @(
-    @{ Name = C('Branch','93');            Value = C($Branch,'96') },
-    @{ Name = C('New Commit','93');        Value = ($(if($DidCommit){ C($CommitHash,'92') } else { '—' })) },
-    @{ Name = C('Commit Message','93');    Value = ($(if($DidCommit){ $CommitMsg } else { '—' })) },
-    @{ Name = C('Upstream','93');          Value = ($(if($UpstreamStr){ $UpstreamStr } else { '—' })) },
-    @{ Name = C('Ahead Count','93');       Value = C("$AheadCount",'96') },
-    @{ Name = C('Pushed?','93');           Value = ($(if($DidPush){ C('Yes','92') } else { C('No','91') })) },
-    @{ Name = C('Log File','93');          Value = $LogFile }
+    @{ Field = "Branch";         Value = $Branch;                                    Color = [System.ConsoleColor]::Cyan }
+    @{ Field = "New Commit";     Value = ($(if($DidCommit){ $CommitHash } else { "-" })); Color = [System.ConsoleColor]::Green }
+    @{ Field = "Commit Message"; Value = ($(if($DidCommit){ $CommitMsg } else { "-" })) }
+    @{ Field = "Upstream";       Value = ($(if($UpstreamStr){ $UpstreamStr } else { "-" })) }
+    @{ Field = "Ahead Count";    Value = "$AheadCount";                              Color = [System.ConsoleColor]::Cyan }
+    @{ Field = "Pushed?";        Value = ($(if($DidPush){ "Yes" } else { "No" }));   Color = ($(if($DidPush){ [System.ConsoleColor]::Green } else { [System.ConsoleColor]::Red })) }
+    @{ Field = "Log File";       Value = $LogFile }
   )
-  DrawTable2Cols (C('SUMMARY','94')) $rows
+  Draw-Table2 "SUMMARY" $rows
 
   if ($ChangedFiles -and $ChangedFiles.Count -gt 0) {
-    $fileItems = @()
-    foreach ($f in $ChangedFiles) { $fileItems += C($f,'96') }
-    DrawTable1Col (C('CHANGED FILES','94')) $fileItems
+    Draw-Table1 "CHANGED FILES" $ChangedFiles
   }
 
-  Write-Host ""
   WInfo ("Log file: " + $LogFile)
 }
