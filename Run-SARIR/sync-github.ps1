@@ -1,63 +1,75 @@
-Param(
-  [string]$RepoPath = "D:\Projects\Website\1.Code\1.SARIR",
-  [string]$Branch   = "main"
+param(
+  [string]$RepoRoot = 'D:\Projects\1. Website\1.Code\1.SARIR\sarir-personnel-system',
+  [string]$Message  = (Get-Date -Format "yyyy-MM-dd HH:mm") + " - auto-sync"
 )
 
 $ErrorActionPreference = 'Stop'
 
-function Write-Info($msg){ Write-Host "[INFO] $msg" -ForegroundColor Cyan }
-function Write-Ok($msg){ Write-Host "[OK]   $msg" -ForegroundColor Green }
-function Write-Warn($msg){ Write-Host "[WARN] $msg" -ForegroundColor Yellow }
-function Write-Err($msg){ Write-Host "[ERR]  $msg" -ForegroundColor Red }
+function WInfo([string]$m){ Write-Host "[i] $m" }
+function WOk([string]$m){ Write-Host "[OK] $m" -ForegroundColor Green }
+function WErr([string]$m){ Write-Host "[X] $m" -ForegroundColor Red }
+
+# logging (compatible with Windows PowerShell and PowerShell 7)
+$ScriptPath = $PSCommandPath
+if (-not $ScriptPath -or $ScriptPath -eq '') { $ScriptPath = $MyInvocation.MyCommand.Path }
+$RunDir = Split-Path -LiteralPath $ScriptPath
+$LogDir = Join-Path $RunDir 'logs'
+if (-not (Test-Path -LiteralPath $LogDir)) {
+  New-Item -ItemType Directory -Path $LogDir | Out-Null
+}
+$LogFile = Join-Path $LogDir ("sync-" + (Get-Date -Format 'yyyyMMdd-HHmmss') + ".log")
+Start-Transcript -Path $LogFile -Append | Out-Null
 
 try {
-  # 0) چک پیش‌نیازها
-  if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-    Write-Err "git روی سیستم در PATH نیست."
-    throw "Install Git for Windows and try again."
-  }
-  if (-not (Test-Path $RepoPath)) { throw "RepoPath not found: $RepoPath" }
-
-  Set-Location $RepoPath
-  if (-not (Test-Path ".git")) { throw "This folder is not a git repository: $RepoPath" }
-
-  # 1) همسان‌سازی تنظیمات مفید
-  git config --global --add safe.directory $RepoPath | Out-Null
-  git config --global core.autocrlf true | Out-Null
-
-  # 2) نمایش شاخه فعلی و سوئیچ به شاخه هدف
-  $currentBranch = (git rev-parse --abbrev-ref HEAD).Trim()
-  if ($currentBranch -ne $Branch) {
-    Write-Info "Switching branch: $currentBranch -> $Branch"
-    git checkout $Branch
+  if (-not (Test-Path -LiteralPath $RepoRoot)) {
+    WErr ("RepoRoot not found: " + $RepoRoot)
+    throw "RepoRootMissing"
   }
 
-  # 3) دریافت آخرین تغییرات ریموت (با اتو-استش) و ری‌بیس
-  Write-Info "Pull (rebase + autostash) from origin/$Branch"
-  git pull --rebase --autostash origin $Branch
+  Set-Location -LiteralPath $RepoRoot
+  WInfo ("Repo: " + (Get-Location))
 
-  # 4) افزودن همه تغییرات (با احترام به .gitignore)
-  Write-Info "Staging changes"
-  git add -A
+  $git = Get-Command git -ErrorAction SilentlyContinue
+  if (-not $git) {
+    WErr "git not found in PATH"
+    throw "GitMissing"
+  }
 
-  # 5) اگر تغییری هست، کامیت کنیم
-  $status = git status --porcelain
-  if ([string]::IsNullOrWhiteSpace($status)) {
-    Write-Ok "چیزی برای کامیت نیست. ریپو با ریموت همگام است."
+  $hasOrigin = git remote | Select-String -SimpleMatch 'origin'
+  if (-not $hasOrigin) {
+    WErr "No 'origin' remote. Run: git remote add origin YOUR_REMOTE_URL"
+    throw "NoOrigin"
+  }
+
+  $branch = (git rev-parse --abbrev-ref HEAD).Trim()
+  WInfo ("Branch: " + $branch)
+
+  $changes = git status --porcelain
+  if ($changes) {
+    WInfo "Staging changes..."
+    git add -A
+    WInfo "Committing..."
+    git commit -m $Message
   } else {
-    $ts = (Get-Date).ToString("yyyy-MM-dd HH:mm:ss")
-    $msg = "chore(sync): auto-sync $ts"
-    Write-Info "Committing: $msg"
-    git commit -m $msg
+    WInfo "No local changes to commit."
   }
 
-  # 6) پوش به ریموت
-  Write-Info "Pushing to origin/$Branch"
-  git push origin $Branch
+  WInfo "Pull --rebase..."
+  try { git pull --rebase } catch { WErr "Rebase failed - continuing." }
 
-  Write-Ok "همگام‌سازی با موفقیت انجام شد ✅"
+  WInfo "Push..."
+  try { git push } catch {
+    WInfo ("Retry: git push --set-upstream origin " + $branch)
+    git push --set-upstream origin $branch
+  }
+
+  WOk "Done."
 }
 catch {
-  Write-Err $_
+  WErr ("FAILED: " + $_.Exception.Message)
   exit 1
+}
+finally {
+  Stop-Transcript | Out-Null
+  WInfo ("Log file: " + $LogFile)
 }

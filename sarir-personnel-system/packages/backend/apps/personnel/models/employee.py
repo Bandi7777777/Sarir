@@ -1,10 +1,8 @@
 from sqlalchemy import Column, Integer, String, Date, DateTime
+
+from core.database import Base
+from sqlalchemy import Column, Integer, String, Date, DateTime
 from datetime import datetime
-from sqlalchemy.orm import declarative_base
-
-Base = declarative_base()
-
-
 class Employee(Base):
     __tablename__ = "employees"
 
@@ -55,3 +53,4 @@ class Employee(Base):
     postal_code = Column(String)
     fax = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
+

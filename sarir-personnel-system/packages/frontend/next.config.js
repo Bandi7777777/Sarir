@@ -6,10 +6,22 @@ const nextConfig = {
   reactStrictMode: true,
   trailingSlash: true,
 
+  // برای ردیابی خروجی هنگام Monorepo
   outputFileTracingRoot: process.env.OUTPUT_TRACING_ROOT || process.cwd(),
 
+  // ✅ جایگزین "images.domains" با الگوی جدید
   images: {
-    domains: ['localhost'],
+    remotePatterns: [
+      // لوکال‌ها
+      { protocol: 'http',  hostname: 'localhost' },
+      { protocol: 'https', hostname: 'localhost' },
+      { protocol: 'http',  hostname: '127.0.0.1' },
+      { protocol: 'https', hostname: '127.0.0.1' },
+
+      // IP شبکهٔ داخلی که در لاگ داشتی (برای تست روی دستگاه‌های LAN)
+      { protocol: 'http',  hostname: '10.10.10.30' },
+      { protocol: 'https', hostname: '10.10.10.30' },
+    ],
   },
 
   async redirects() {
@@ -39,7 +51,7 @@ const nextConfig = {
     return config;
   },
 
-  // ✅ اختیاری: هدرها برای جلوگیری از کش HTML و کش بلندمدت استاتیک‌ها
+  // ✅ هدرها برای جلوگیری از کش HTML و کش بلندمدت استاتیک‌ها
   async headers() {
     return [
       {

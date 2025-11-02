@@ -1,17 +1,14 @@
 @echo off
 setlocal
+cd /d "%~dp0"
 
-REM تلاش با PowerShell 7؛ اگر نبود، کلاسیک
-where pwsh >nul 2>nul
+rem Prefer PowerShell 7 (pwsh), fallback to Windows PowerShell
+where pwsh >nul 2>&1
 if %errorlevel%==0 (
-  set PS_EXEC=pwsh
+  set "_PS=pwsh"
 ) else (
-  set PS_EXEC=powershell
+  set "_PS=powershell"
 )
 
-set PS1="%~dp0Run-SARIR.ps1"
-
-REM -NoExit تا خطاها نمایش بمانند
-%PS_EXEC% -NoLogo -NoProfile -ExecutionPolicy Bypass -NoExit -File %PS1%
-
+"%_PS%" -NoProfile -ExecutionPolicy Bypass -NoExit -File ".\Run-SARIR.ps1"
 endlocal
