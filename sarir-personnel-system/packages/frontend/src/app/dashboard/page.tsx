@@ -3,15 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Input from "@/components/ui/input";
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { toast } from "react-hot-toast"; // اضافه برای toast error/success
 import {
   UsersIcon,
   UserPlusIcon,
   MagnifyingGlassIcon,
   BellIcon,
-  ClipboardDocumentListIcon,
   ArrowRightIcon,
   ArrowPathIcon,
   FunnelIcon,
@@ -142,9 +140,7 @@ export default function Dashboard() {
       if (q.trim()) {
         const k = q.trim().toLowerCase();
         list = list.filter((x) =>
-          `${x.first_name} ${x.last_name} ${x.email || ""}`
-            .toLowerCase()
-            .includes(k),
+          `${x.first_name} ${x.last_name} ${x.email || ""}`.toLowerCase().includes(k),
         );
       }
       return list;
@@ -225,8 +221,8 @@ export default function Dashboard() {
             hint={loadingEmp ? "" : `بروزرسانی: ${new Date().toLocaleTimeString("fa-IR")}`}
           />
           <div className="grid grid-cols-2 gap-3">
-            <Metric title="درخواست‌ها" value="12" accent="from-rose-400 to-orange-400" />
-            <Metric title="جلسات" value="3" accent="from-emerald-400 to-lime-400" />
+            <Metric title="مدارک جدید" value="8" accent="from-rose-400 to-orange-400" />
+            <Metric title="جلسات و مجامع" value="3" accent="from-emerald-400 to-lime-400" />
           </div>
 
           {/* Quick links */}
@@ -276,10 +272,10 @@ export default function Dashboard() {
             <div className="relative z-10 flex items-center justify-between">
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold text-cyan-100">
-                 سیستم مدیریت پرسنل سریر لجستیک
+                  سیستم مدیریت پرسنل سریر لجستیک
                 </h1>
                 <p className="text-cyan-200/70 text-sm mt-1">
-                  دسترسی سریع، آمار زنده, آخرین تغییرات
+                  دسترسی سریع، آمار زنده، آخرین تغییرات
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -358,9 +354,9 @@ export default function Dashboard() {
               <ArrowPathIcon className="h-5 w-5 text-cyan-300/80" />
             </div>
             <ul className="mt-3 space-y-3 text-sm">
-              <li className="p-3 rounded-2xl bg-white/8 border border-white/10">تایید ۲ درخواست مرخصی</li>
-              <li className="p-3 rounded-2xl bg-white/8 border border-white/10">ثبت قرارداد جدید واحد اداری</li>
               <li className="p-3 rounded-2xl bg-white/8 border border-white/10">بررسی تکمیل مدارک ۳ نفر</li>
+              <li className="p-3 rounded-2xl bg-white/8 border border-white/10">آپلود ۲ سند جدید در پرونده‌ها</li>
+              <li className="p-3 rounded-2xl bg-white/8 border border-white/10">ثبت قرارداد جدید واحد اداری</li>
             </ul>
           </div>
 
@@ -371,8 +367,8 @@ export default function Dashboard() {
             </div>
             <ul className="space-y-3 text-sm">
               <li className="p-3 rounded-2xl bg-white/8 border border-white/10">تمدید بیمه ۵ نفر تا ۳۰ روز آینده</li>
+              <li className="p-3 rounded-2xl bg-white/8 border border-white/10">بارگذاری ۲ سند جدید در پرونده‌های پرسنلی</li>
               <li className="p-3 rounded-2xl bg-white/8 border border-white/10">ویرایش اطلاعات «مرجان خورشید نیها»</li>
-              <li className="p-3 rounded-2xl bg-white/8 border border-white/10">ثبت درخواست اضافه‌کار</li>
             </ul>
           </div>
         </aside>

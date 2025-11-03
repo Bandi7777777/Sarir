@@ -9,15 +9,14 @@ class Notification(BaseModel):
     id: int
     title: str
     body: Optional[str] = ""
-    category: Optional[Literal["hr","system","alert","other"]] = "other"
+    category: Optional[Literal["hr", "system", "alert", "other"]] = "other"
     unread: bool = True
     created_at: datetime = datetime.utcnow()
 
-# In-memory برای شروع
+# In-memory (نمونه‌های هم‌راستا با مدارک/سیستم)
 STORE: List[Notification] = [
     Notification(id=1, title="تمدید بیمه ۵ نفر", body="تا ۳۰ روز آینده", category="hr", unread=True),
     Notification(id=2, title="به‌روزرسانی سیستم", body="ساعت ۲۲:۰۰ امشب", category="system", unread=True),
-    Notification(id=3, title="حضور و غیاب", body="دو نفر تاخیر داشتند", category="alert", unread=False),
 ]
 
 @router.get("/notifications", response_model=List[Notification])

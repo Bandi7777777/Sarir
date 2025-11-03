@@ -1,4 +1,3 @@
-from apps.authentication.services.audit import log_event
 from __future__ import annotations
 from datetime import datetime, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status

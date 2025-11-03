@@ -1,53 +1,52 @@
 from __future__ import annotations
 from logging.config import fileConfig
 from alembic import context
-import os, sys
-from sqlalchemy import create_engine, pool
+from sqlalchemy import engine_from_config, pool
+import os
 
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
-if BASE_DIR not in sys.path:
-    sys.path.insert(0, BASE_DIR)
+# --- load .env ---
+try:
+    from pathlib import Path
+    from dotenv import load_dotenv
+    env_path = Path(__file__).resolve().parent.parent / ".env"
+    if env_path.exists():
+        load_dotenv(env_path)
+except Exception:
+    pass
 
-from core.database import Base  # shared Base
+from core.database import _make_url
 
 config = context.config
-if config.config_file_name:
+if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-target_metadata = Base.metadata
+target_metadata = None
 
-DB_HOST = os.getenv("DB_HOST", "127.0.0.1")
-DB_PORT = int(os.getenv("DB_PORT", "5432"))
-DB_NAME = os.getenv("DB_NAME", "sarir")
-DB_USER = os.getenv("DB_USER", "sarir_user")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "")
+def _dsn() -> str:
+    # DATABASE_URL بر هر DB_* مقدم است
+    return os.getenv("DATABASE_URL") or _make_url()
 
-ENGINE_URL = f"postgresql+psycopg://{DB_HOST}:{DB_PORT}/{DB_NAME}"
-CONNECT_ARGS = {"host": DB_HOST, "port": DB_PORT, "dbname": DB_NAME, "user": DB_USER, "password": DB_PASSWORD}
-
-def run_migrations_offline() -> None:
+def run_migrations_offline():
+    url = _dsn()
     context.configure(
-        url=ENGINE_URL,
+        url=url,
         target_metadata=target_metadata,
         literal_binds=True,
-        dialect_opts={"paramstyle": "named"},
         compare_type=True,
-        compare_server_default=True,
-        include_schemas=True,
+        dialect_opts={"paramstyle": "named"},
     )
     with context.begin_transaction():
         context.run_migrations()
 
-def run_migrations_online() -> None:
-    engine = create_engine(ENGINE_URL, pool_pre_ping=True, poolclass=pool.NullPool, connect_args=CONNECT_ARGS)
-    with engine.connect() as connection:
-        context.configure(
-            connection=connection,
-            target_metadata=target_metadata,
-            compare_type=True,
-            compare_server_default=True,
-            include_schemas=True,
-        )
+def run_migrations_online():
+    url = _dsn()
+    connectable = engine_from_config(
+        {"sqlalchemy.url": url},
+        prefix="sqlalchemy.",
+        poolclass=pool.NullPool,
+    )
+    with connectable.connect() as connection:
+        context.configure(connection=connection, target_metadata=target_metadata, compare_type=True)
         with context.begin_transaction():
             context.run_migrations()
 

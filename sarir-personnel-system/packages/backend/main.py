@@ -57,15 +57,31 @@ async def health_db(verbose: int = Query(0)):
 async def root():
     return {"message": "SARIR-SOFT backend is alive", "api_base": "/api"}
 
-# === Routers ===
+# === Routers (بعد از ساخت app ایمپورت و اینکلود می‌کنیم) ===
 from apps.authentication.routes.auth import router as auth_router
 app.include_router(auth_router, prefix="/api")
 
-# مدیریت سشن‌های کاربر (گام ۳)
 from apps.authentication.routes.sessions import router as sessions_router
 app.include_router(sessions_router, prefix="/api")
 
-# سایر ماژول‌ها (در صورت وجود)
+# مدارک (Documents)
+from apps.documents.views.document_routes import router as document_router
+app.include_router(document_router, prefix="/api/documents", tags=["documents"])
+
+# هیئت‌مدیره و مجامع (اگر فایل‌ها را ساخته‌اید)
+try:
+    from apps.board.views.board_routes import router as board_router
+    app.include_router(board_router, prefix="/api")
+except Exception:
+    pass
+
+try:
+    from apps.assembly.views.assembly_routes import router as assembly_router
+    app.include_router(assembly_router, prefix="/api")
+except Exception:
+    pass
+
+# سایر ماژول‌ها
 try:
     from apps.personnel.views.employee_routes import router as employees_router
     app.include_router(employees_router, prefix="/api")
