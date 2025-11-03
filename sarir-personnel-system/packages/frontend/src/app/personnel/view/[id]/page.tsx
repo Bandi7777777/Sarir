@@ -11,6 +11,7 @@ import {
   ArrowRightIcon,
   PencilIcon,
   PaperClipIcon,
+  TrashIcon,
 } from "@heroicons/react/24/solid";
 
 type Employee = {
@@ -43,9 +44,6 @@ export default function EmployeeViewPage() {
         setErr(null);
         const r = await fetch(`/api/employees/${id}`, { cache: "no-store" });
         let j = await r.json();
-        if (Array.isArray(j)) {
-          j = j.find((x: any) => String(x?.id) === String(id)) ?? null;
-        }
         if (!r.ok || !j) throw new Error(j?.detail || `HTTP ${r.status}`);
         if (!off) setData(j);
       } catch (e: any) {
@@ -67,6 +65,18 @@ export default function EmployeeViewPage() {
     { key: "docs", label: "مدارک", href: `/personnel/view/${id}/documents`, icon: <PaperClipIcon className="h-4 w-4" /> },
   ];
   const activeKey = pathname?.endsWith("/documents") ? "docs" : "profile";
+
+  async function onDelete() {
+    if (!confirm("حذف این پرسنل انجام شود؟")) return;
+    const r = await fetch(`/api/employees/${id}`, { method: "DELETE" });
+    if (r.ok || r.status === 204) {
+      alert("حذف شد");
+      router.push("/personnel/list");
+    } else {
+      const j = await r.json().catch(()=> ({}));
+      alert(j?.detail || `خطا: HTTP ${r.status}`);
+    }
+  }
 
   if (loading) return <div dir="rtl" className="p-6">در حال بارگذاری…</div>;
   if (err) return <div dir="rtl" className="p-6 text-rose-300">خطا: {err}</div>;
@@ -117,11 +127,18 @@ export default function EmployeeViewPage() {
 
             <div className="flex gap-2">
               <button
-                onClick={() => alert("TODO: ویرایش — در مرحله بعد فرم PUT اضافه می‌شود")}
+                onClick={() => alert("TODO: ویرایش — در مرحله بعد فرم PUT اینلاین/مودال را فعال می‌کنیم")}
                 className="flex items-center gap-2 bg-white/10 border border-white/15 px-3 py-2 rounded-xl hover:bg-white/15"
               >
                 <PencilIcon className="h-5 w-5" />
                 ویرایش
+              </button>
+              <button
+                onClick={onDelete}
+                className="flex items-center gap-2 bg-rose-500/80 hover:bg-rose-500 text-[#0b1220] px-3 py-2 rounded-xl font-semibold"
+              >
+                <TrashIcon className="h-5 w-5" />
+                حذف
               </button>
               <button
                 onClick={() => router.back()}
@@ -166,12 +183,6 @@ export default function EmployeeViewPage() {
                 <PaperClipIcon className="h-5 w-5" />
                 مدارک این پرسنل
               </Link>
-              <button
-                onClick={() => alert("TODO: حذف — بعد از تأیید شما وصل می‌کنم")}
-                className="text-center bg-rose-500/80 hover:bg-rose-500 text-[#0b1220] px-4 py-2 rounded-xl font-semibold"
-              >
-                حذف
-              </button>
             </div>
           </Card>
         </div>

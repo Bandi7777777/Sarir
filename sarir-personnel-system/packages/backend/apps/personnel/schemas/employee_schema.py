@@ -1,63 +1,44 @@
-from pydantic import BaseModel
-from datetime import date, datetime
+from __future__ import annotations
+from datetime import datetime, date
 from typing import Optional
+from pydantic import BaseModel, ConfigDict
 
+# ---- پاسخ استاندارد برای یک کارمند (فقط فیلدهای پرکاربرد برای UI)
+class EmployeeResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
 
-class EmployeeBase(BaseModel):
-    personnel_code: str
+    id: int | str
+    personnel_code: Optional[str] = None
+    employee_code: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    email: Optional[str] = None
+    mobile_phone: Optional[str] = None
+    national_id: Optional[str] = None
+    position: Optional[str] = None
+    created_at: Optional[datetime] = None
+
+# ---- ساخت (فقط حداقل‌ها)
+class EmployeeCreate(BaseModel):
     first_name: str
     last_name: str
-    father_name: str
-    gender: str
-    national_id: str
-    id_number: Optional[str] = None
-    id_serial: Optional[str] = None
-    birth_date: date
-    death_date: Optional[date] = None
-    issue_date: date
-    birth_place: str
-    birth_place_type: Optional[str] = None
-    birth_place_code: Optional[str] = None
-    issue_place: str
-    issue_place_type: Optional[str] = None
-    issue_place_code: Optional[str] = None
-    nationality: str
-    citizenship: str
-    religion: str
-    sect: str
-    email: Optional[str] = None
     mobile_phone: str
-    work_id_code: Optional[str] = None
+    national_id: str
+    email: Optional[str] = None
+    personnel_code: Optional[str] = None
     employee_code: Optional[str] = None
-    effective_employee_date: Optional[date] = None
-    marital_status: str
-    effective_marital_date: Optional[date] = None
-    military_status: Optional[str] = None
-    exemption_type: Optional[str] = None
-    service_area: Optional[str] = None
-    service_branch: Optional[str] = None
-    service_start_date: Optional[date] = None
-    service_end_date: Optional[date] = None
-    service_duration: Optional[str] = None
-    education_level_during_service: Optional[str] = None
-    address_type: Optional[str] = None
-    address_title: Optional[str] = None
-    city: Optional[str] = None
-    city_type: Optional[str] = None
-    city_code: Optional[str] = None
-    address: Optional[str] = None
-    phone: Optional[str] = None
-    postal_code: Optional[str] = None
-    fax: Optional[str] = None
+    position: Optional[str] = None
 
+# ---- ویرایش (همه اختیاری)
+class EmployeeUpdate(BaseModel):
+    personnel_code: Optional[str] = None
+    employee_code: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    email: Optional[str] = None
+    mobile_phone: Optional[str] = None
+    national_id: Optional[str] = None
+    position: Optional[str] = None
 
-class EmployeeCreate(EmployeeBase):
-    pass
-
-
-class EmployeeResponse(EmployeeBase):
-    id: int
-    created_at: datetime
-
-    class Config:
-        from_attributes = True
+# اگر به اسکیماهای بسیار جزئی (issue_place, birth_place, ...) نیاز داری،
+# می‌تونیم یک مدل Rich هم اضافه کنیم؛ فعلاً برای عملیات CRUD پایه این‌ها کفایت می‌کند.
