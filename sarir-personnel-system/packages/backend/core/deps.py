@@ -1,12 +1,12 @@
+from __future__ import annotations
 from fastapi import Depends, HTTPException, Request, status
-from sqlalchemy import text
 from sqlalchemy.orm import Session
-from uuid import UUID
-from passlib.context import CryptContext
+from datetime import datetime, timezone
 from core.database import SessionLocal
-from core.security import decode_jwt
-
-pwd_ctx = CryptContext(schemes=["bcrypt"], deprecated="auto")
+from core.security import decode_token
+from core.config import settings
+from apps.authentication.models.user import User
+from apps.authentication.models.token import AuthSession
 
 def get_db():
     db = SessionLocal()
@@ -15,43 +15,43 @@ def get_db():
     finally:
         db.close()
 
-def get_current_user(request: Request, db: Session = Depends(get_db)):
-    # 1) سعی از کوکی HttpOnly
-    token = request.cookies.get("access_token")
+def _utcnow():
+    return datetime.now(tz=timezone.utc)
 
-    # 2) در صورت نبود، از Authorization: Bearer ... (برای ابزارها)
+def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
+    # 1) از هدر Authorization
+    token = None
+    auth = request.headers.get("authorization") or request.headers.get("Authorization")
+    if auth and auth.lower().startswith("bearer "):
+        token = auth.split(" ", 1)[1].strip()
+
+    # 2) در صورت نیاز، از کوکی access_token (اختیاری)
     if not token:
-        auth = request.headers.get("authorization") or request.headers.get("Authorization")
-        if auth and auth.lower().startswith("bearer "):
-            token = auth.split(" ", 1)[1].strip()
+        token = request.cookies.get("access_token")
 
     if not token:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
 
     try:
-        payload = decode_jwt(token)
-    except Exception:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        payload = decode_token(token, aud=settings.JWT_AUDIENCE_ACCESS)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid token")
 
-    sub = payload.get("sub")
-    if not sub:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token subject")
+    sub = payload.get("sub")  # public_id
+    jti = payload.get("jti")
+    if not sub or not jti:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token payload")
 
-    # sub = public_id (UUID string)
-    try:
-        public_id = UUID(sub)
-    except Exception:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid subject type")
+    # session must exist, not revoked, not expired
+    sess = db.query(AuthSession).filter(
+        AuthSession.jti == jti,
+        AuthSession.is_revoked == False
+    ).first()
+    if not sess or sess.expires_at <= _utcnow():
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Session expired or revoked")
 
-    row = db.execute(
-        text("""
-            select id, public_id, username, email, full_name, is_superuser
-            from public.users where public_id = :pid and is_active = true
-        """),
-        {"pid": str(public_id)},
-    ).mappings().first()
-
-    if not row:
+    user = db.query(User).filter(User.public_id == sub, User.is_active == True).first()
+    if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not found or inactive")
 
-    return row  # MappingResult row
+    return user

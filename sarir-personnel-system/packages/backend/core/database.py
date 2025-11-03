@@ -1,94 +1,81 @@
-# D:\Projects\1. Website\1.Code\1.SARIR\sarir-personnel-system\packages\backend\core\database.py
 from __future__ import annotations
-from typing import AsyncGenerator, Tuple
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import declarative_base
-from sqlalchemy import text
+
 import os
+from urllib.parse import quote_plus
+from typing import Tuple
 
-DB_URL = os.getenv("SQLALCHEMY_DATABASE_URI") or os.getenv("DATABASE_URL") \
-         or "postgresql+psycopg://sarir_user:Sarir%402026@127.0.0.1:5432/sarir"
+# --- Load .env automatically (backend root) ---
+try:
+    from pathlib import Path
+    from dotenv import load_dotenv  # pip install python-dotenv
+    env_path = Path(__file__).resolve().parent.parent / ".env"
+    if env_path.exists():
+        load_dotenv(env_path)
+except Exception:
+    # If dotenv isn't installed or .env missing, just continue.
+    pass
 
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker, declarative_base
+
+# ---------------------------------------------------
+# Build URL (handles special chars like @ via quote_plus)
+# ---------------------------------------------------
+def _make_url() -> str:
+    url = os.getenv("DATABASE_URL")
+    if url:
+        return url
+    host = os.getenv("DB_HOST", "127.0.0.1")
+    port = os.getenv("DB_PORT", "5432")
+    name = os.getenv("DB_NAME", "sarir")
+    user = os.getenv("DB_USER", "sarir_user")
+    pwd  = quote_plus(os.getenv("DB_PASSWORD", ""))  # encodes @ -> %40
+    return f"postgresql+psycopg://{user}:{pwd}@{host}:{port}/{name}"
+
+SQLALCHEMY_DATABASE_URL: str = _make_url()
+
+# -----------------
+# SQLAlchemy Engine
+# -----------------
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    pool_pre_ping=True,
+    pool_size=5,
+    max_overflow=10,
+)
+
+# -----------------
+# Session (sync)
+# -----------------
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# -----------------
+# Declarative Base
+# -----------------
 Base = declarative_base()
-async_engine: AsyncEngine = create_async_engine(DB_URL, pool_pre_ping=True, pool_size=5, max_overflow=10)
-AsyncSessionLocal = async_sessionmaker(bind=async_engine, expire_on_commit=False, autoflush=False, autocommit=False, class_=AsyncSession)
 
-async def get_db() -> AsyncGenerator[AsyncSession, None]:
-    async with AsyncSessionLocal() as session:
-        yield session
-
-def _mask(url: str) -> str:
+# -----------------
+# Helpers
+# -----------------
+def mask_url(url: str) -> str:
+    """Mask password for logs/health."""
     try:
-        if "://" in url and "@" in url:
-            scheme, rest = url.split("://", 1)
-            creds, host = rest.split("@", 1)
-            user = creds.split(":", 1)[0]
-            return f"{scheme}://{user}:***@{host}"
+        if "://" not in url:
+            return url
+        scheme, rest = url.split("://", 1)
+        if "@" not in rest:
+            return f"{scheme}://***"
+        userpass, hostpart = rest.split("@", 1)
+        user = userpass.split(":", 1)[0] if ":" in userpass else userpass
+        return f"{scheme}://{user}:***@{hostpart}"
     except Exception:
-        pass
-    return url
+        return "***"
 
-# ------------ Robust Health (tries multiple DSNs safely) ------------
 async def ping() -> Tuple[bool, str, str]:
-    """
-    Try DB_* envs first (filling sensible defaults if some are missing),
-    then fallback to parsed DATABASE_URL (decoded), and finally a hard
-    dev DSN. Uses psycopg (sync) in a thread to avoid async driver quirks.
-    """
-    import psycopg, urllib.parse, asyncio
-
-    masked = _mask(DB_URL)
-
-    def _try_connect(dsn: str) -> tuple[bool, str]:
-        try:
-            with psycopg.connect(dsn) as conn:
-                with conn.cursor() as cur:
-                    cur.execute("select 1")
-                    cur.fetchone()
-            return True, ""
-        except Exception as e:
-            return False, f"{type(e).__name__}: {e}"
-
-    def _build_dsn_from_db_env() -> str:
-        host = os.getenv("DB_HOST") or "127.0.0.1"
-        port = os.getenv("DB_PORT") or "5432"
-        name = os.getenv("DB_NAME") or "sarir"
-        user = os.getenv("DB_USER") or "sarir_user"
-        pwd  = os.getenv("DB_PASSWORD") or ""
-        return f"host={host} port={port} dbname={name} user={user} password={pwd}"
-
-    def _build_dsn_from_url(url: str) -> str:
-        u = urllib.parse.urlsplit(url)
-        host = u.hostname or "127.0.0.1"
-        port = u.port or 5432
-        name = (u.path or "/sarir").lstrip("/") or "sarir"
-        user = urllib.parse.unquote(u.username or "sarir_user")
-        pwd  = urllib.parse.unquote(u.password or "")
-        return f"host={host} port={port} dbname={name} user={user} password={pwd}"
-
-    def _connect_sequence() -> tuple[bool, str]:
-        reasons = []
-
-        # 1) DB_* envs (حتی اگر بعضی نبود، با default پر می‌کنیم)
-        dsn1 = _build_dsn_from_db_env()
-        ok, r = _try_connect(dsn1)
-        if ok: return True, ""
-        reasons.append(f"[DB_*] {r}")
-
-        # 2) از DATABASE_URL یا DB_URL (پارس و decode)
-        url = os.getenv("DATABASE_URL") or DB_URL
-        dsn2 = _build_dsn_from_url(url)
-        ok, r = _try_connect(dsn2)
-        if ok: return True, ""
-        reasons.append(f"[DATABASE_URL] {r}")
-
-        # 3) fallback سخت dev (اگر همه چیز خراب شد)
-        dsn3 = "host=127.0.0.1 port=5432 dbname=sarir user=sarir_user password=Sarir@2026"
-        ok, r = _try_connect(dsn3)
-        if ok: return True, ""
-        reasons.append(f"[fallback] {r}")
-
-        return False, " | ".join(reasons)
-
-    ok, reason = await asyncio.to_thread(_connect_sequence)
-    return ok, reason, masked
+    """Simple DB health check used by main.py: (ok, reason, masked_url)."""
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("select 1"))
+        return True, "", mask_url(SQLALCHEMY_DATABASE_URL)
+    except Exception as e:
+        return False, f"{type(e).__name__}: {e}", mask_url(SQLALCHEMY_DATABASE_URL)

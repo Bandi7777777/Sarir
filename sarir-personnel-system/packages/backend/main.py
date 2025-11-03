@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import asyncio
 from typing import List
 
 from fastapi import FastAPI, Query
@@ -9,24 +10,20 @@ from fastapi.responses import JSONResponse
 
 from core.database import ping as db_ping
 
-# =======================
-# App meta / description
-# =======================
+# === App meta ===
 app = FastAPI(
     title="SARIR-SOFT API",
-    version="1.0.1",
+    version="1.0.4",
     description="Unified API entrypoint (health, auth, and business routes).",
 )
 
-# =======================
-# CORS (configurable)
-# =======================
+# === CORS (env-driven) ===
 def _parse_origins(raw: str | None) -> List[str]:
     if not raw:
         return []
     return [o.strip() for o in raw.split(",") if o.strip()]
 
-ENV_CORS = os.getenv("CORS_ALLOW_ORIGINS")  # e.g. "http://localhost:3000,https://app.example.com"
+ENV_CORS = os.getenv("CORS_ALLOW_ORIGINS")
 DEFAULT_ORIGINS = ["http://localhost:3000", "http://127.0.0.1:3000"]
 allow_origins = _parse_origins(ENV_CORS) or DEFAULT_ORIGINS
 
@@ -39,9 +36,7 @@ app.add_middleware(
     max_age=600,
 )
 
-# ==========
-# Health
-# ==========
+# === Health ===
 @app.get("/health", tags=["health"])
 async def health_root():
     return {"status": "ok"}
@@ -52,9 +47,6 @@ async def health_api():
 
 @app.get("/api/health/db", tags=["health"])
 async def health_db(verbose: int = Query(0)):
-    """
-    اگر DB down بود، 503 برمی‌گردد (برای liveness/readiness probes خوب است).
-    """
     ok, reason, masked = await db_ping()
     body = {"status": "ok" if ok else "down"}
     if verbose:
@@ -65,24 +57,24 @@ async def health_db(verbose: int = Query(0)):
 async def root():
     return {"message": "SARIR-SOFT backend is alive", "api_base": "/api"}
 
-# =======================
-# Include Routers (safe)
-# =======================
-# نکته: اگر هر ماژولی نبود یا import شکست خورد، سرویس بالا می‌آید
-# و فقط همان بخش غیرفعال می‌ماند؛ برای محیط dev تجربه‌ی بهتری است.
+# === Routers ===
+from apps.authentication.routes.auth import router as auth_router
+app.include_router(auth_router, prefix="/api")
 
+# مدیریت سشن‌های کاربر (گام ۳)
+from apps.authentication.routes.sessions import router as sessions_router
+app.include_router(sessions_router, prefix="/api")
+
+# سایر ماژول‌ها (در صورت وجود)
 try:
-    from apps.auth.routes import router as auth_router
-    # توجه: اگر داخل خود روتر prefix داشته باشد، همین کافی است؛
-    # وگرنه می‌توان اینجا prefix="/api" داد. چون پروژه‌ی شما
-    # قبلاً به همین شکل بوده، رفتار را حفظ می‌کنیم.
-    app.include_router(auth_router)
+    from apps.personnel.views.employee_routes import router as employees_router
+    app.include_router(employees_router, prefix="/api")
 except Exception:
     pass
 
 try:
-    from apps.personnel.views.employee_routes import router as employees_router
-    app.include_router(employees_router, prefix="/api")
+    from apps.notifications.views.notification_routes import router as notifications_router
+    app.include_router(notifications_router, prefix="/api")
 except Exception:
     pass
 
@@ -92,8 +84,21 @@ try:
 except Exception:
     pass
 
-try:
-    from apps.notifications.views.notification_routes import router as notifications_router
-    app.include_router(notifications_router, prefix="/api")
-except Exception:
-    pass
+# === Background housekeeping for expired sessions ===
+from apps.authentication.services.cleanup import run_cleanup_loop
+_cleanup_task: asyncio.Task | None = None
+
+@app.on_event("startup")
+async def _startup():
+    global _cleanup_task
+    _cleanup_task = asyncio.create_task(run_cleanup_loop())  # هر ۳۰ دقیقه یک‌بار پاک‌سازی
+
+@app.on_event("shutdown")
+async def _shutdown():
+    global _cleanup_task
+    if _cleanup_task:
+        _cleanup_task.cancel()
+        try:
+            await _cleanup_task
+        except Exception:
+            pass
