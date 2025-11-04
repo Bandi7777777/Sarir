@@ -1,44 +1,59 @@
 from __future__ import annotations
-from datetime import datetime, date
+from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
-# ---- پاسخ استاندارد برای یک کارمند (فقط فیلدهای پرکاربرد برای UI)
+# پاسخ استاندارد برای UI
 class EmployeeResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int | str
+    id: str | int
     personnel_code: Optional[str] = None
     employee_code: Optional[str] = None
     first_name: Optional[str] = None
     last_name: Optional[str] = None
+    national_id: Optional[str] = None
     email: Optional[str] = None
     mobile_phone: Optional[str] = None
-    national_id: Optional[str] = None
     position: Optional[str] = None
+    department: Optional[str] = None
+    education_level: Optional[str] = None
+    date_of_birth: Optional[datetime] = None
+    hire_date: Optional[datetime] = None
+    marital_status: Optional[str] = None  # single/married/...
+    address: Optional[str] = None
     created_at: Optional[datetime] = None
 
-# ---- ساخت (فقط حداقل‌ها)
+# ساخت
 class EmployeeCreate(BaseModel):
     first_name: str
     last_name: str
-    mobile_phone: str
     national_id: str
-    email: Optional[str] = None
     personnel_code: Optional[str] = None
     employee_code: Optional[str] = None
-    position: Optional[str] = None
-
-# ---- ویرایش (همه اختیاری)
-class EmployeeUpdate(BaseModel):
-    personnel_code: Optional[str] = None
-    employee_code: Optional[str] = None
-    first_name: Optional[str] = None
-    last_name: Optional[str] = None
     email: Optional[str] = None
     mobile_phone: Optional[str] = None
-    national_id: Optional[str] = None
     position: Optional[str] = None
+    department: Optional[str] = None
+    education_level: Optional[str] = None
+    date_of_birth: Optional[datetime] = None
+    hire_date: Optional[datetime] = None
+    marital_status: Optional[str] = None
+    address: Optional[str] = None
 
-# اگر به اسکیماهای بسیار جزئی (issue_place, birth_place, ...) نیاز داری،
-# می‌تونیم یک مدل Rich هم اضافه کنیم؛ فعلاً برای عملیات CRUD پایه این‌ها کفایت می‌کند.
+# ویرایش (همه اختیاری)
+class EmployeeUpdate(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    national_id: Optional[str] = None
+    personnel_code: Optional[str] = None
+    employee_code: Optional[str] = None
+    email: Optional[str] = None
+    mobile_phone: Optional[str] = None
+    position: Optional[str] = None
+    department: Optional[str] = None
+    education_level: Optional[str] = None
+    date_of_birth: Optional[datetime] = None
+    hire_date: Optional[datetime] = None
+    marital_status: Optional[str] = None
+    address: Optional[str] = None
