@@ -426,3 +426,15 @@ body::before {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #020617; /* همون رنگ تیره داشبورد */
+  color: #e5e7eb;
+}
+
+body {
+  direction: rtl;
+}

@@ -3,10 +3,9 @@ from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
-# پاسخ استاندارد برای UI
+# مدل پاسخ پرسنل برای UI
 class EmployeeResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
-
     id: str | int
     personnel_code: Optional[str] = None
     employee_code: Optional[str] = None
@@ -17,14 +16,15 @@ class EmployeeResponse(BaseModel):
     mobile_phone: Optional[str] = None
     position: Optional[str] = None
     department: Optional[str] = None
+    unit: Optional[str] = None
     education_level: Optional[str] = None
     date_of_birth: Optional[datetime] = None
     hire_date: Optional[datetime] = None
-    marital_status: Optional[str] = None  # single/married/...
+    marital_status: Optional[str] = None
     address: Optional[str] = None
     created_at: Optional[datetime] = None
 
-# ساخت
+# مدل دریافت اطلاعات برای ایجاد پرسنل
 class EmployeeCreate(BaseModel):
     first_name: str
     last_name: str
@@ -35,13 +35,14 @@ class EmployeeCreate(BaseModel):
     mobile_phone: Optional[str] = None
     position: Optional[str] = None
     department: Optional[str] = None
+    unit: Optional[str] = None
     education_level: Optional[str] = None
     date_of_birth: Optional[datetime] = None
     hire_date: Optional[datetime] = None
     marital_status: Optional[str] = None
     address: Optional[str] = None
 
-# ویرایش (همه اختیاری)
+# مدل دریافت اطلاعات برای بروزرسانی پرسنل (تمام فیلدها اختیاری)
 class EmployeeUpdate(BaseModel):
     first_name: Optional[str] = None
     last_name: Optional[str] = None
@@ -52,6 +53,7 @@ class EmployeeUpdate(BaseModel):
     mobile_phone: Optional[str] = None
     position: Optional[str] = None
     department: Optional[str] = None
+    unit: Optional[str] = None
     education_level: Optional[str] = None
     date_of_birth: Optional[datetime] = None
     hire_date: Optional[datetime] = None

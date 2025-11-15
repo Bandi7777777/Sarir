@@ -5,3 +5,8 @@ psycopg[binary]>=3.2
 pydantic>=2.9
 pydantic-settings>=2.4
 email-validator>=2.1.0
+
+# لازم برای امنیت و بارگذاری env
+passlib[bcrypt]>=1.7    # در core/security.py استفاده می‌شود
+PyJWT>=2.8              # در core/security.py import jwt
+python-dotenv>=1.0      # در core/database.py load_dotenv

@@ -1,48 +1,44 @@
-# packages/backend/apps/drivers/schemas/driver_schema.py
-
 from pydantic import BaseModel, EmailStr
 from datetime import date
 from typing import Optional
 
 class DriverCreate(BaseModel):
-    driver_code: str                # کد راننده (معادل کد پرسنلی)
+    driver_code: str                # کد راننده
     first_name: str
     last_name: str
-    father_name: Optional[str]
-    gender: str                     # مثلاً "مذکر" یا "مونث"
-    national_id: str                # کد/شناسه ملی
-    id_number: Optional[str]
-    id_serial: Optional[str]
+    father_name: Optional[str] = None
+    gender: str                     # "مذکر"/"مونث" یا "male"/"female"
+    national_id: str                # کد ملی
+    id_number: Optional[str] = None
+    id_serial: Optional[str] = None
     birth_date: date
-    issue_date: date                
-    birth_place: Optional[str]
-    birth_place_type: Optional[str]
-    birth_place_code: Optional[str]
-    issue_place: Optional[str]
-    issue_place_type: Optional[str]
-    issue_place_code: Optional[str]
-    nationality: Optional[str]
-    citizenship: Optional[str]
-    religion: Optional[str]
-    sect: Optional[str]
-    email: Optional[EmailStr]
-    mobile_phone: Optional[str]
-    # ----- فیلدهای خاص راننده -----
+    issue_date: Optional[date] = None       # تاریخ صدور کارت ملی (اختیاری)
+    birth_place: Optional[str] = None
+    birth_place_type: Optional[str] = None
+    birth_place_code: Optional[str] = None
+    issue_place: Optional[str] = None
+    issue_place_type: Optional[str] = None
+    issue_place_code: Optional[str] = None
+    nationality: Optional[str] = None
+    citizenship: Optional[str] = None
+    religion: Optional[str] = None
+    sect: Optional[str] = None
+    email: Optional[EmailStr] = None
+    mobile_phone: Optional[str] = None
     license_number: str             # شماره گواهینامه
     license_issue_date: date
     license_expiry_date: date
-    vehicle_plate: Optional[str]    # پلاک خودرو
-    experience_years: Optional[int] # سال‌های سابقه رانندگی
-    # ----- آدرس -----
-    address_type: Optional[str]
-    address_title: Optional[str]
-    city: Optional[str]
-    city_type: Optional[str]
-    city_code: Optional[str]
-    address: Optional[str]
-    phone: Optional[str]
-    postal_code: Optional[str]
-    fax: Optional[str]
+    vehicle_plate: Optional[str] = None     # پلاک خودرو
+    experience_years: Optional[int] = None
+    address_type: Optional[str] = None
+    address_title: Optional[str] = None
+    city: Optional[str] = None
+    city_type: Optional[str] = None
+    city_code: Optional[str] = None
+    address: Optional[str] = None
+    phone: Optional[str] = None
+    postal_code: Optional[str] = None
+    fax: Optional[str] = None
 
 class DriverResponse(DriverCreate):
     id: int
