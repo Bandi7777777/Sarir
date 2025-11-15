@@ -1,4 +1,3 @@
-// packages/frontend/src/app/dashboard/layout.tsx
 "use client";
 
 import type { ReactNode } from "react";
@@ -16,7 +15,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#020617] via-[#020617] to-[#020617] text-white">
       {/* Top Toolbar شیشه‌ای */}
-      <header className="sticky top-0 z-20 border-b border-white/10 bg-[#020617]/85 backdrop-blur-xl">
+      <header className="sticky top-0 z-20 bg-white/20 dark:bg-white/10 backdrop-blur-xl border-b border-white/10 shadow-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
           {/* راست: عنوان و breadcrumb */}
           <div className="flex flex-col items-start gap-1">
@@ -55,7 +54,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
                 N
               </div>
               <div className="hidden text-[11px] leading-tight text-slate-100 md:block">
-                <div>محمد شمْلو</div>
+                <div>محمد شاملو</div>
                 <div className="text-[10px] text-slate-400">مدیر سامانه</div>
               </div>
             </div>
