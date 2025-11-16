@@ -12,7 +12,7 @@ const LoginForm = dynamic(() => import("@/components/auth/LoginForm"), {
 
 export default function LoginPage() {
   return (
-    <main className="min-h-screen flex items-center justify-center px-4 py-10 bg-gradient-to-br from-[#E0F4FA] to-[#F9FDFF] animate-gradient-bg relative overflow-hidden">
+    <main className="login-page min-h-screen flex items-center justify-center px-4 py-10 bg-gradient-to-br from-[#E0F4FA] to-[#F9FDFF] animate-gradient-bg relative overflow-hidden">
       <div className="relative w-full max-w-[864px] h-[486px] rounded-3xl overflow-hidden bg-gradient-to-br from-white/70 to-white/40 backdrop-blur-2xl border border-white/30 z-10 shadow-xl animate-glow-border">
         <div className="flex flex-col md:flex-row h-full">
           {/* ستون چپ: لوگو + فرم */}
@@ -63,9 +63,8 @@ export default function LoginPage() {
               <div className="absolute w-1 h-1 bg-[#81D4FA] rounded-full opacity-40 animate-particle-3" />
             </div>
 
-            {/* محتوا: SARIR بالا + متن خوش‌آمد + کامیون + شعار */}
+            {/* محتوا: SARIR LOGISTIC */}
             <div className="relative z-20 text-center flex flex-col items-center justify-between gap-3 animate-slide-right mt-[-120px]">
-              {/* SARIR LOGISTIC */}
               <div className="mb-12 animate-sarir-drift translate-y-[132px]">
                 <span
                   className="text-[36px] md:text-[64px] font-extrabold bg-gradient-to-r from-[#66C2FF] to-[#99DBFF] bg-clip-text text-transparent tracking-[.08em]"
@@ -112,126 +111,210 @@ export default function LoginPage() {
         </div>
       </div>
 
-      {/* 🎨 انیمیشن‌ها، افکت‌ها + دکمه ورود حرفه‌ای و سازمانی + مرکزسازی عمودی محتوا در input/button */}
+      {/* 🎨 انیمیشن‌ها + استایل دکمه و اینپوت فقط در محدوده login-page */}
       <style jsx global>{`
         .animate-gradient-bg {
           background-size: 180% 180%;
           animation: gradient-pan 24s ease infinite;
         }
         @keyframes gradient-pan {
-          0% { background-position: 0% 0%; }
-          50% { background-position: 100% 100%; }
-          100% { background-position: 0% 0%; }
+          0% {
+            background-position: 0% 0%;
+          }
+          50% {
+            background-position: 100% 100%;
+          }
+          100% {
+            background-position: 0% 0%;
+          }
         }
 
         .animate-glow-border {
           box-shadow: 0 20px 80px -20px rgba(7, 101, 126, 0.35),
-                      0 0 0 1px rgba(255, 255, 255, 0.25) inset;
+            0 0 0 1px rgba(255, 255, 255, 0.25) inset;
         }
 
-        .animate-glow-logo { animation: logo-glow 6s ease-in-out infinite; }
+        .animate-glow-logo {
+          animation: logo-glow 6s ease-in-out infinite;
+        }
         @keyframes logo-glow {
-          0%,100% { filter: drop-shadow(0 0 24px rgba(0,123,255,0.35)); }
-          50%     { filter: drop-shadow(0 0 36px rgba(0,123,255,0.45)); }
+          0%,
+          100% {
+            filter: drop-shadow(0 0 24px rgba(0, 123, 255, 0.35));
+          }
+          50% {
+            filter: drop-shadow(0 0 36px rgba(0, 123, 255, 0.45));
+          }
         }
 
-        .animate-sarir-drift { animation: sarir-drift 9s ease-in-out infinite; }
+        .animate-sarir-drift {
+          animation: sarir-drift 9s ease-in-out infinite;
+        }
         @keyframes sarir-drift {
-          0% { transform: translateX(-10px); }
-          50% { transform: translateX(14px); }
-          100% { transform: translateX(-10px); }
+          0% {
+            transform: translateX(-10px);
+          }
+          50% {
+            transform: translateX(14px);
+          }
+          100% {
+            transform: translateX(-10px);
+          }
         }
 
         .animate-slide-right {
-          animation: slide-right .8s cubic-bezier(.22,.78,.24,.99) both .05s;
+          animation: slide-right 0.8s cubic-bezier(0.22, 0.78, 0.24, 0.99)
+            both 0.05s;
         }
         @keyframes slide-right {
-          from { opacity:0; transform:translateX(18px); }
-          to   { opacity:1; transform:translateX(0); }
+          from {
+            opacity: 0;
+            transform: translateX(18px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
         }
 
-        .animate-text-reveal { animation: text-reveal .9s ease both .2s; }
+        .animate-text-reveal {
+          animation: text-reveal 0.9s ease both 0.2s;
+        }
         @keyframes text-reveal {
-          from { opacity:0; filter:blur(6px); }
-          to   { opacity:1; filter:blur(0); }
+          from {
+            opacity: 0;
+            filter: blur(6px);
+          }
+          to {
+            opacity: 1;
+            filter: blur(0);
+          }
         }
 
         .animate-truck-combo {
           animation: truck-float 3.4s ease-in-out infinite alternate,
-                     truck-sway 5.8s ease-in-out infinite;
+            truck-sway 5.8s ease-in-out infinite;
           will-change: transform, filter;
-          filter: drop-shadow(0 0 16px rgba(255,255,255,.22))
-                  drop-shadow(0 0 28px rgba(102,178,255,.28));
+          filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.22))
+            drop-shadow(0 0 28px rgba(102, 178, 255, 0.28));
         }
         @keyframes truck-float {
-          from { transform: translateY(-6px) scale(2.25); }
-          to   { transform: translateY(-14px) scale(2.25); }
+          from {
+            transform: translateY(-6px) scale(2.25);
+          }
+          to {
+            transform: translateY(-14px) scale(2.25);
+          }
         }
         @keyframes truck-sway {
-          0%   { transform: translateX(-8px) translateY(-10px) scale(2.25); }
-          50%  { transform: translateX(10px) translateY(-10px) scale(2.25); }
-          100% { transform: translateX(-8px) translateY(-10px) scale(2.25); }
+          0% {
+            transform: translateX(-8px) translateY(-10px) scale(2.25);
+          }
+          50% {
+            transform: translateX(10px) translateY(-10px) scale(2.25);
+          }
+          100% {
+            transform: translateX(-8px) translateY(-10px) scale(2.25);
+          }
         }
 
-        .animate-particle-1, .animate-particle-2, .animate-particle-3 { will-change: transform; }
-        .animate-particle-1 { top:18%; left:14%; animation: particle-1 14s linear infinite; }
-        .animate-particle-2 { bottom:22%; right:10%; animation: particle-2 16s linear infinite; }
-        .animate-particle-3 { top:52%; right:36%; animation: particle-3 12s linear infinite; }
-        @keyframes particle-1 { 0%{transform:translate(0,0) scale(1);} 50%{transform:translate(40px,-30px) scale(1.2);} 100%{transform:translate(0,0) scale(1);} }
-        @keyframes particle-2 { 0%{transform:translate(0,0) scale(1);} 50%{transform:translate(-36px,24px) scale(.85);} 100%{transform:translate(0,0) scale(1);} }
-        @keyframes particle-3 { 0%{transform:translate(0,0);} 50%{transform:translate(22px,-40px);} 100%{transform:translate(0,0);} }
+        .animate-particle-1,
+        .animate-particle-2,
+        .animate-particle-3 {
+          will-change: transform;
+        }
+        .animate-particle-1 {
+          top: 18%;
+          left: 14%;
+          animation: particle-1 14s linear infinite;
+        }
+        .animate-particle-2 {
+          bottom: 22%;
+          right: 10%;
+          animation: particle-2 16s linear infinite;
+        }
+        .animate-particle-3 {
+          top: 52%;
+          right: 36%;
+          animation: particle-3 12s linear infinite;
+        }
+        @keyframes particle-1 {
+          0% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(40px, -30px) scale(1.2);
+          }
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+        }
+        @keyframes particle-2 {
+          0% {
+            transform: translate(0, 0) scale(1);
+          }
+          50% {
+            transform: translate(-36px, 24px) scale(0.85);
+          }
+          100% {
+            transform: translate(0, 0) scale(1);
+          }
+        }
+        @keyframes particle-3 {
+          0% {
+            transform: translate(0, 0);
+          }
+          50% {
+            transform: translate(22px, -40px);
+          }
+          100% {
+            transform: translate(0, 0);
+          }
+        }
 
-        /* ✅ دکمه ورود: حرفه‌ای، مینیمال، سازمانی (سبز تیره + فونت روشن) */
-        button[type="submit"] {
-          color: #f7fafc !important;       /* فونت روشن و خوانا */
-          background: #07657E !important;  /* سبز تیره سازمانی */
-          border: 1px solid rgba(0,0,0,0.04);
+        /* ✅ دکمه و اینپوت‌ها فقط در محدوده login-page */
+        .login-page button[type="submit"] {
+          color: #f7fafc !important;
+          background: #07657e !important;
+          border: 1px solid rgba(0, 0, 0, 0.04);
           border-radius: 9999px;
           padding: 0 1.25rem;
-          height: 48px;                    /* ← ارتفاع ثابت */
-          line-height: 48px;               /* ← متن دقیقاً وسط عمودی */
+          height: 48px;
+          line-height: 48px;
           font-weight: 600;
-          letter-spacing: .2px;
-          box-shadow:
-            0 6px 16px rgba(7,101,126,.28),
-            0 1px 0 rgba(255,255,255,.35) inset;
-          transition:
-            transform .15s ease,
-            box-shadow .15s ease,
-            filter .15s ease,
-            background-color .15s ease;
-          display: inline-flex;            /* ← تضمین وسط‌شدن */
+          letter-spacing: 0.2px;
+          box-shadow: 0 6px 16px rgba(7, 101, 126, 0.28),
+            0 1px 0 rgba(255, 255, 255, 0.35) inset;
+          transition: transform 0.15s ease, box-shadow 0.15s ease,
+            filter 0.15s ease, background-color 0.15s ease;
+          display: inline-flex;
           align-items: center;
           justify-content: center;
         }
-        button[type="submit"]:hover {
+        .login-page button[type="submit"]:hover {
           filter: brightness(1.06);
           transform: translateY(-1px);
-          box-shadow:
-            0 10px 22px rgba(7,101,126,.36),
-            0 1px 0 rgba(255,255,255,.45) inset;
+          box-shadow: 0 10px 22px rgba(7, 101, 126, 0.36),
+            0 1px 0 rgba(255, 255, 255, 0.45) inset;
         }
-        button[type="submit"]:active {
+        .login-page button[type="submit"]:active {
           transform: translateY(0);
           filter: brightness(0.98);
-          box-shadow:
-            0 6px 14px rgba(7,101,126,.24),
-            0 1px 0 rgba(255,255,255,.30) inset;
+          box-shadow: 0 6px 14px rgba(7, 101, 126, 0.24),
+            0 1px 0 rgba(255, 255, 255, 0.3) inset;
         }
-        button[type="submit"]:focus-visible {
-          outline: 2px solid rgba(255,255,255,.85);
+        .login-page button[type="submit"]:focus-visible {
+          outline: 2px solid rgba(255, 255, 255, 0.85);
           outline-offset: 2px;
-          box-shadow:
-            0 0 0 3px rgba(7,101,126,.35),
-            0 6px 16px rgba(7,101,126,.28);
+          box-shadow: 0 0 0 3px rgba(7, 101, 126, 0.35),
+            0 6px 16px rgba(7, 101, 126, 0.28);
         }
 
-        /* ✅ ورودی‌های نام کاربری و کلمه عبور: متن دقیقاً وسط کادر */
-        form input[type="text"],
-        form input[type="password"] {
-          height: 48px !important;         /* ← ارتفاع یکنواخت */
-          line-height: 48px !important;    /* ← متن دقیقاً وسط عمودی */
-          padding-top: 0 !important;       /* ← حذف هل‌دادن به پایین */
+        .login-page form input[type="text"],
+        .login-page form input[type="password"] {
+          height: 48px !important;
+          line-height: 48px !important;
+          padding-top: 0 !important;
           padding-bottom: 0 !important;
         }
       `}</style>

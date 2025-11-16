@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "../styles/globals.css";
 import ClientProviders from "./ClientProviders";
-import LayoutClient from "./LayoutClient";  // اضافه‌شده: وارد کردن کامپوننت کلاینتی جدید
+import AppShell from "@/components/layout/AppShell";
 
 export const metadata: Metadata = {
   title: "سامانه پرسنلی سریر",
@@ -10,13 +10,22 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="fa" dir="rtl" className="light" style={{ colorScheme: "light" }} suppressHydrationWarning>
-      <body className="theme-light min-h-dvh antialiased" suppressHydrationWarning>
+    <html
+      lang="fa"
+      dir="rtl"
+      className="light"
+      style={{ colorScheme: "light" }}
+      suppressHydrationWarning
+    >
+      <body
+        className="theme-light min-h-dvh antialiased"
+        style={{
+          background: "linear-gradient(to bottom, #E0F4FA, #F9FDFF)",
+        }}
+        suppressHydrationWarning
+      >
         <ClientProviders>
-          {/* استفاده از کامپوننت کلاینتی برای بخش‌های داینامیک (مثلاً نمایش شرطی سایدبار) */}
-          <div className="layout">
-            <LayoutClient>{children}</LayoutClient>
-          </div>
+          <AppShell>{children}</AppShell>
         </ClientProviders>
       </body>
     </html>

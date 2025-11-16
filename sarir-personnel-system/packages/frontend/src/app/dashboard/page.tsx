@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import Input from "@/components/ui/input";
+import Input from "@/components/ui/Input";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import {
@@ -10,17 +10,22 @@ import {
   UserPlusIcon,
   MagnifyingGlassIcon,
   BellIcon,
-  ArrowRightIcon,
   ArrowPathIcon,
   FunnelIcon,
 } from "@heroicons/react/24/solid";
 
 /* ─────────────── Theme helpers ─────────────── */
+
 const GLASS =
   "backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_10px_30px_rgba(0,0,0,.25)] glow-border";
+
 const GLASS2 =
   "backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_6px_20px_rgba(0,0,0,.2)] glow-border-soft";
-const PANELBG = "bg-white/10 dark:bg-white/10";
+
+const PANELBG = "bg-white/10/10 dark:bg-white/10".replace(
+  "/10/10",
+  "/10"
+); // فقط برای اینکه اشتباه قبلی پاک شود
 const PANELBG2 = "bg-white/8 dark:bg-white/8";
 
 type EmployeeRow = {
@@ -32,18 +37,21 @@ type EmployeeRow = {
 };
 
 /* ─────────────── Small pieces ─────────────── */
+
 function Metric({
   title,
   value,
   hint,
   accent = "from-cyan-400 to-indigo-500",
+  href,
 }: {
   title: string;
   value: string | number;
   hint?: string;
   accent?: string;
+  href?: string;
 }) {
-  return (
+  const content = (
     <motion.div
       whileHover={{ scale: 1.02, y: -2 }}
       className={`${GLASS2} ${PANELBG2} p-5 relative overflow-hidden cursor-pointer transition-all duration-300`}
@@ -60,6 +68,19 @@ function Metric({
       )}
     </motion.div>
   );
+
+  if (href) {
+    return (
+      <Link
+        href={href}
+        className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400/70 rounded-3xl"
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return content;
 }
 
 function Chip({
@@ -115,14 +136,15 @@ function PersonCard({ e }: { e: EmployeeRow }) {
 }
 
 /* ─────────────── Page ─────────────── */
+
 export default function Dashboard() {
-  const [expanded, setExpanded] = useState(false);
   const [q, setQ] = useState("");
   const [loadingEmp, setLoadingEmp] = useState(true);
   const [errEmp, setErrEmp] = useState<string | null>(null);
   const [employees, setEmployees] = useState<EmployeeRow[]>([]);
   const [filter, setFilter] =
     useState<"all" | "withEmail" | "noEmail">("all");
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   async function loadEmployees() {
     try {
@@ -132,6 +154,7 @@ export default function Dashboard() {
       const j = await r.json();
       if (!r.ok) throw new Error(j?.error || `HTTP ${r.status}`);
       setEmployees(Array.isArray(j) ? j : []);
+      setLastUpdated(new Date().toLocaleTimeString("fa-IR"));
     } catch (e: any) {
       setErrEmp(e?.message || "خطا در دریافت داده");
     } finally {
@@ -151,10 +174,10 @@ export default function Dashboard() {
         .sort(
           (a, b) =>
             new Date(b?.created_at ?? 0).getTime() -
-            new Date(a?.created_at ?? 0).getTime(),
+            new Date(a?.created_at ?? 0).getTime()
         )
         .slice(0, 10),
-    [employees],
+    [employees]
   );
 
   const filteredLatest = useMemo(() => {
@@ -166,7 +189,7 @@ export default function Dashboard() {
       list = list.filter((x) =>
         `${x.first_name} ${x.last_name} ${x.email || ""}`
           .toLowerCase()
-          .includes(k),
+          .includes(k)
       );
     }
     return list;
@@ -201,15 +224,19 @@ export default function Dashboard() {
           "radial-gradient(120rem 70rem at 120% -10%, rgba(34,211,238,.18), transparent), radial-gradient(100rem 60rem at -10% 120%, rgba(99,102,241,.18), transparent), #0b1220",
       }}
     >
-      <div className="pointer-events-none absolute inset-0 opacity-[.10] [background:repeating-linear-gradient(90deg,rgba(255,255,255,.14)_0_1px,transparent_1px_28px),repeating-linear-gradient(0deg,rgba(255,255,255,.10)_0_1px,transparent_1px_28px)]" />
-
+      {/* گرید پس‌زمینه */}
       <div
-        className="flex-1 p-4 md:p-8 gap-6 grid grid-cols-1 xl:grid-cols-12"
-        style={{ paddingRight: expanded ? "280px" : "80px" }}
-      >
-        {/* ستون چپ */}
+        className="pointer-events-none absolute inset-0 opacity-[.10]"
+        style={{
+          background:
+            "repeating-linear-gradient(90deg,rgba(255,255,255,.14)_0_1px,transparent_1px_28px),repeating-linear-gradient(0deg,rgba(255,255,255,.10)_0_1px,transparent_1px_28px)",
+        }}
+      />
+
+      <div className="flex-1 p-4 md:p-8 gap-6 grid grid-cols-1 xl:grid-cols-12">
+        {/* ستون چپ (فیلتر و متریک‌ها) */}
         <aside className="xl:col-span-3 space-y-4">
-          {/* Search + actions */}
+          {/* جستجو + ثبت پرسنل + ریفرش */}
           <div className={`${GLASS} ${PANELBG} p-5 space-y-3`}>
             <div className="relative">
               <MagnifyingGlassIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-cyan-300/80" />
@@ -238,30 +265,31 @@ export default function Dashboard() {
             </div>
           </div>
 
+          {/* متریک‌ها */}
           <Metric
             title="تعداد کل پرسنل"
             value={loadingEmp ? "…" : total}
-            hint={
-              loadingEmp
-                ? ""
-                : `بروزرسانی: ${new Date().toLocaleTimeString("fa-IR")}`
-            }
+            hint={lastUpdated ? `بروزرسانی: ${lastUpdated}` : ""}
+            href="/personnel/list"
           />
           <div className="grid grid-cols-2 gap-3">
             <Metric
               title="مدارک جدید"
               value="8"
               accent="from-rose-400 to-orange-400"
+              href="/personnel/files"
             />
             <Metric
               title="جلسات و مجامع"
               value="3"
               accent="from-emerald-400 to-lime-400"
+              href="/board/meetings"
             />
           </div>
 
+          {/* پرونده‌ها / گزارش‌ها */}
           <div className={`${GLASS2} ${PANELBG2} p-4 space-y-3`}>
-            <Link href="/personnel/list">
+            <Link href="/personnel/files">
               <Button
                 variant="outline"
                 className="w-full border-white/20 text-cyan-50"
@@ -280,8 +308,9 @@ export default function Dashboard() {
           </div>
         </aside>
 
-        {/* مرکز */}
+        {/* ستون وسط (هدر و لیست) */}
         <main className="xl:col-span-6 space-y-6">
+          {/* هدر نئونی */}
           <motion.header
             initial={{ y: -16, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -301,6 +330,7 @@ export default function Dashboard() {
                 }
               }
             `}</style>
+
             <div
               className="absolute inset-0 pointer-events-none"
               style={{ animation: "aurora 12s ease-in-out infinite" }}
@@ -326,6 +356,7 @@ export default function Dashboard() {
                 />
               </svg>
             </div>
+
             <div className="relative z-10 flex items-center justify-between">
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold text-cyan-100">
@@ -336,20 +367,21 @@ export default function Dashboard() {
                 </p>
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 text-xs text-cyan-200/70">
-                  <BellIcon className="h-5 w-5" />
-                  ۳ اعلان خوانده نشده
+                <div className="flex items-center gap-2 rounded-full bg-white/8 px-3 py-1 text-xs text-cyan-100 shadow-sm">
+                  <BellIcon className="h-4 w-4 text-cyan-300" />
+                  ۳ اعلان جدید
                 </div>
-                <Link href="/personnel/register">
+                <Link href="/personnel/list">
                   <Button className="bg-gradient-to-r from-cyan-400 to-indigo-500 text-[#0b1220]">
-                    <ArrowRightIcon className="h-5 w-5 ml-2" />
-                    شروع سریع
+                    <UsersIcon className="h-5 w-5 ml-2" />
+                    مرکز پرونده‌های پرسنلی
                   </Button>
                 </Link>
               </div>
             </div>
           </motion.header>
 
+          {/* فیلتر + خروجی CSV */}
           <motion.div
             initial={{ y: 16, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -385,6 +417,7 @@ export default function Dashboard() {
             </div>
           </motion.div>
 
+          {/* لیست آخرین پرسنل */}
           <motion.section
             initial={{ y: 18, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
@@ -400,7 +433,6 @@ export default function Dashboard() {
                   variant="outline"
                   className="border-white/20 text-cyan-50"
                 >
-                  <UsersIcon className="h-5 w-5 ml-2" />
                   مشاهده همه
                 </Button>
               </Link>
@@ -429,7 +461,7 @@ export default function Dashboard() {
           </motion.section>
         </main>
 
-        {/* ستون راست */}
+        {/* ستون راست: اقدامات امروز + اعلان‌ها */}
         <aside className="xl:col-span-3 space-y-4">
           <div className={`${GLASS} ${PANELBG} p-5`}>
             <div className="flex items-center justify-between">
@@ -462,7 +494,7 @@ export default function Dashboard() {
                 بارگذاری ۲ سند جدید در پرونده‌های پرسنلی
               </li>
               <li className="p-3 rounded-2xl bg-white/8 border border-white/10">
-                ویرایش اطلاعات «مرجان خورشید نیها»
+                ویرایش اطلاعات «مرجان خورشید نیا»
               </li>
             </ul>
           </div>
