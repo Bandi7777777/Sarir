@@ -15,12 +15,11 @@ import {
   ChartPieIcon,
   PresentationChartBarIcon,
   ArrowUpTrayIcon,
-  MapPinIcon,
 } from "@heroicons/react/24/solid";
 
 /* ── استایل ثابت سایدبار ── */
 const WRAP =
-  "h-full flex flex-col justify-between rounded-2xl border bg-[#040719]/95 text-white border-white/10 shadow-[0_10px_30px_rgba(0,0,0,.35)] backdrop-blur-xl overflow-hidden";
+  "h-full rounded-2xl border bg-[#040719]/95 text-white border-white/10 shadow-[0_10px_30px_rgba(0,0,0,.35)] backdrop-blur-xl overflow-hidden";
 const BTN_BASE =
   "w-full flex items-center rounded-2xl border transition-all focus:outline-none";
 const BTN_ACTIVE =
@@ -35,7 +34,7 @@ type CatItem = {
   href: string;
   label: string;
   icon: (c?: string) => JSX.Element;
-  badge?: number | undefined;
+  badge?: number;
 };
 type Category = {
   key: string;
@@ -47,24 +46,17 @@ type Category = {
 export default function Sidebar(props: SidebarProps) {
   const { expanded: expandedProp, setExpanded: setExpandedProp } = props;
 
-  /* جلوگیری از چند سایدبار همزمان در DOM */
-  const rootRef = useRef<HTMLElement | null>(null);
+  /* جلوگیری از رندر مکرر سایدبار در DOM */
+  const rootRef = useRef<HTMLElement>(null);
   const [isClone, setIsClone] = useState(false);
 
   useEffect(() => {
-    const existing = document.querySelector(
-      '[data-root-sidebar="true"]',
-    ) as HTMLElement | null;
-
+    const existing = document.querySelector('[data-root-sidebar="true"]') as HTMLElement | null;
     if (existing && existing !== rootRef.current) {
       setIsClone(true);
       return;
     }
-
-    if (rootRef.current) {
-      rootRef.current.setAttribute("data-root-sidebar", "true");
-    }
-
+    rootRef.current?.setAttribute("data-root-sidebar", "true");
     return () => {
       if (rootRef.current?.getAttribute("data-root-sidebar") === "true") {
         rootRef.current.removeAttribute("data-root-sidebar");
@@ -72,176 +64,78 @@ export default function Sidebar(props: SidebarProps) {
     };
   }, []);
 
-  // کنترل باز/جمع + پشتیبانی از prop
-  const [expandedState, setExpandedState] = useState<boolean>(
-    () => !!expandedProp,
-  );
-
+  // کنترل باز/جمع شدن با Hover
+  const [expandedState, setExpandedState] = useState<boolean>(() => !!expandedProp);
   useEffect(() => {
     if (typeof expandedProp === "boolean") setExpandedState(expandedProp);
   }, [expandedProp]);
 
-  const setExpanded =
-    typeof setExpandedProp === "function" ? setExpandedProp : setExpandedState;
-  const isExpanded =
-    typeof expandedProp === "boolean" ? expandedProp : expandedState;
-
-  // حالت پین‌شده (ثابت) + ذخیره در localStorage
-  const [pinned, setPinned] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const saved = window.localStorage.getItem("sarirSidebarPinned");
-    if (saved === "1") {
-      setPinned(true);
-      setExpanded(true);
-    }
-  }, [setExpanded]);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem("sarirSidebarPinned", pinned ? "1" : "0");
-  }, [pinned]);
+  const isExpanded = typeof expandedProp === "boolean" ? expandedProp : expandedState;
+  const setExpanded = typeof setExpandedProp === "function" ? setExpandedProp : setExpandedState;
 
   const pathname = usePathname();
 
-  const [notifCount, setNotifCount] = useState<number | undefined>();
-  const [driversCount, setDriversCount] = useState<number | undefined>();
+  const [notifCount, setNotifCount] = useState<number>();
+  const [driversCount, setDriversCount] = useState<number>();
 
   useEffect(() => {
-    // TODO: اتصال به API واقعی
+    // TODO: بعدها می‌توان درخواست API واقعی برای آمار ارسال کرد
     setNotifCount(undefined);
     setDriversCount(undefined);
   }, []);
 
-  const CATEGORIES: Category[] = useMemo(
-    () => [
-      {
-        key: "base",
-        label: "اطلاعات پایه",
-        icon: (cls = "h-5 w-5") => <HomeIcon className={cls} />,
-        items: [
-          {
-            href: "/dashboard",
-            label: "داشبورد",
-            icon: (c = "h-4 w-4") => <HomeIcon className={c} />,
-          },
-          {
-            href: "/board/list",
-            label: "هیئت‌مديره",
-            icon: (c = "h-4 w-4") => <BuildingOffice2Icon className={c} />,
-          },
-          {
-            href: "/personnel/list",
-            label: "كاركنان",
-            icon: (c = "h-4 w-4") => <UsersIcon className={c} />,
-          },
-          {
-            href: "/drivers/list",
-            label: "رانندگان",
-            icon: (c = "h-4 w-4") => <TruckIcon className={c} />,
-            badge: driversCount,
-          },
-        ],
-      },
-      {
-        key: "actions",
-        label: "عمليات",
-        icon: (cls = "h-5 w-5") => <UserPlusIcon className={cls} />,
-        items: [
-          {
-            href: "/personnel/register",
-            label: "ثبت كارمند",
-            icon: (c = "h-4 w-4") => <UserPlusIcon className={c} />,
-          },
-          {
-            href: "/drivers/register",
-            label: "ثبت راننده",
-            icon: (c = "h-4 w-4") => <TruckIcon className={c} />,
-          },
-          {
-            href: "/tools/import",
-            label: "ورود از اكسل",
-            icon: (c = "h-4 w-4") => <ArrowUpTrayIcon className={c} />,
-          },
-        ],
-      },
-      {
-        key: "analytics",
-        label: "آمار و گزارش",
-        icon: (cls = "h-5 w-5") => <ChartPieIcon className={cls} />,
-        items: [
-          {
-            href: "/stats/personnel",
-            label: "آمار كاركنان",
-            icon: (c = "h-4 w-4") => <ChartPieIcon className={c} />,
-          },
-          {
-            href: "/stats/drivers",
-            label: "آمار رانندگان",
-            icon: (c = "h-4 w-4") => (
-              <PresentationChartBarIcon className={c} />
-            ),
-          },
-          {
-            href: "/reports",
-            label: "گزارش‌ها",
-            icon: (c = "h-4 w-4") => (
-              <ClipboardDocumentListIcon className={c} />
-            ),
-          },
-          {
-            href: "/notifications",
-            label: "اعلان‌ها",
-            icon: (c = "h-4 w-4") => <BellIcon className={c} />,
-            badge: notifCount,
-          },
-        ],
-      },
-    ],
-    [driversCount, notifCount],
-  );
+  // تعریف ساختار منوی سایدبار
+  const CATEGORIES: Category[] = useMemo(() => [
+    {
+      key: "base",
+      label: "اطلاعات پایه",
+      icon: (cls = "h-5 w-5") => <HomeIcon className={cls} />,
+      items: [
+        { href: "/dashboard", label: "داشبورد", icon: (c = "h-4 w-4") => <HomeIcon className={c} /> },
+        { href: "/board/list", label: "هیئت‌مديره", icon: (c = "h-4 w-4") => <BuildingOffice2Icon className={c} /> },
+        { href: "/personnel/list", label: "كاركنان", icon: (c = "h-4 w-4") => <UsersIcon className={c} /> },
+        { href: "/drivers/list", label: "رانندگان", icon: (c = "h-4 w-4") => <TruckIcon className={c} />, badge: driversCount },
+      ],
+    },
+    {
+      key: "actions",
+      label: "عمليات",
+      icon: (cls = "h-5 w-5") => <UserPlusIcon className={cls} />,
+      items: [
+        { href: "/personnel/register", label: "ثبت كارمند", icon: (c = "h-4 w-4") => <UserPlusIcon className={c} /> },
+        { href: "/drivers/register", label: "ثبت راننده", icon: (c = "h-4 w-4") => <TruckIcon className={c} /> },
+        { href: "/tools/import", label: "ورود از اكسل", icon: (c = "h-4 w-4") => <ArrowUpTrayIcon className={c} /> },
+      ],
+    },
+    {
+      key: "analytics",
+      label: "آمار و گزارش",
+      icon: (cls = "h-5 w-5") => <ChartPieIcon className={cls} />,
+      items: [
+        { href: "/stats/personnel", label: "آمار كاركنان", icon: (c = "h-4 w-4") => <ChartPieIcon className={c} /> },
+        { href: "/stats/drivers", label: "آمار رانندگان", icon: (c = "h-4 w-4") => <PresentationChartBarIcon className={c} /> },
+        { href: "/reports", label: "گزارش‌ها", icon: (c = "h-4 w-4") => <ClipboardDocumentListIcon className={c} /> },
+        { href: "/notifications", label: "اعلان‌ها", icon: (c = "h-4 w-4") => <BellIcon className={c} />, badge: notifCount },
+      ],
+    },
+  ], [driversCount, notifCount]);
 
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [hoverCategory, setHoverCategory] = useState<string | null>(null);
+  const hoverTimer = useRef<any>(null);
 
-  const hoverCategoryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const expandTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleHover = (key: string | null) => {
+    // با تاخیر کوتاه دسته را در حالت Hover باز می‌کند
+    if (hoverTimer.current) clearTimeout(hoverTimer.current);
+    if (key) {
+      hoverTimer.current = setTimeout(() => setHoverCategory(key), 100);
+    } else {
+      hoverTimer.current = setTimeout(() => setHoverCategory(null), 100);
+    }
+  };
 
   const isActive = (href: string) =>
-    href === "/dashboard"
-      ? pathname === href || pathname === `${href}/`
-      : pathname.startsWith(href);
-
-  const handleHoverCategory = (key: string | null) => {
-    if (hoverCategoryTimer.current) clearTimeout(hoverCategoryTimer.current);
-    hoverCategoryTimer.current = setTimeout(
-      () => setHoverCategory(key),
-      key ? 90 : 140,
-    );
-  };
-
-  const handleMouseEnter = () => {
-    if (expandTimer.current) clearTimeout(expandTimer.current);
-    setExpanded(true);
-  };
-
-  const handleMouseLeave = () => {
-    if (expandTimer.current) clearTimeout(expandTimer.current);
-    if (pinned) return;
-    // کمی تأخیر برای جمع شدن، تا حس نرم‌تری بده
-    expandTimer.current = setTimeout(() => {
-      setExpanded(false);
-    }, 280);
-  };
-
-  useEffect(
-    () => () => {
-      if (hoverCategoryTimer.current) clearTimeout(hoverCategoryTimer.current);
-      if (expandTimer.current) clearTimeout(expandTimer.current);
-    },
-    [],
-  );
+    href === "/dashboard" ? pathname === href : pathname.startsWith(href);
 
   if (isClone) return null;
 
@@ -252,22 +146,19 @@ export default function Sidebar(props: SidebarProps) {
       aria-label="Sidebar"
       data-root-sidebar="true"
       className="
-        order-last shrink-0
-        h-screen
-        pe-3 pt-3
-        transition-[width] duration-[700ms] ease-[cubic-bezier(0.22,0.8,0.3,1)]
+        order-last shrink-0 
+        h-screen 
+        transition-[width] duration-300  /* زمان تغییر اندازه افزایشی برای حرکت نرم‌تر */
+        pe-0 pt-3                        /* حذف padding اضافی انتهای سایدبار */
       "
       style={{ width: isExpanded ? 256 : 72 }}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
     >
       <div className={WRAP}>
-        {/* هدر لوگو / برند */}
+        {/* بخش لوگو/برند */}
         <div className="flex items-center justify-center gap-2 px-3 py-4 border-b border-white/10">
-          <Link
-            href="/dashboard"
-            className="flex items-center gap-3 focus:outline-none"
-          >
+          <Link href="/dashboard" className="flex items-center gap-3 focus:outline-none">
             <div className="relative w-10 h-10 rounded-xl overflow-hidden ring-1 ring-white/15 bg-white shadow-[0_8px_24px_rgba(0,0,0,.2)] p-1">
               <img
                 src="/images/logo-sarir-2.svg"
@@ -275,29 +166,24 @@ export default function Sidebar(props: SidebarProps) {
                 className="w-full h-full object-contain"
                 onError={(e) => {
                   const el = e.currentTarget as HTMLImageElement;
-                  if (!el.src.endsWith(".png")) {
-                    el.src = "/images/logo-sarir-2.png";
-                  }
+                  if (!el.src.endsWith(".png")) el.src = "/images/logo-sarir-2.png";
                 }}
               />
             </div>
             {isExpanded && (
               <div className="leading-tight">
                 <div className="font-extrabold tracking-wide">سریر</div>
-                <div className="text-[11px] opacity-70">
-                  سیستم مدیریت پرسنل
-                </div>
+                <div className="text-[11px] opacity-70">سیستم مدیریت پرسنل</div>
               </div>
             )}
           </Link>
         </div>
 
-        {/* آیتم‌ها */}
-        <ul className="mt-1 px-2 space-y-2 flex-1 overflow-y-auto">
+        {/* آیتم‌های منو */}
+        <ul className="mt-1 px-2 space-y-2">
           {CATEGORIES.map((cat) => {
             const open = isExpanded && openCategory === cat.key;
             const hoverOpen = !isExpanded && hoverCategory === cat.key;
-
             return (
               <li key={cat.key} className="relative">
                 <button
@@ -305,9 +191,7 @@ export default function Sidebar(props: SidebarProps) {
                   className={`${BTN_BASE} ${
                     isExpanded ? "gap-3 px-2.5 py-2" : "justify-center py-2"
                   } ${
-                    cat.items.some((it) => isActive(it.href)) ||
-                    open ||
-                    hoverOpen
+                    cat.items.some((it) => isActive(it.href)) || open || hoverOpen
                       ? BTN_ACTIVE
                       : BTN_IDLE
                   }`}
@@ -316,12 +200,8 @@ export default function Sidebar(props: SidebarProps) {
                       setOpenCategory((p) => (p === cat.key ? null : cat.key));
                     }
                   }}
-                  onMouseEnter={() =>
-                    !isExpanded && handleHoverCategory(cat.key)
-                  }
-                  onMouseLeave={() =>
-                    !isExpanded && handleHoverCategory(null)
-                  }
+                  onMouseEnter={() => !isExpanded && handleHover(cat.key)}
+                  onMouseLeave={() => !isExpanded && handleHover(null)}
                   aria-expanded={!!(open || hoverOpen)}
                   aria-label={cat.label}
                   title={!isExpanded ? cat.label : undefined}
@@ -332,18 +212,14 @@ export default function Sidebar(props: SidebarProps) {
                       {cat.icon("h-5 w-5")}
                     </span>
                   </span>
-                  {isExpanded && (
-                    <span className="truncate font-medium">{cat.label}</span>
-                  )}
+                  {isExpanded && <span className="truncate font-medium">{cat.label}</span>}
                 </button>
 
-                {/* زیرمنو در حالت باز (expanded) */}
+                {/* زیرمنوی بازشونده در حالت باز */}
                 {isExpanded && (
                   <div
                     className={`grid transition-[grid-template-rows,opacity] duration-300 ${
-                      open
-                        ? "grid-rows-[1fr] opacity-100"
-                        : "grid-rows-[0fr] opacity-0"
+                      open ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
                     }`}
                     aria-hidden={!open}
                   >
@@ -378,17 +254,15 @@ export default function Sidebar(props: SidebarProps) {
                   </div>
                 )}
 
-                {/* Flyout در حالت جمع‌شده */}
+                {/* منوی شناور در حالت جمع‌شده */}
                 {!isExpanded && hoverOpen && (
                   <div
                     className="absolute right-[72px] top-0 z-50"
-                    onMouseEnter={() => handleHoverCategory(cat.key)}
-                    onMouseLeave={() => handleHoverCategory(null)}
+                    onMouseEnter={() => handleHover(cat.key)}
+                    onMouseLeave={() => handleHover(null)}
                   >
                     <div className="min-w-[220px] rounded-2xl border border-white/15 bg-[#050816]/95 backdrop-blur-xl shadow-[0_12px_36px_rgba(0,0,0,.45)] p-2">
-                      <div className="px-2 py-1 mb-1 text-[11px] text-white/70">
-                        {cat.label}
-                      </div>
+                      <div className="px-2 py-1 mb-1 text-[11px] text-white/70">{cat.label}</div>
                       <ul className="space-y-1">
                         {cat.items.map((it) => {
                           const active = isActive(it.href);
@@ -424,34 +298,6 @@ export default function Sidebar(props: SidebarProps) {
             );
           })}
         </ul>
-
-        {/* پین / آن‌پین سایدبار پایین */}
-        <div className="border-t border-white/10 px-2 py-2">
-          <button
-            type="button"
-            onClick={() => {
-              const next = !pinned;
-              setPinned(next);
-              if (next) setExpanded(true);
-            }}
-            className={`w-full flex items-center gap-2 rounded-xl px-2.5 py-1.5 text-[11px] transition-all ${
-              pinned
-                ? "bg-cyan-500/20 text-cyan-100"
-                : "text-white/70 hover:bg-white/10"
-            }`}
-          >
-            <span className="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-white/8">
-              <MapPinIcon
-                className={`h-3.5 w-3.5 ${
-                  pinned ? "text-cyan-300" : "text-white/70"
-                }`}
-              />
-            </span>
-            <span>
-              {pinned ? "سایدبار ثابت است" : "ثابت نگه‌داشتن سایدبار"}
-            </span>
-          </button>
-        </div>
       </div>
     </nav>
   );
