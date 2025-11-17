@@ -1,21 +1,20 @@
-// packages/frontend/src/components/ui/Sidebar.tsx
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  HomeIcon,
-  UsersIcon,
-  UserPlusIcon,
-  ClipboardDocumentListIcon,
-  BellIcon,
-  TruckIcon,
-  BuildingOffice2Icon,
-  ChartPieIcon,
-  PresentationChartBarIcon,
-  ArrowUpTrayIcon,
-} from "@heroicons/react/24/solid";
+  Home,
+  Users,
+  UserPlus,
+  ClipboardList,
+  Bell,
+  Truck,
+  Building2,
+  PieChart,
+  BarChart2,
+  Upload,
+} from "lucide-react";
 
 /* ── استایل ثابت سایدبار ── */
 const WRAP =
@@ -89,33 +88,33 @@ export default function Sidebar(props: SidebarProps) {
     {
       key: "base",
       label: "اطلاعات پایه",
-      icon: (cls = "h-5 w-5") => <HomeIcon className={cls} />,
+      icon: (cls = "h-5 w-5") => <Home className={cls} />,
       items: [
-        { href: "/dashboard", label: "داشبورد", icon: (c = "h-4 w-4") => <HomeIcon className={c} /> },
-        { href: "/board/list", label: "هیئت‌مديره", icon: (c = "h-4 w-4") => <BuildingOffice2Icon className={c} /> },
-        { href: "/personnel/list", label: "كاركنان", icon: (c = "h-4 w-4") => <UsersIcon className={c} /> },
-        { href: "/drivers/list", label: "رانندگان", icon: (c = "h-4 w-4") => <TruckIcon className={c} />, badge: driversCount },
+        { href: "/dashboard", label: "داشبورد", icon: (c = "h-4 w-4") => <Home className={c} /> },
+        { href: "/board/list", label: "هیئت‌مديره", icon: (c = "h-4 w-4") => <Building2 className={c} /> },
+        { href: "/personnel/list", label: "كاركنان", icon: (c = "h-4 w-4") => <Users className={c} /> },
+        { href: "/drivers/list", label: "رانندگان", icon: (c = "h-4 w-4") => <Truck className={c} />, badge: driversCount },
       ],
     },
     {
       key: "actions",
       label: "عمليات",
-      icon: (cls = "h-5 w-5") => <UserPlusIcon className={cls} />,
+      icon: (cls = "h-5 w-5") => <UserPlus className={cls} />,
       items: [
-        { href: "/personnel/register", label: "ثبت كارمند", icon: (c = "h-4 w-4") => <UserPlusIcon className={c} /> },
-        { href: "/drivers/register", label: "ثبت راننده", icon: (c = "h-4 w-4") => <TruckIcon className={c} /> },
-        { href: "/tools/import", label: "ورود از اكسل", icon: (c = "h-4 w-4") => <ArrowUpTrayIcon className={c} /> },
+        { href: "/personnel/register", label: "ثبت كارمند", icon: (c = "h-4 w-4") => <UserPlus className={c} /> },
+        { href: "/drivers/register", label: "ثبت راننده", icon: (c = "h-4 w-4") => <Truck className={c} /> },
+        { href: "/tools/import", label: "ورود از اكسل", icon: (c = "h-4 w-4") => <Upload className={c} /> },
       ],
     },
     {
       key: "analytics",
       label: "آمار و گزارش",
-      icon: (cls = "h-5 w-5") => <ChartPieIcon className={cls} />,
+      icon: (cls = "h-5 w-5") => <PieChart className={cls} />,
       items: [
-        { href: "/stats/personnel", label: "آمار كاركنان", icon: (c = "h-4 w-4") => <ChartPieIcon className={c} /> },
-        { href: "/stats/drivers", label: "آمار رانندگان", icon: (c = "h-4 w-4") => <PresentationChartBarIcon className={c} /> },
-        { href: "/reports", label: "گزارش‌ها", icon: (c = "h-4 w-4") => <ClipboardDocumentListIcon className={c} /> },
-        { href: "/notifications", label: "اعلان‌ها", icon: (c = "h-4 w-4") => <BellIcon className={c} />, badge: notifCount },
+        { href: "/stats/personnel", label: "آمار كاركنان", icon: (c = "h-4 w-4") => <PieChart className={c} /> },
+        { href: "/stats/drivers", label: "آمار رانندگان", icon: (c = "h-4 w-4") => <BarChart2 className={c} /> },
+        { href: "/reports", label: "گزارش‌ها", icon: (c = "h-4 w-4") => <ClipboardList className={c} /> },
+        { href: "/notifications", label: "اعلان‌ها", icon: (c = "h-4 w-4") => <Bell className={c} />, badge: notifCount },
       ],
     },
   ], [driversCount, notifCount]);
@@ -145,10 +144,11 @@ export default function Sidebar(props: SidebarProps) {
       role="navigation"
       aria-label="Sidebar"
       data-root-sidebar="true"
+      dir="rtl"
       className="
-        order-last shrink-0 
+        shrink-0 
         h-screen 
-        transition-[width] duration-300  /* زمان تغییر اندازه افزایشی برای حرکت نرم‌تر */
+        transition-[width] duration-500 ease-in-out  /* زمان تغییر اندازه افزایشی برای حرکت نرم‌تر */
         pe-0 pt-3                        /* حذف padding اضافی انتهای سایدبار */
       "
       style={{ width: isExpanded ? 256 : 72 }}
@@ -257,7 +257,7 @@ export default function Sidebar(props: SidebarProps) {
                 {/* منوی شناور در حالت جمع‌شده */}
                 {!isExpanded && hoverOpen && (
                   <div
-                    className="absolute right-[72px] top-0 z-50"
+                    className="absolute left-[72px] top-0 z-50"
                     onMouseEnter={() => handleHover(cat.key)}
                     onMouseLeave={() => handleHover(null)}
                   >
