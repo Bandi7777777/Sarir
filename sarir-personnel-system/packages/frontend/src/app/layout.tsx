@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import "../styles/globals.css";
 import ClientProviders from "./ClientProviders";
-import AppShell from "@/components/layout/AppShell";
+import LayoutClient from "@/components/layout/LayoutClient";
 
 export const metadata: Metadata = {
   title: "سامانه پرسنلی سریر",
@@ -17,15 +17,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       style={{ colorScheme: "light" }}
       suppressHydrationWarning
     >
-      <body
-        className="theme-light min-h-dvh antialiased"
-        style={{
-          background: "linear-gradient(to bottom, #E0F4FA, #F9FDFF)",
-        }}
-        suppressHydrationWarning
-      >
+      <body className="theme-light min-h-dvh antialiased" suppressHydrationWarning>
         <ClientProviders>
-          <AppShell>{children}</AppShell>
+          {/* همهٔ صفحات از اینجا می‌گذرند و LayoutClient تشخیص می‌دهد لاگین هست یا نه */}
+          <LayoutClient>{children}</LayoutClient>
         </ClientProviders>
       </body>
     </html>
