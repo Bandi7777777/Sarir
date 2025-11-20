@@ -1,8 +1,7 @@
 "use client";
-
+import { Input } from "@/components/ui/input";
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import Input from "@/components/ui/Input";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import {

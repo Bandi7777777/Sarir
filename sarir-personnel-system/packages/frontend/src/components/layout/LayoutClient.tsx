@@ -1,29 +1,38 @@
 "use client";
 
-import { ReactNode } from "react";
+import * as React from "react";
 import { usePathname } from "next/navigation";
-import Sidebar from "@/components/ui/Sidebar";
+import SliderSidebar from "../ui/slider"; // سایدبار عمودی سمت راست
 
-type Props = { children: ReactNode };
+type LayoutClientProps = {
+  children: React.ReactNode;
+};
 
-export default function LayoutClient({ children }: Props) {
+export default function LayoutClient({ children }: LayoutClientProps) {
   const pathname = usePathname() || "";
-  const isAuth = pathname === "/login" || pathname === "/login/" || pathname.startsWith("/auth");
 
-  if (isAuth) {
-    // صفحه لاگین بدون سایدبار/تولبار
-    return (
-      <main className="min-h-screen w-screen overflow-x-hidden bg-gradient-to-br from-[#EAF7FF] to-[#F9FDFF]" dir="rtl">
-        {children}
-      </main>
-    );
+  // صفحاتی که سایدبار نمی‌خوای (مثلاً لاگین)
+  const isAuthRoute =
+    pathname.startsWith("/auth") ||
+    pathname === "/login" ||
+    pathname === "/login/";
+
+  if (isAuthRoute) {
+    return <>{children}</>;
   }
 
-  // نکته مهم: چون container در RTL است، «فرزند اول» سمت راست می‌ایستد
   return (
-    <div className="flex min-h-screen w-screen overflow-x-hidden bg-gradient-to-br from-[#EAF7FF] to-[#F9FDFF]" dir="rtl">
-      <Sidebar side="right" />                         {/* سمت راست قطعی */}
-      <main className="flex-1 min-w-0" dir="rtl">{children}</main>
+    <div
+      className="flex min-h-screen w-screen overflow-x-hidden bg-gradient-to-br from-[#020617] to-[#050922]"
+      dir="rtl"
+    >
+      {/* محتوای اصلی؛ همون داشبورد و صفحات خودت */}
+      <main className="flex-1 min-w-0" dir="rtl">
+        {children}
+      </main>
+
+      {/* سایدبار عمودی سمت راست */}
+      <SliderSidebar />
     </div>
   );
 }
