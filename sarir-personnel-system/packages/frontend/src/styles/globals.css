@@ -35,6 +35,11 @@
   --sidebar-accent-foreground: hsl(240 5.9% 10%);
   --sidebar-border: hsl(220 13% 91%);
   --sidebar-ring: hsl(217.2 91.2% 59.8%);
+  
+  /* === 🛑 خط ۱: اضافه شده برای رفع ارور border-border === */
+  --border: 214.3 31.8% 91.4%;
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
 }
 
 /* تم‌های جداگانه برای صفحات */
@@ -52,19 +57,44 @@
   --text-color: #4a2700;
 }
 
+/* === 🛑 خط ۲: اضافه شده برای رفع ارور border-border در دارک مد === */
+.dark {
+  --border: 217.2 32.6% 17.5%;
+  --background: 222.2 84% 4.9%;
+  --foreground: 210 40% 98%;
+  
+  --sidebar: hsl(240 5.9% 10%);
+  --sidebar-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-primary: hsl(224.3 76.3% 48%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(240 3.7% 15.9%);
+  --sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+  --sidebar-border: hsl(240 3.7% 15.9%);
+  --sidebar-ring: hsl(217.2 91.2% 59.8%);
+}
+
+
 /* پایه – ریست مدرن با تمرکز بر ظرافت و عملکرد */
 * { 
   box-sizing: border-box; 
   -webkit-font-smoothing: antialiased; 
   -moz-osx-font-smoothing: grayscale; 
   transition: color var(--animation-duration) ease, background var(--animation-duration) ease, transform var(--animation-duration) ease, box-shadow var(--animation-duration) ease;
+  
+  /* === 🛑 خط ۳: اصلاح حیاتی برای رفع ارور border-border با CSS استاندارد === */
+  border-color: hsl(var(--border, 214.3 31.8% 91.4%)); 
+  border-style: solid;
+  border-width: 0;
 } 
 
 html, body { 
   height: 100%; 
-  overflow-x: hidden; 
+  /* === 🛑 خط ۴: اضافه شده برای حذف کادر سفید مزاحم (فول اسکرین) === */
+  width: 100%; 
+  overflow: hidden; 
   scroll-behavior: smooth;
   margin: 0;
+  padding: 0; /* برای اطمینان از حذف تمام فاصله‌های پیش‌فرض */
 } 
 
 body {
@@ -418,6 +448,7 @@ body::before {
 /* کلاس‌های اضافی – برای glass و انیمیشن‌های زیبا */
 .glass-panel {
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255,255,255,0.15);
   box-shadow: 0 10px 28px rgba(0,0,0,0.1);
   background: rgba(255,255,255,0.05);
@@ -437,6 +468,7 @@ body::before {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
 html,
 body {
   min-height: 100%;
