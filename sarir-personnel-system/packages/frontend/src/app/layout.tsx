@@ -20,7 +20,10 @@ export default function RootLayout({
       style={{ colorScheme: "light" }}
       suppressHydrationWarning
     >
-      <body className="theme-light min-h-dvh antialiased" suppressHydrationWarning>
+      <body
+        className="theme-light min-h-dvh antialiased"
+        suppressHydrationWarning
+      >
         <LayoutClient>{children}</LayoutClient>
       </body>
     </html>
