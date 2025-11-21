@@ -21,7 +21,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body
-        className="theme-light min-h-dvh antialiased"
+        className="min-h-screen antialiased"
         suppressHydrationWarning
       >
         <LayoutClient>{children}</LayoutClient>
