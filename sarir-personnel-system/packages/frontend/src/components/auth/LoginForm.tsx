@@ -4,6 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { BACKEND_URL } from "@/lib/config";
 import { saveAccessToken } from "@/lib/auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function LoginForm() {
   const [username, setUsername] = useState("");
@@ -43,32 +45,36 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-3 text-right">
       {error && <p className="text-sm text-red-600 text-center">{error}</p>}
-      <div className="relative max-w-[224px] mx-auto">
-        <input
-          type="text"
-          required
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          className="w-full px-4 py-2 pl-10 border border-primary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4DA8FF]/60 text-sm placeholder-center bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-300 text-gray-800 placeholder-gray-400"
-          placeholder="نام کاربری"
-        />
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-          👤
-        </span>
-      </div>
+      <div className="space-y-4 max-w-xs mx-auto">
+        <div className="space-y-1">
+          <label className="block text-sm font-medium text-right" htmlFor="username">
+            نام کاربری
+          </label>
+          <Input
+            id="username"
+            type="text"
+            required
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="نام کاربری"
+            className="text-right"
+          />
+        </div>
 
-      <div className="relative max-w-[224px] mx-auto">
-        <input
-          type="password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-4 py-2 pl-10 border border-primary/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4DA8FF]/60 text-sm placeholder-center bg-white/80 backdrop-blur-sm shadow-md hover:shadow-lg transition-all duration-300 text-gray-800 placeholder-gray-400"
-          placeholder="کلمه عبور"
-        />
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
-          🔒
-        </span>
+        <div className="space-y-1">
+          <label className="block text-sm font-medium text-right" htmlFor="password">
+            کلمه عبور
+          </label>
+          <Input
+            id="password"
+            type="password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="کلمه عبور"
+            className="text-right"
+          />
+        </div>
       </div>
 
       <div className="text-xs text-left text-[#4DA8FF] hover:text-[#66B2FF] transition-colors duration-200 max-w-[224px] mx-auto">
@@ -76,13 +82,9 @@ export default function LoginForm() {
       </div>
 
       <div className="max-w-[224px] mx-auto">
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary-light transition-all duration-300 text-sm font-semibold shadow-md hover:shadow-lg"
-        >
+        <Button type="submit" disabled={loading} className="w-full">
           {loading ? "در حال ورود..." : "ورود"}
-        </button>
+        </Button>
       </div>
     </form>
   );

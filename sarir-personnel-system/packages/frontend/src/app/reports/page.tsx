@@ -1,7 +1,5 @@
 "use client";
 
-"use client";
-
 import { useState, useEffect, useMemo, useRef } from "react";
 import dynamic from "next/dynamic";
 import { toast } from "react-hot-toast";

@@ -4,6 +4,7 @@ import * as React from "react";
 import { usePathname } from "next/navigation";
 import ClientProviders from "@/app/ClientProviders";
 import Sidebar from "@/components/ui/Sidebar";
+import { Toaster } from "react-hot-toast";
 
 type LayoutClientProps = {
   children: React.ReactNode;
@@ -54,6 +55,7 @@ export default function LayoutClient({ children }: LayoutClientProps) {
           </div>
         </main>
       </div>
+      <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
     </ClientProviders>
   );
 }
