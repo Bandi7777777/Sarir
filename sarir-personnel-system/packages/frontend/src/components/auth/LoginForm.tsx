@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { BACKEND_URL } from "@/lib/config";
+import { saveAccessToken } from "@/lib/auth";
 
 export default function LoginForm() {
   const [username, setUsername] = useState("");
@@ -19,31 +20,21 @@ export default function LoginForm() {
       const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        credentials: "include",
         body: JSON.stringify({ username, password }),
       });
       if (!res.ok) {
-        // اگر خطای احراز هویت بود
         const data = await res.json();
-        const msg = data?.detail || "نام کاربری یا کلمه عبور اشتباه است.";
+        const msg = data?.detail || "خطا در ورود. لطفا دوباره تلاش کنید.";
         throw new Error(msg);
       }
       const data = await res.json();
       const { access_token } = data;
-      // ذخیره نقش کاربر بر اساس توکن (admin یا manager)
       if (access_token) {
-        try {
-          const payload = JSON.parse(atob(access_token.split('.')[1]));
-          const role = payload.is_superuser ? "admin" : "manager";
-          if (typeof window !== "undefined") {
-            window.localStorage.setItem("sarir-role", role);
-          }
-        } catch {}
+        saveAccessToken(access_token);
       }
-      // هدایت به داشبورد پس از ورود موفق
       router.push("/dashboard");
     } catch (err: any) {
-      setError(err.message || "ورود ناموفق بود.");
+      setError(err.message || "خطا در ورود.");
     } finally {
       setLoading(false);
     }
@@ -51,9 +42,7 @@ export default function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="w-full space-y-3 text-right">
-      {error && (
-        <p className="text-sm text-red-600 text-center">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-600 text-center">{error}</p>}
       <div className="relative max-w-[224px] mx-auto">
         <input
           type="text"
@@ -83,7 +72,7 @@ export default function LoginForm() {
       </div>
 
       <div className="text-xs text-left text-[#4DA8FF] hover:text-[#66B2FF] transition-colors duration-200 max-w-[224px] mx-auto">
-        <a href="#">فراموشی رمز عبور؟</a>
+        <a href="#">فراموشی کلمه عبور</a>
       </div>
 
       <div className="max-w-[224px] mx-auto">
@@ -92,7 +81,7 @@ export default function LoginForm() {
           disabled={loading}
           className="w-full bg-primary text-white py-2 rounded-lg hover:bg-primary-light transition-all duration-300 text-sm font-semibold shadow-md hover:shadow-lg"
         >
-          {loading ? "صبر کنید..." : "ورود"}
+          {loading ? "در حال ورود..." : "ورود"}
         </button>
       </div>
     </form>

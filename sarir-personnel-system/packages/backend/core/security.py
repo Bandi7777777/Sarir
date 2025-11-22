@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import os
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
 
 import jwt  # PyJWT
 from passlib.context import CryptContext
+from core.config import settings
 
 # =========================
 # Password hashing (bcrypt)
@@ -25,16 +25,16 @@ def verify_password(plain: str, hashed: str) -> bool:
 # ==============
 # JWT Settings
 # ==============
-SECRET_KEY: str = os.getenv("SECRET_KEY", "please-change-me")
-ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
+SECRET_KEY: str = settings.SECRET_KEY
+ALGORITHM: str = settings.JWT_ALGORITHM
 
-ACCESS_TOKEN_EXPIRE_MINUTES: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "15"))
-REFRESH_TOKEN_EXPIRE_DAYS: int = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
+ACCESS_TOKEN_EXPIRE_MINUTES: int = settings.ACCESS_TOKEN_EXPIRE_MINUTES
+REFRESH_TOKEN_EXPIRE_DAYS: int = settings.REFRESH_TOKEN_EXPIRE_DAYS
 
-JWT_ISSUER: str = os.getenv("JWT_ISSUER", "sarir-soft-backend")
-JWT_AUDIENCE_ACCESS: str = os.getenv("JWT_AUDIENCE_ACCESS", os.getenv("JWT_AUDIENCE", "sarir-soft-frontend-access"))
-JWT_AUDIENCE_REFRESH: str = os.getenv("JWT_AUDIENCE_REFRESH", os.getenv("JWT_AUDIENCE", "sarir-soft-frontend-refresh"))
-JWT_LEEWAY_SECONDS: int = int(os.getenv("JWT_LEEWAY_SECONDS", "15"))
+JWT_ISSUER: str = settings.JWT_ISSUER
+JWT_AUDIENCE_ACCESS: str = settings.JWT_AUDIENCE_ACCESS
+JWT_AUDIENCE_REFRESH: str = settings.JWT_AUDIENCE_REFRESH
+JWT_LEEWAY_SECONDS: int = settings.JWT_LEEWAY_SECONDS
 
 # =====================
 # JWT helpers

@@ -1,474 +1,527 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import Button from "@/components/ui/button";
-import Input from "@/components/ui/input";
+import React, { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
-  UserIcon,
-  MagnifyingGlassIcon,
-  ExclamationCircleIcon,
-  DocumentTextIcon,
-  ShieldCheckIcon,
-  UserPlusIcon,
-  ArrowPathIcon,
-  FunnelIcon,
-  XMarkIcon,
-} from "@heroicons/react/24/solid";
-import Link from "next/link";
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+  getFilteredRowModel,
+  getSortedRowModel,
+  getGroupedRowModel,
+  SortingState,
+  ColumnDef,
+} from "@tanstack/react-table";
+import { motion } from "framer-motion";
+import {
+  Users, UserPlus, Search, Edit, Trash2, RotateCcw,
+  Briefcase, CornerDownLeft, UserCheck, DollarSign,
+  ChevronUp, ChevronDown, ListFilter, Settings2, Table, LayoutList
+} from "lucide-react";
 import { toast } from "react-hot-toast";
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
 
-type Employee = {
-  id: number | string;
-  first_name: string;
-  last_name: string;
-  emp_code?: string | null;
-  phone?: string | null;
-  email?: string | null;
-  position?: string | null;
-  department?: string | null;
-  created_at?: string | null;
-  documents?: { complete: boolean; missing: string[] };
-  insurance?: { status: "valid" | "expired" | "missing"; expiryDate?: string };
+/* فرض بر وجود کامپوننت‌های UI در مسیرهای زیر: */
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+// import { cn } from "@/lib/utils"; // برای ترکیب کلاس‌ها
+
+// --- Type Definitions ---
+type Personnel = {
+    id: number;
+    fullName: string;
+    nationalId: string;
+    department: 'فناوری اطلاعات' | 'مالی' | 'تولید' | 'منابع انسانی' | 'بازرگانی';
+    position: string;
+    salary: number; // به تومان
+    startDate: string;
+    status: 'Active' | 'On Leave' | 'Terminated';
+    mobile: string;
 };
 
-const EMPLOYEES_URL = "/api/employees";
+// --- Mock Data and API Function ---
+const mockPersonnel: Personnel[] = [
+    { id: 1001, fullName: "علی ناصری", nationalId: "0012345678", department: "فناوری اطلاعات", position: "مدیر بخش", salary: 55000000, startDate: "1397/04/01", status: "Active", mobile: "09121111111" },
+    { id: 1002, fullName: "مریم احمدی", nationalId: "0023456789", department: "مالی", position: "کارشناس ارشد", salary: 32000000, startDate: "1400/11/15", status: "Active", mobile: "09122222222" },
+    { id: 1003, fullName: "رضا کریمی", nationalId: "0034567890", department: "تولید", position: "سرپرست خط", salary: 25000000, startDate: "1395/02/20", status: "Active", mobile: "09123333333" },
+    { id: 1004, fullName: "نسیم حسینی", nationalId: "0045678901", department: "منابع انسانی", position: "کارشناس استخدام", salary: 28000000, startDate: "1402/08/10", status: "On Leave", mobile: "09124444444" },
+    { id: 1005, fullName: "محمد یوسفی", nationalId: "0056789012", department: "بازرگانی", position: "مدیر بازرگانی", salary: 48000000, startDate: "1399/01/05", status: "Active", mobile: "09125555555" },
+    { id: 1006, fullName: "زهرا مرادی", nationalId: "0067890123", department: "تولید", position: "اپراتور", salary: 18000000, startDate: "1403/05/25", status: "Active", mobile: "09126666666" },
+    { id: 1007, fullName: "امیرحسین پارسا", nationalId: "0078901234", department: "فناوری اطلاعات", position: "برنامه‌نویس", salary: 35000000, startDate: "1401/02/01", status: "Active", mobile: "09127777777" },
+    { id: 1008, fullName: "لیلا زمانی", nationalId: "0089012345", department: "منابع انسانی", position: "مدیر منابع انسانی", salary: 50000000, startDate: "1396/10/01", status: "Active", mobile: "09128888888" },
+    { id: 1009, fullName: "فرهاد سلیمی", nationalId: "0090123456", department: "مالی", position: "حسابدار", salary: 22000000, startDate: "1403/01/01", status: "Terminated", mobile: "09129999999" },
+    // 10 آیتم دیگر برای تست بهتر
+    { id: 1010, fullName: "مینا سعیدی", nationalId: "0101234567", department: "بازرگانی", position: "کارشناس فروش", salary: 24000000, startDate: "1402/05/01", status: "Active", mobile: "09351000000" },
+    { id: 1011, fullName: "کامیار نادری", nationalId: "0112345678", department: "فناوری اطلاعات", position: "پشتیبان شبکه", salary: 30000000, startDate: "1401/10/10", status: "Active", mobile: "09191000000" },
+    { id: 1012, fullName: "پریسا شایگان", nationalId: "0123456789", department: "تولید", position: "مدیر تولید", salary: 60000000, startDate: "1394/01/01", status: "Active", mobile: "09120000001" },
+];
 
-/* ─────────────── Animations ─────────────── */
-const rise = {
-  hidden: { y: 15, opacity: 0 },
-  show: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 140, damping: 18, ease: "easeOut" } },
-};
-const stagger = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-      delayChildren: 0.2,
-    },
-  },
-};
-const modalVariants = {
-  hidden: { opacity: 0, scale: 0.96 },
-  show: { opacity: 1, scale: 1, transition: { duration: 0.3, ease: "easeOut" } },
-};
-const listItemVariants = {
-  hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
-  exit: { opacity: 0, y: -10, transition: { duration: 0.3, ease: "easeIn" } },
-};
+async function getPersonnelData(): Promise<Personnel[]> { 
+    // تأخیر عمدی برای شبیه سازی بارگذاری
+    return new Promise(resolve => setTimeout(() => resolve(mockPersonnel), 800)); 
+}
 
-export default function PersonnelList() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [rows, setRows] = useState<Employee[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState<string | null>(null);
-  const [filterStatus, setFilterStatus] = useState<"all" | "docs_missing" | "insurance_expired">("all");
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
-  const [showDetailsModal, setShowDetailsModal] = useState(false);
-  const [showFilters, setShowFilters] = useState(false); // For mobile filter toggle
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      setLoading(true);
-      setErr(null);
-      try {
-        const res = await fetch(EMPLOYEES_URL, { cache: "no-store" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const j = await res.json();
-        const data: Employee[] = Array.isArray(j) ? j : Array.isArray(j?.data) ? j.data : [];
-        const enhancedData = data.map((emp) => ({
-          ...emp,
-          documents: { complete: Math.random() > 0.3, missing: Math.random() > 0.5 ? ["کارت ملی", "شناسنامه", "گواهی عدم سوء پیشینه"] : [] },
-          insurance: { status: Math.random() > 0.7 ? "valid" : Math.random() > 0.5 ? "expired" : "missing", expiryDate: new Date(Date.now() + Math.random() * 10000000000).toISOString().split('T')[0] },
-        }));
-        if (!cancelled) setRows(enhancedData);
-      } catch (e: any) {
-        if (!cancelled) setErr(e?.message || "خطا در دریافت داده");
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, []);
-
-  const debounced = useDebounced(searchTerm, 300);
-
-  const filtered: Employee[] = useMemo(() => {
-    const base = Array.isArray(rows) ? rows : [];
-    const q = debounced.trim().toLowerCase();
-    let list = base.filter((r) =>
-      [
-        r.first_name ?? "",
-        r.last_name ?? "",
-        r.emp_code ?? "",
-        r.position ?? "",
-        r.department ?? "",
-        r.email ?? "",
-        r.phone ?? "",
-      ]
-        .join(" ")
-        .toLowerCase()
-        .includes(q),
-    );
-
-    if (filterStatus === "docs_missing") {
-      list = list.filter((r) => !r.documents?.complete);
-    } else if (filterStatus === "insurance_expired") {
-      list = list.filter((r) => r.insurance?.status !== "valid");
-    }
-
-    return [...list].sort(
-      (a, b) =>
-        new Date(b?.created_at ?? 0).getTime() - new Date(a?.created_at ?? 0).getTime(),
-    );
-  }, [rows, debounced, filterStatus]);
-
-  const stats = useMemo(() => {
-    const total = rows.length;
-    const docsMissing = rows.filter((r) => !r.documents?.complete).length;
-    const insuranceIssues = rows.filter((r) => r.insurance?.status !== "valid").length;
-    const complianceRate = ((total - docsMissing - insuranceIssues) / total * 100).toFixed(1);
-    return { total, docsMissing, insuranceIssues, complianceRate };
-  }, [rows]);
-
-  const barChartData = [
-    { name: "کل", value: stats.total, fill: "#07657E" },
-    { name: "مدارک", value: stats.docsMissing, fill: "#F2991F" },
-    { name: "بیمه", value: stats.insuranceIssues, fill: "#1FB4C8" },
-  ];
-
-  const pieChartData = [
-    { name: "کامل", value: stats.total - stats.docsMissing - stats.insuranceIssues, fill: "#07657E" },
-    { name: "نواقص", value: stats.docsMissing + stats.insuranceIssues, fill: "#F2991F" },
-  ];
-
-  const notifyMissing = (employee: Employee) => {
-    if (!employee.documents?.complete) {
-      toast.error(`نواقص مدارک: ${employee.documents.missing.join(", ")}`);
-    }
-    if (employee.insurance?.status !== "valid") {
-      toast.error(`بیمه: ${employee.insurance.status} (انقضا: ${employee.insurance?.expiryDate || "نامشخص"})`);
-    }
-  };
-
-  const openDetailsModal = (employee: Employee) => {
-    setSelectedEmployee(employee);
-    setShowDetailsModal(true);
-  };
-
-  function exportCSV() {
-    const rowsCSV = [
-      ["نام", "نام خانوادگی", "کد", "سمت", "دپارتمان", "ایمیل", "تلفن", "مدارک", "نواقص", "بیمه", "انقضا"],
-      ...filtered.map((m) => [
-        m.first_name,
-        m.last_name,
-        m.emp_code || "",
-        m.position || "",
-        m.department || "",
-        m.email || "",
-        m.phone || "",
-        m.documents?.complete ? "کامل" : "ناقص",
-        m.documents?.missing.join(", ") || "",
-        m.insurance?.status || "",
-        m.insurance?.expiryDate || "",
-      ]),
-    ];
-    const csv = rowsCSV.map((r) => r.join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "personnel.csv";
-    a.click();
-    URL.revokeObjectURL(a.href);
-    toast.success("دانلود شد!");
-  }
-
-  return (
-    <div
-      dir="rtl"
-      className="flex min-h-screen text-turquoise-900 relative overflow-hidden"
-      style={{
-        background:
-          "radial-gradient(120rem 70rem at 120% -10%, rgba(7,101,126,.18), transparent), radial-gradient(100rem 60rem at -10% 120%, rgba(242,153,31,.18), transparent), #a0aec0",
-      }}
-    >
-      <div className="pointer-events-none absolute inset-0 opacity-[.08] [background:repeating-linear-gradient(90deg,rgba(0,0,0,.25)_0_1px,transparent_1px_28px),repeating-linear-gradient(0deg,rgba(0,0,0,.2)_0_1px,transparent_1px_28px)]" />
-
-      <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
-        <motion.header
-          initial={{ y: -15, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-          className="backdrop-blur-sm border-b border-gray-200/30 shadow-sm bg-white/80 p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 md:gap-0"
-        >
-          <div>
-            <h1 className="text-2xl font-bold text-turquoise-900">
-              پرسنل ({filtered.length})
-            </h1>
-            <p className="text-sm text-turquoise-600 mt-1">مدیریت و نظارت</p>
-          </div>
-          <div className="flex flex-col md:flex-row gap-3 w-full md:w-auto">
-            <Button
-              className="bg-gradient-to-r from-turquoise-500 to-turquoise-600 text-white rounded-lg px-4 py-2 text-sm shadow-sm transition-all duration-300 btn-add"
-              onClick={() => toast("در حال توسعه!")}
-            >
-              <UserPlusIcon className="h-4 w-4 mr-2" /> افزودن
-            </Button>
-            <Link href="/tools/import">
-              <Button className="bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg px-4 py-2 text-sm shadow-sm transition-all duration-300 btn-import">
-                اکسل
-              </Button>
-            </Link>
-          </div>
-        </motion.header>
-
-        {/* Search and Filters */}
-        <motion.div
-          initial={{ y: 15, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="p-4 flex flex-col md:flex-row items-start md:items-center gap-4 bg-white/80 border-b border-gray-200/30 justify-between"
-        >
-          <div className="flex gap-3 flex-wrap md:flex-nowrap items-center order-2 md:order-1">
-            <Button
-              className="md:hidden text-turquoise-600 hover:text-turquoise-800 p-2"
-              onClick={() => setShowFilters(!showFilters)}
-            >
-              <FunnelIcon className="h-5 w-5" />
-            </Button>
-            <div className={`${showFilters ? 'flex' : 'hidden'} md:flex gap-2`}>
-              <Chip active={filterStatus === "all"} onClick={() => setFilterStatus("all")}>همه</Chip>
-              <Chip active={filterStatus === "docs_missing"} onClick={() => setFilterStatus("docs_missing")}>مدارک</Chip>
-              <Chip active={filterStatus === "insurance_expired"} onClick={() => setFilterStatus("insurance_expired")}>بیمه</Chip>
+// --- Component: Header & KPIs ---
+const PersonnelHeader = ({ totalCount }: { totalCount: number }) => (
+    <div className="flex justify-between items-center mb-6 pt-4 px-4">
+        <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
+            {/* استفاده از متغیر تم برای آیکون */}
+            <Users size={28} className="text-[var(--category-accent-color)]"/>
+            مدیریت پرسنل و منابع انسانی
+        </h1>
+        <div className="flex items-center gap-4 text-white/80">
+            {/* استفاده از متغیر تم برای آمار کلی */}
+            <div className="text-lg font-semibold flex items-center gap-2 px-3 py-1 bg-[var(--category-accent-color)]/10 rounded-full border border-[var(--category-accent-color)]/30">
+                <Users size={18} className="text-[var(--category-accent-color)]"/>
+                <span>{totalCount.toLocaleString('fa-IR')}</span>
+                <span className="text-sm text-white/60">پرسنل</span>
             </div>
-            <Button
-              className="text-turquoise-600 hover:text-turquoise-800 p-2 btn-refresh"
-              onClick={() => toast("رفرش شد!")}
-            >
-              <ArrowPathIcon className="h-5 w-5" />
+            <Button variant="ghost" className="text-white/80 hover:text-[var(--category-accent-color)]">
+                 <Settings2 size={20} />
             </Button>
-            <Button
-              onClick={exportCSV}
-              className="bg-gradient-to-r from-turquoise-500 to-turquoise-600 text-white rounded-lg px-4 py-2 text-sm shadow-sm transition-all duration-300 btn-export"
-            >
-              خروجی CSV
-            </Button>
-          </div>
-          <div className="flex items-center gap-2 flex-1 md:flex-none md:w-1/3 order-1 md:order-2">
-            <MagnifyingGlassIcon className="h-5 w-5 text-turquoise-600" />
-            <Input
-              placeholder="جستجو نام یا نقش..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="flex-1 bg-white border border-turquoise-300 rounded-md p-2 text-turquoise-900 placeholder:text-turquoise-700 focus:outline-none focus:border-turquoise-500 text-sm font-bold"
-            />
-          </div>
-        </motion.div>
-
-        {/* Main Content: Stats and Charts in row for desktop, column for mobile */}
-        <div className="flex-1 overflow-y-auto p-4">
-          <motion.div
-            variants={stagger}
-            initial="hidden"
-            animate="show"
-            className="flex flex-col lg:flex-row gap-6 mb-6"
-          >
-            {/* Stats */}
-            <motion.div variants={rise} className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-4 rounded-lg bg-turquoise-50/50 border border-turquoise-100 shadow-inner">
-                <h3 className="text-xs font-medium text-turquoise-700">کل پرسنل</h3>
-                <p className="text-xl font-bold text-turquoise-900">{stats.total}</p>
-              </div>
-              <div className="p-4 rounded-lg bg-rose-50/50 border border-rose-100 shadow-inner">
-                <h3 className="text-xs font-medium text-rose-700">نواقص مدارک</h3>
-                <p className="text-xl font-bold text-rose-900">{stats.docsMissing}</p>
-              </div>
-              <div className="p-4 rounded-lg bg-amber-50/50 border border-amber-100 shadow-inner">
-                <h3 className="text-xs font-medium text-amber-700">مشکلات بیمه</h3>
-                <p className="text-xl font-bold text-amber-900">{stats.insuranceIssues}</p>
-              </div>
-              <div className="p-4 rounded-lg bg-green-50/50 border border-green-100 shadow-inner">
-                <h3 className="text-xs font-medium text-green-700">نرخ انطباق</h3>
-                <p className="text-xl font-bold text-green-900">{stats.complianceRate}%</p>
-              </div>
-            </motion.div>
-
-            {/* Charts */}
-            <motion.div variants={rise} className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="h-48 bg-white/50 rounded-lg p-2">
-                <ResponsiveContainer>
-                  <BarChart data={barChartData}>
-                    <XAxis dataKey="name" stroke="#07657E" fontSize={12} />
-                    <YAxis stroke="#07657E" fontSize={12} />
-                    <Tooltip wrapperStyle={{ fontSize: "12px", background: "white", border: "1px solid #e5e7eb" }} />
-                    <Bar dataKey="value" radius={4} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="h-48 bg-white/50 rounded-lg p-2">
-                <ResponsiveContainer>
-                  <PieChart>
-                    <Pie data={pieChartData} dataKey="value" outerRadius={60} label={false}>
-                      {pieChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.fill} />
-                      ))}
-                    </Pie>
-                    <Tooltip wrapperStyle={{ fontSize: "12px", background: "white", border: "1px solid #e5e7eb" }} />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </motion.div>
-          </motion.div>
-
-          {/* Employee List */}
-          {loading && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="skeleton h-32 rounded-xl" />
-              ))}
-            </div>
-          )}
-          {err && (
-            <div className="p-4 rounded-xl bg-rose-50 text-rose-700 text-sm shadow-sm m-4">
-              خطا: {err}
-            </div>
-          )}
-
-          {!loading && !err && (
-            <motion.section
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true }}
-              variants={stagger}
-              className="p-4"
-            >
-              {filtered.length === 0 ? (
-                <div className="text-center py-8 text-turquoise-600">
-                  موردی یافت نشد.
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <AnimatePresence>
-                    {filtered.map((e) => (
-                      <motion.div
-                        key={e.id ?? `${e.first_name}-${e.email}`}
-                        variants={listItemVariants}
-                        initial="hidden"
-                        animate="show"
-                        exit="exit"
-                        layout
-                        whileHover={{ scale: 1.02, boxShadow: "0 6px 16px rgba(7,101,126,0.1)" }}
-                        transition={{ type: "spring", stiffness: 120, damping: 15 }}
-                        className="p-4 rounded-xl border border-gray-200/50 bg-white/80 flex flex-col gap-2 hover:bg-white/90 transition-all duration-300 shadow-sm"
-                        onClick={() => openDetailsModal(e)}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="size-10 rounded-full bg-turquoise-50 grid place-items-center shadow-inner">
-                            <UserIcon className="h-5 w-5 text-turquoise-600" />
-                          </div>
-                          <div>
-                            <div className="font-medium text-turquoise-900 text-sm">
-                              {e.first_name} {e.last_name}
-                            </div>
-                            <div className="text-xs text-turquoise-600">
-                              {e.position || "—"} • {e.department || "—"}
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex gap-3 mt-2">
-                          <DocumentTextIcon className={`h-4 w-4 ${e.documents?.complete ? "text-green-500" : "text-red-500"}`} />
-                          <ShieldCheckIcon className={`h-4 w-4 ${e.insurance?.status === "valid" ? "text-green-500" : "text-red-500"}`} />
-                        </div>
-                        <div className="flex gap-2 text-xs mt-2">
-                          <Link href={`/personnel/view/${e.id}`} className="text-turquoise-600 hover:text-turquoise-800">
-                            جزئیات
-                          </Link>
-                          <Link href={`/personnel/edit/${e.id}`} className="text-orange-500 hover:text-orange-600">
-                            ویرایش
-                          </Link>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
-                </div>
-              )}
-            </motion.section>
-          )}
         </div>
-      </div>
-
-      <AnimatePresence>
-        {showDetailsModal && selectedEmployee && (
-          <motion.div
-            initial="hidden"
-            animate="show"
-            exit="hidden"
-            variants={modalVariants}
-            className="fixed inset-0 flex items-center justify-center z-50 bg-black/20 backdrop-blur-sm"
-          >
-            <div className="bg-white p-6 rounded-xl shadow-md w-80 max-w-sm">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-medium text-turquoise-900">جزئیات نواقص</h2>
-                <Button onClick={() => setShowDetailsModal(false)} className="text-gray-500 hover:text-gray-700 p-1">
-                  <XMarkIcon className="h-5 w-5" />
-                </Button>
-              </div>
-              <div className="space-y-3 text-sm text-turquoise-800">
-                <p><span className="font-medium">نام:</span> {selectedEmployee.first_name} {selectedEmployee.last_name}</p>
-                <p><span className="font-medium">مدارک:</span> {selectedEmployee.documents?.complete ? "کامل" : selectedEmployee.documents?.missing.join(", ")}</p>
-                <p><span className="font-medium">بیمه:</span> {selectedEmployee.insurance?.status} (انقضا: {selectedEmployee.insurance?.expiryDate || "نامشخص"})</p>
-              </div>
-              <Button
-                onClick={() => { setShowDetailsModal(false); notifyMissing(selectedEmployee); }}
-                className="w-full mt-4 bg-turquoise-500 text-white rounded-lg py-2 text-sm transition-all btn-reminder"
-              >
-                ارسال یادآوری
-              </Button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
-  );
-}
+);
 
-function useDebounced(value: string, delay = 300) {
-  const [v, setV] = useState(value);
-  const t = useRef<any>(null);
-  useEffect(() => {
-    if (t.current) clearTimeout(t.current);
-    t.current = setTimeout(() => setV(value), delay);
-    return () => clearTimeout(t.current);
-  }, [value, delay]);
-  return v;
-}
+const KPISection = ({ data }: { data: Personnel[] }) => {
+    const activeCount = data.filter(p => p.status === 'Active').length;
+    const avgSalary = data.length > 0 
+        ? data.reduce((sum, p) => sum + p.salary, 0) / data.length 
+        : 0;
+    const itCount = data.filter(p => p.department === 'فناوری اطلاعات').length;
+        
+    const Card = ({ icon, title, value, color }: { icon: React.ReactNode, title: string, value: string, color: string }) => (
+        <motion.div 
+            className={`reports-panel p-6 rounded-xl border-t-4 border-${color}/50 hover:shadow-lg transition-all duration-300`}
+            whileHover={{ scale: 1.02 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: "spring", stiffness: 100, delay: 0.1 }}
+        >
+            <div className="flex items-center justify-between">
+                <span className={`text-sm font-medium text-${color}`}>{title}</span>
+                <div className={`p-2 rounded-full bg-${color}/20`}>
+                    {icon}
+                </div>
+            </div>
+            <p className="mt-4 text-3xl font-extrabold text-white tracking-tight">{value}</p>
+        </motion.div>
+    );
 
-function Chip({
-  active,
-  onClick,
-  children,
-}: {
-  active?: boolean;
-  onClick?: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <motion.button
-      whileHover={{ scale: 1.05, boxShadow: "0 2px 6px rgba(0,0,0,0.1)" }}
-      whileTap={{ scale: 0.98 }}
-      onClick={onClick}
-      className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-300 ${
-        active
-          ? "bg-gradient-to-r from-turquoise-400 to-orange-500 text-white shadow-md"
-          : "bg-gray-300 text-turquoise-900 hover:bg-gray-400 hover:shadow-md"
-      }`}
-    >
-      {children}
-    </motion.button>
-  );
+    // برای تنوع، از دو رنگ دیگر سازمان در KPI استفاده شده است
+    const colors = {
+        active: 'green-400', // ثابت می‌ماند چون وضعیت است
+        salary: '[var(--brand-accent)]', // نارنجی سازمانی
+        it: '[var(--brand-primary)]' // فیروزه‌ای سازمانی
+    };
+    
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 mb-8">
+            <Card 
+                icon={<UserCheck size={20} className={`text-${colors.active}`}/>} 
+                title="پرسنل فعال" 
+                value={activeCount.toLocaleString('fa-IR')} 
+                color={colors.active}
+            />
+            <Card 
+                icon={<DollarSign size={20} className={`text-${colors.salary}`}/>} 
+                title="متوسط حقوق" 
+                value={`${(avgSalary / 1000000).toFixed(1).toLocaleString('fa-IR', { minimumFractionDigits: 1 })} م.ت`} 
+                color={colors.salary}
+            />
+            <Card 
+                icon={<Briefcase size={20} className={`text-${colors.it}`}/>} 
+                title="تعداد در IT" 
+                value={itCount.toLocaleString('fa-IR')} 
+                color={colors.it}
+            />
+        </div>
+    );
+};
+
+// --- Custom Components ---
+
+// وضعیت: فعال، مرخصی، اخراج شده (ثابت می‌ماند)
+const StatusBadge = ({ status }: { status: Personnel['status'] }) => {
+    const baseClasses = "px-2.5 py-0.5 text-xs font-semibold rounded-full";
+    let style = "";
+    switch (status) {
+        case 'Active':
+            style = "bg-green-500/10 text-green-400 border border-green-500/30";
+            break;
+        case 'On Leave':
+            style = "bg-yellow-500/10 text-yellow-400 border border-yellow-500/30";
+            break;
+        case 'Terminated':
+            style = "bg-red-500/10 text-red-400 border border-red-500/30";
+            break;
+    }
+    return <span className={`${baseClasses} ${style}`}>{status === 'Active' ? 'فعال' : status === 'On Leave' ? 'مرخصی' : 'ترک کار'}</span>;
+};
+
+// --- Add/Edit Modal (Placeholder) ---
+const PersonnelFormDialog = ({ isOpen, onClose, personnel }: { isOpen: boolean, onClose: () => void, personnel: Personnel | null }) => {
+    const isEdit = !!personnel;
+    return (
+        <Dialog open={isOpen} onOpenChange={onClose}>
+            <DialogContent className="bg-[#1d252e] text-white border-[var(--category-accent-color)]/50 reports-panel max-w-2xl">
+                <DialogHeader>
+                    {/* استفاده از متغیر تم برای عنوان */}
+                    <DialogTitle className="text-2xl font-extrabold text-[var(--category-accent-color)]">
+                        {isEdit ? `ویرایش پرسنل: ${personnel?.fullName}` : "افزودن پرسنل جدید"}
+                    </DialogTitle>
+                </DialogHeader>
+
+                <div className="mt-4 grid grid-cols-2 gap-4">
+                    <Input defaultValue={personnel?.fullName} placeholder="نام و نام خانوادگی" className="col-span-2"/>
+                    <Input defaultValue={personnel?.nationalId} placeholder="کد ملی" />
+                    <Input defaultValue={personnel?.mobile} placeholder="شماره تماس" />
+                    <Input defaultValue={personnel?.position} placeholder="سمت سازمانی" />
+                    <Select defaultValue={personnel?.department}>
+                        <SelectTrigger className="bg-transparent border-white/20 text-white hover:border-[var(--category-accent-color)]">
+                            <SelectValue placeholder="بخش / دپارتمان" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#1d252e] border-white/20 text-white">
+                            {['فناوری اطلاعات', 'مالی', 'تولید', 'منابع انسانی', 'بازرگانی'].map(dept => (
+                                <SelectItem key={dept} value={dept}>{dept}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    <Input defaultValue={personnel?.salary?.toString()} placeholder="حقوق (تومان)" />
+                    <Input defaultValue={personnel?.startDate} placeholder="تاریخ شروع به کار (مثال: 1402/01/01)" />
+                    <Select defaultValue={personnel?.status}>
+                        <SelectTrigger className="bg-transparent border-white/20 text-white hover:border-[var(--category-accent-color)]">
+                            <SelectValue placeholder="وضعیت" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#1d252e] border-white/20 text-white">
+                            {['Active', 'On Leave', 'Terminated'].map(s => (
+                                <SelectItem key={s} value={s}>{s === 'Active' ? 'فعال' : s === 'On Leave' ? 'مرخصی' : 'ترک کار'}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="flex justify-end gap-3 pt-6">
+                    <Button onClick={onClose} variant="ghost" className="text-white/70 hover:bg-white/10">انصراف</Button>
+                    {/* استفاده از متغیر تم برای دکمه اصلی */}
+                    <Button className="bg-[var(--category-accent-color)] text-slate-900 hover:bg-[var(--category-accent-color)]/90">
+                        {isEdit ? "ذخیره تغییرات" : "ثبت پرسنل"}
+                    </Button>
+                </div>
+
+            </DialogContent>
+        </Dialog>
+    );
+};
+
+
+// --- Main Page Component ---
+export default function PersonnelListPage() {
+    const [globalFilter, setGlobalFilter] = useState("");
+    const [sorting, setSorting] = useState<SortingState>([]);
+    const [grouping, setGrouping] = useState<string[]>([]);
+    const [isFormOpen, setIsFormOpen] = useState(false);
+    const [selectedPersonnel, setSelectedPersonnel] = useState<Personnel | null>(null);
+    const [viewMode, setViewMode] = useState<'table' | 'card'>('table'); // حالت نمایش جدول/کارت
+
+    const { data: personnelData, isLoading, isError, refetch } = useQuery({
+        queryKey: ['personnelList'],
+        queryFn: getPersonnelData,
+    });
+    
+    const data = personnelData ?? [];
+
+    const columnHelper = createColumnHelper<Personnel>();
+
+    // تعریف ستون‌ها برای TanStack Table
+    const columns = useMemo<ColumnDef<Personnel, any>[]>(() => [
+        columnHelper.accessor('fullName', {
+            header: () => <div className="text-right">نام پرسنل</div>,
+            cell: info => <div className="font-semibold text-white">{info.getValue()}</div>,
+            footer: props => props.column.id,
+            enableGrouping: false,
+        }),
+        columnHelper.accessor('department', {
+            header: () => <div>دپارتمان</div>,
+            // حفظ رنگ آبی/فیروزه‌ای برای دپارتمان به عنوان رنگ فرعی (Brand Secondary)
+            cell: info => <span className="text-[var(--brand-secondary)]">{info.getValue()}</span>, 
+            footer: props => props.column.id,
+            enableGrouping: true,
+        }),
+        columnHelper.accessor('position', {
+            header: 'سمت',
+            cell: info => <span className="text-white/80">{info.getValue()}</span>,
+            footer: props => props.column.id,
+            enableGrouping: true,
+        }),
+        columnHelper.accessor('salary', {
+            header: () => <div className="text-left">حقوق (م.ت)</div>,
+            cell: info => <div className="text-left font-mono text-green-400">{(info.getValue() / 1000000).toLocaleString('fa-IR', { minimumFractionDigits: 1 })}</div>,
+            footer: props => props.column.id,
+        }),
+        columnHelper.accessor('startDate', {
+            header: 'تاریخ شروع',
+            cell: info => <span className="text-white/60">{info.getValue()}</span>,
+            footer: props => props.column.id,
+            enableGrouping: false,
+        }),
+        columnHelper.accessor('status', {
+            header: 'وضعیت',
+            cell: info => <StatusBadge status={info.getValue()} />,
+            footer: props => props.column.id,
+            enableGrouping: true,
+        }),
+        columnHelper.display({
+            id: 'actions',
+            header: 'عملیات',
+            cell: ({ row }) => (
+                <div className="flex items-center gap-2 justify-end">
+                    <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        // استفاده از متغیر تم برای ویرایش
+                        className="text-[var(--category-accent-color)] hover:text-white hover:bg-[var(--category-accent-color)]/20"
+                        onClick={() => { setSelectedPersonnel(row.original); setIsFormOpen(true); }}
+                    >
+                        <Edit size={16} />
+                    </Button>
+                    <Button 
+                        size="sm" 
+                        variant="ghost" 
+                        className="text-red-400 hover:text-white hover:bg-red-400/20"
+                        onClick={() => toast.error(`حذف ${row.original.fullName} انجام نشد!`)}
+                    >
+                        <Trash2 size={16} />
+                    </Button>
+                </div>
+            ),
+            enableGrouping: false,
+        }),
+    ], [columnHelper]);
+
+    const table = useReactTable({
+        data,
+        columns,
+        state: {
+            sorting,
+            globalFilter,
+            grouping,
+        },
+        onSortingChange: setSorting,
+        onGlobalFilterChange: setGlobalFilter,
+        onGroupingChange: setGrouping,
+        getCoreRowModel: getCoreRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getGroupedRowModel: getGroupedRowModel(),
+        globalFilterFn: 'includesString', 
+        enableGrouping: true,
+    });
+    
+    // --- Table Renderer ---
+    const PersonnelTable = () => (
+        <div className="relative overflow-x-auto rounded-xl reports-panel mt-6">
+            <table className="w-full text-sm text-right text-gray-400">
+                <thead className="text-xs text-white/70 uppercase bg-white/5 border-b border-white/10 sticky top-0 z-10">
+                    {table.getHeaderGroups().map(headerGroup => (
+                        <tr key={headerGroup.id}>
+                            {headerGroup.headers.map(header => (
+                                <th 
+                                    key={header.id} 
+                                    scope="col" 
+                                    className="px-6 py-3 cursor-pointer select-none"
+                                    onClick={header.column.getToggleSortingHandler()}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        {header.isPlaceholder
+                                            ? null
+                                            : flexRender(header.column.columnDef.header, header.getContext())}
+                                        {/* استفاده از متغیر تم برای آیکون گروه بندی */}
+                                        {header.column.getIsGrouped() && <Briefcase size={14} className="ml-1 text-[var(--category-accent-color)]" />}
+                                        {header.column.getIsSorted() === 'asc' ? <ChevronUp size={14} /> : header.column.getIsSorted() === 'desc' ? <ChevronDown size={14} /> : null}
+                                    </div>
+                                </th>
+                            ))}
+                        </tr>
+                    ))}
+                </thead>
+                <tbody className="text-white">
+                    {table.getRowModel().rows.map(row => (
+                        <tr 
+                            key={row.id} 
+                            className={`border-b border-white/10 transition-colors hover:bg-white/5 ${row.getIsGrouped() ? 'bg-white/10 font-bold' : ''}`}
+                        >
+                            {row.getVisibleCells().map(cell => (
+                                <td 
+                                    key={cell.id} 
+                                    className="px-6 py-4 whitespace-nowrap"
+                                >
+                                     {cell.getIsGrouped() ? (
+                                        // نمایش ردیف‌های گروه‌بندی شده
+                                        <div className="flex items-center gap-2 cursor-pointer" onClick={row.getToggleExpandedHandler()}>
+                                            {/* استفاده از متغیر تم برای آیکون گروه بندی */}
+                                            <CornerDownLeft size={16} className="text-[var(--category-accent-color)]" />
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())} 
+                                            <span className="text-white/60 text-xs">({row.subRows.length.toLocaleString('fa-IR')} نفر)</span>
+                                        </div>
+                                    ) : cell.getIsAggregated() ? (
+                                        // نمایش داده‌های تجمیعی (مثلاً مجموع حقوق)
+                                        <div className="font-bold text-lg text-[var(--category-accent-color)]">{/* Aggregate Data Here if needed */}</div>
+                                    ) : cell.getIsPlaceholder() ? null : (
+                                        // نمایش داده‌های عادی
+                                        flexRender(cell.column.columnDef.cell, cell.getContext())
+                                    )}
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+    
+    // --- Card Renderer (Mobile/Alternative View) ---
+    const PersonnelCards = () => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
+            {table.getRowModel().rows.map(row => {
+                if(row.getIsGrouped() || !row.getIsVisible()) return null; 
+                const p = row.original;
+                return (
+                    <motion.div 
+                        key={p.id} 
+                        // استفاده از متغیر تم برای border و رنگ عنوان
+                        className="reports-panel p-5 rounded-xl border-t-4 border-[var(--category-accent-color)]/50 flex flex-col space-y-3 shadow-lg"
+                        initial={{ opacity: 0, scale: 0.98 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ duration: 0.2 }}
+                    >
+                        <div className="flex justify-between items-start">
+                            <h3 className="text-lg font-bold text-[var(--category-accent-color)]">{p.fullName}</h3>
+                            <StatusBadge status={p.status} />
+                        </div>
+                        <p className="text-sm text-white/70 flex items-center gap-2">
+                            <Briefcase size={14} className="text-white/50"/>
+                            {p.position} - {p.department}
+                        </p>
+                        <div className="pt-3 border-t border-white/10 space-y-2 text-sm">
+                             <div className="flex justify-between text-white/80">
+                                 <span className="font-medium">حقوق (م.ت):</span>
+                                 <span className="text-green-400 font-mono">{(p.salary / 1000000).toLocaleString('fa-IR', { minimumFractionDigits: 1 })}</span>
+                             </div>
+                             <div className="flex justify-between text-white/80">
+                                 <span className="font-medium">تاریخ شروع:</span>
+                                 <span>{p.startDate}</span>
+                             </div>
+                        </div>
+                        <div className="flex gap-2 pt-3 justify-end">
+                            <Button 
+                                size="sm" 
+                                // استفاده از متغیر تم برای دکمه ویرایش
+                                className="bg-[var(--category-accent-color)] hover:bg-[var(--category-accent-color)]/90"
+                                onClick={() => { setSelectedPersonnel(p); setIsFormOpen(true); }}
+                            >
+                                <Edit size={14} className="ml-2"/> ویرایش
+                            </Button>
+                        </div>
+                    </motion.div>
+                );
+            })}
+            {data.length === 0 && <p className="text-white/70 col-span-full">هیچ کارمندی یافت نشد.</p>}
+        </div>
+    );
+
+    return (
+        <div className="reports-neon min-h-screen pb-10">
+            {/* گوی‌های نئون اکنون از متغیرهای CSS تم دسته بندی استفاده می‌کنند */}
+            <div className="orb orb--top" />
+            <div className="orb orb--bottom" />
+
+            <PersonnelHeader totalCount={data.length} />
+            
+            <KPISection data={data} />
+            
+            {/* Toolbar: Search, Grouping, View Mode, Add New */}
+            <div className="reports-toolbar-panel flex flex-col md:flex-row justify-between items-stretch md:items-center mt-8 p-4 rounded-xl mx-4 gap-4">
+                <Input
+                    placeholder="جستجوی عمومی (نام، کد ملی، دپارتمان...)"
+                    value={globalFilter}
+                    onChange={(e) => setGlobalFilter(e.target.value)}
+                    // استفاده از متغیر تم برای فوکوس جستجو
+                    className="w-full md:w-96 h-10 bg-transparent border-white/20 text-white placeholder-white/50 focus:border-[var(--category-accent-color)]"
+                    icon={<Search size={18} className="text-white/50"/>}
+                />
+                
+                <div className="flex items-center gap-3">
+                    <Select value={grouping[0] || 'none'} onValueChange={(val) => setGrouping(val === 'none' ? [] : [val])}>
+                        <SelectTrigger className="w-40 bg-transparent border-white/20 text-white h-10 hover:border-[var(--category-accent-color)]">
+                            {/* استفاده از متغیر تم برای آیکون فیلتر */}
+                            <ListFilter size={16} className="text-[var(--category-accent-color)] ml-2"/>
+                            <SelectValue placeholder="گروه‌بندی" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-[#1d252e] border-white/20 text-white">
+                            <SelectItem value="none">بدون گروه‌بندی</SelectItem>
+                            <SelectItem value="department">دپارتمان</SelectItem>
+                            <SelectItem value="position">سمت</SelectItem>
+                            <SelectItem value="status">وضعیت</SelectItem>
+                        </SelectContent>
+                    </Select>
+                    
+                    <Button 
+                        onClick={() => setViewMode(viewMode === 'table' ? 'card' : 'table')}
+                        variant="ghost" 
+                        // استفاده از متغیر تم برای هاور
+                        className="text-white/80 hover:text-[var(--category-accent-color)] h-10"
+                    >
+                        {viewMode === 'table' ? <LayoutList size={20} /> : <Table size={20} />}
+                    </Button>
+
+                    <Button 
+                        onClick={() => refetch()}
+                        variant="ghost" 
+                         // استفاده از متغیر تم برای هاور
+                        className="text-white/80 hover:text-[var(--category-accent-color)] h-10"
+                        disabled={isLoading}
+                    >
+                        {isLoading ? <RotateCcw size={20} className="animate-spin" /> : <RotateCcw size={20} />}
+                    </Button>
+
+                    <Button 
+                        // استفاده از متغیر تم برای دکمه اصلی
+                        className="bg-[var(--category-accent-color)] text-slate-900 hover:bg-[var(--category-accent-color)]/90 h-10 flex items-center gap-2"
+                        onClick={() => {setSelectedPersonnel(null); setIsFormOpen(true);}}
+                    >
+                         <UserPlus size={18} />
+                         افزودن پرسنل
+                    </Button>
+                </div>
+            </div>
+
+            <div className="mt-4 px-4">
+                {isLoading ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6 mt-6">
+                        {[...Array(5)].map((_, i) => (
+                            <Skeleton key={i} className="h-[200px] rounded-xl bg-white/5"/>
+                        ))}
+                    </div>
+                ) : isError ? (
+                    <div className="flex flex-col items-center justify-center p-20 reports-panel text-red-400">
+                        <RotateCcw size={48} />
+                        <p className="mt-4 text-xl">خطا در بارگذاری اطلاعات پرسنل. لطفا دوباره تلاش کنید.</p>
+                        <Button onClick={() => refetch()} className="mt-4 bg-red-600 hover:bg-red-700">تلاش مجدد</Button>
+                    </div>
+                ) : (
+                    viewMode === 'table' ? <PersonnelTable /> : <PersonnelCards />
+                )}
+            </div>
+            
+            <PersonnelFormDialog 
+                isOpen={isFormOpen} 
+                onClose={() => {setIsFormOpen(false); setSelectedPersonnel(null);}} 
+                personnel={selectedPersonnel} 
+            />
+        </div>
+    );
 }

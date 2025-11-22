@@ -1,13 +1,16 @@
+import { decodeToken, getAccessToken } from "@/lib/auth";
+
 export type Role = "admin" | "manager" | "viewer";
 
 export function getCurrentUserRole(): Role {
-  if (typeof window !== "undefined") {
-    const r = window.localStorage.getItem("sarir-role");
-    if (r === "admin" || r === "manager" || r === "viewer") {
-      return r;
-    }
+  const token = getAccessToken();
+  const claims = decodeToken(token);
+  if (claims?.is_superuser) return "admin";
+  if (claims && "role" in claims) {
+    const r = String((claims as any).role);
+    if (r === "admin" || r === "manager" || r === "viewer") return r;
   }
-  return "viewer";
+  return claims ? "manager" : "viewer";
 }
 
 export function canCreate(role: Role) {

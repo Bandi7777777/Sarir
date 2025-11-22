@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { usePathname } from "next/navigation";
+import ClientProviders from "@/app/ClientProviders";
 import Sidebar from "@/components/ui/Sidebar";
 
 type LayoutClientProps = {
@@ -12,13 +13,13 @@ export default function LayoutClient({ children }: LayoutClientProps) {
   const pathname = usePathname() || "";
   const isAuthRoute = pathname.startsWith("/auth") || pathname === "/login";
 
-  // تشخیص صفحات تیره (داشبورد و گزارشات)
+  // Determine page tone (dark shell for dashboards/reports).
   const isDarkPage =
     pathname === "/" ||
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/reports");
 
-  // اعمال تم به Body
+  // Flip body classes to keep global styles in sync.
   React.useEffect(() => {
     const body = document.body;
     if (isDarkPage) {
@@ -32,35 +33,27 @@ export default function LayoutClient({ children }: LayoutClientProps) {
 
   if (isAuthRoute) {
     return (
-      <main className="h-screen w-screen overflow-hidden bg-background" dir="rtl">
-        {children}
-      </main>
+      <ClientProviders>
+        <main className="h-screen w-screen overflow-hidden bg-background" dir="rtl">
+          {children}
+        </main>
+      </ClientProviders>
     );
   }
 
-  // تنظیم پس‌زمینه برای تم‌های مختلف
-  const mainBgClass = isDarkPage
-    ? "bg-[#020617] text-white" // پس‌زمینه مشکی عمیق برای داشبورد
-    : "bg-[#F8FAFC] text-slate-900"; // پس‌زمینه خاکستری خیلی روشن برای صفحات سفید
+  const mainBgClass = isDarkPage ? "bg-[#020617] text-white" : "bg-[#F8FAFC] text-slate-900";
 
   return (
-    // حذف overflow-hidden از اینجا برای جلوگیری از مشکلات اسکرول داخلی
-    <div className={`flex h-screen w-full overflow-hidden ${mainBgClass}`} dir="rtl">
-      
-      {/* سایدبار */}
-      <Sidebar theme={isDarkPage ? "dark" : "light"} />
+    <ClientProviders>
+      <div className={`flex h-screen w-full overflow-hidden ${mainBgClass}`} dir="rtl">
+        <Sidebar theme={isDarkPage ? "dark" : "light"} />
 
-      {/* کانتینر محتوا - بدون هیچ پدینگ یا فاصله اضافه */}
-      <main className="flex-1 relative flex flex-col min-w-0 h-full">
-        {/* اسکرول فقط در این بخش فعال است */}
-        <div className="flex-1 overflow-y-auto scroll-smooth w-full h-full">
-          {/* اینجا هم پدینگ را حذف کردیم تا محتوا بتواند تمام صفحه باشد */}
-          {/* خود صفحات داخلی (Page.tsx) مسئول فاصله‌دهی محتوای خود هستند */}
-          <div className="w-full min-h-full"> 
-            {children}
+        <main className="flex-1 relative flex flex-col min-w-0 h-full">
+          <div className="flex-1 overflow-y-auto scroll-smooth w-full h-full">
+            <div className="w-full min-h-full">{children}</div>
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </ClientProviders>
   );
 }

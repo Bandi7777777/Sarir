@@ -1,0 +1,15 @@
+.venv
+__pycache__
+.pytest_cache
+.mypy_cache
+.env
+*.pyc
+*.pyo
+*.pyd
+node_modules
+.git
+alembic/versions/__pycache__
+.coverage
+dist
+build
+*.log

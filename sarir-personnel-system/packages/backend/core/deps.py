@@ -1,12 +1,13 @@
 from __future__ import annotations
+from datetime import datetime, timezone
+
 from fastapi import Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
-from datetime import datetime, timezone
-from core.database import SessionLocal
-from core.security import decode_token
-from core.config import settings
+
 from apps.authentication.models.user import User
 from apps.authentication.models.token import AuthSession
+from core.database import SessionLocal
+from core.security import JWT_AUDIENCE_ACCESS, decode_token
 
 def get_db():
     db = SessionLocal()
@@ -33,9 +34,9 @@ def get_current_user(request: Request, db: Session = Depends(get_db)) -> User:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
 
     try:
-        payload = decode_token(token, aud=settings.JWT_AUDIENCE_ACCESS)
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=f"Invalid token")
+        payload = decode_token(token, aud=JWT_AUDIENCE_ACCESS)
+    except Exception:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
 
     sub = payload.get("sub")  # public_id
     jti = payload.get("jti")
