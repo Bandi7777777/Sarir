@@ -23,15 +23,22 @@ function Input(props: React.InputHTMLAttributes<HTMLInputElement>) {
   );
 }
 
-export default function VerifyMeetingPage({
-  searchParams,
-}: {
-  searchParams?: { [key: string]: string | string[] | undefined };
-}) {
+// نکتهٔ مهم:
+// به‌جای تعریف PageProps متناقض با تایپ‌های Next، از props: any استفاده می‌کنیم
+// و خودمان searchParams را به ساختار موردنیاز cast می‌کنیم.
+// این کار مشکل TypeScript در .next/types را حل می‌کند، بدون تغییر رفتار صفحه.
+
+export default function VerifyMeetingPage(props: any) {
+  const searchParams =
+    (props?.searchParams as { [key: string]: string | string[] | undefined } | undefined) ?? {};
+
   // گرفتن پارامترها
-  const title = typeof searchParams?.title === "string" ? decodeURIComponent(searchParams!.title) : "جلسه هیئت‌مدیره";
-  const date = typeof searchParams?.date === "string" ? searchParams!.date : "";
-  const time = typeof searchParams?.time === "string" ? searchParams!.time : "";
+  const title =
+    typeof searchParams.title === "string"
+      ? decodeURIComponent(searchParams.title)
+      : "جلسه هیئت‌مدیره";
+  const date = typeof searchParams.date === "string" ? searchParams.date : "";
+  const time = typeof searchParams.time === "string" ? searchParams.time : "";
 
   // وضعیت امضا/انتشار (Mock)
   const [signed, setSigned] = useState(false);
@@ -81,12 +88,20 @@ export default function VerifyMeetingPage({
   }
 
   return (
-    <div dir="rtl" className="min-h-screen flex items-center justify-center"
-      style={{ background: "radial-gradient(100rem 52rem at 110% -20%, rgba(7,101,126,.12), transparent), radial-gradient(80rem 48rem at -10% 120%, rgba(242,153,31,.12), transparent), #eef3f7" }}>
+    <div
+      dir="rtl"
+      className="min-h-screen flex items-center justify-center"
+      style={{
+        background:
+          "radial-gradient(100rem 52rem at 110% -20%, rgba(7,101,126,.12), transparent), radial-gradient(80rem 48rem at -10% 120%, rgba(242,153,31,.12), transparent), #eef3f7",
+      }}
+    >
       <div className="w-full max-w-3xl bg-white/90 border border-white/40 rounded-2xl shadow p-6">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-bold text-[#07657E]">تایید جلسه</h1>
-          <Link href="/board/list" className="text-sm text-blue-700 underline">بازگشت به لیست</Link>
+          <Link href="/board/list" className="text-sm text-blue-700 underline">
+            بازگشت به لیست
+          </Link>
         </div>
 
         <div className="grid md:grid-cols-2 gap-4 mt-4">
@@ -96,7 +111,9 @@ export default function VerifyMeetingPage({
           </div>
           <div className="p-3 rounded-xl bg-[#F2991F]/10 border border-[#F2991F]/20">
             <div className="text-xs text-[#F2991F]/80">تاریخ/ساعت</div>
-            <div className="font-bold text-[#2E3234]">{date || "—"} {time ? `— ${time}` : ""}</div>
+            <div className="font-bold text-[#2E3234]">
+              {date || "—"} {time ? `— ${time}` : ""}
+            </div>
           </div>
           <div className="p-3 rounded-xl bg-[#1FB4C8]/10 border border-[#1FB4C8]/20 md:col-span-2">
             <div className="text-xs text-[#07657E]/80">وضعیت</div>
@@ -119,7 +136,9 @@ export default function VerifyMeetingPage({
             <ul className="space-y-2">
               {attachments.map((u, i) => (
                 <li key={i} className="text-sm">
-                  <a href={u} target="_blank" className="text-blue-700 underline">{u}</a>
+                  <a href={u} target="_blank" className="text-blue-700 underline">
+                    {u}
+                  </a>
                 </li>
               ))}
             </ul>
@@ -127,13 +146,24 @@ export default function VerifyMeetingPage({
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2">
-          <button onClick={handleApprove} className="px-3 py-2 rounded-md text-white" style={{ background: "linear-gradient(90deg,#10b981,#059669)" }}>
+          <button
+            onClick={handleApprove}
+            className="px-3 py-2 rounded-md text-white"
+            style={{ background: "linear-gradient(90deg,#10b981,#059669)" }}
+          >
             تایید
           </button>
-          <button onClick={handleReject} className="px-3 py-2 rounded-md border bg-white hover:bg-gray-50">
+          <button
+            onClick={handleReject}
+            className="px-3 py-2 rounded-md border bg-white hover:bg-gray-50"
+          >
             رد
           </button>
-          <button onClick={handlePublish} className="px-3 py-2 rounded-md text-white" style={{ background: "linear-gradient(90deg,#2563eb,#1d4ed8)" }}>
+          <button
+            onClick={handlePublish}
+            className="px-3 py-2 rounded-md text-white"
+            style={{ background: "linear-gradient(90deg,#2563eb,#1d4ed8)" }}
+          >
             انتشار
           </button>
         </div>

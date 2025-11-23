@@ -20,6 +20,11 @@ import {
   ChevronUp, ChevronDown, ListFilter, Settings2, Table, LayoutList
 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { ListPageLayout } from "@/components/layouts/ListPageLayout";
+import { ListHeader } from "@/components/list/ListHeader";
+import { FilterBar } from "@/components/list/FilterBar";
+import { ListActionBar } from "@/components/list/ListActionBar";
+import { TableShell } from "@/components/list/TableShell";
 
 /* فرض بر وجود کامپوننت‌های UI در مسیرهای زیر: */
 import { Input } from "@/components/ui/input";
@@ -434,31 +439,43 @@ export default function PersonnelListPage() {
     );
 
     return (
-        <div className="reports-neon min-h-screen pb-10">
-            {/* گوی‌های نئون اکنون از متغیرهای CSS تم دسته بندی استفاده می‌کنند */}
+        <ListPageLayout
+            title="پرسنل و منابع انسانی"
+            description="مدیریت فهرست و ویرایش پرسنل"
+            className="reports-neon min-h-screen pb-10"
+        >
             <div className="orb orb--top" />
             <div className="orb orb--bottom" />
 
-            <PersonnelHeader totalCount={data.length} />
-            
+            <ListHeader
+                title="پرسنل و منابع انسانی"
+                description="نمایش وضعیت و گزارش سریع"
+                actions={
+                    <Button
+                        className="bg-[var(--category-accent-color)] text-slate-900 hover:bg-[var(--category-accent-color)]/90 h-10 flex items-center gap-2"
+                        onClick={() => { setSelectedPersonnel(null); setIsFormOpen(true); }}
+                    >
+                        <UserPlus size={18} />
+                        افزودن پرسنل
+                    </Button>
+                }
+            />
+
             <KPISection data={data} />
-            
-            {/* Toolbar: Search, Grouping, View Mode, Add New */}
-            <div className="reports-toolbar-panel flex flex-col md:flex-row justify-between items-stretch md:items-center mt-8 p-4 rounded-xl mx-4 gap-4">
+
+            <FilterBar className="reports-toolbar-panel mt-4">
                 <Input
                     placeholder="جستجوی عمومی (نام، کد ملی، دپارتمان...)"
                     value={globalFilter}
                     onChange={(e) => setGlobalFilter(e.target.value)}
-                    // استفاده از متغیر تم برای فوکوس جستجو
                     className="w-full md:w-96 h-10 bg-transparent border-white/20 text-white placeholder-white/50 focus:border-[var(--category-accent-color)]"
-                    icon={<Search size={18} className="text-white/50"/>}
+                    icon={<Search size={18} className="text-white/50" />}
                 />
-                
-                <div className="flex items-center gap-3">
+
+                <ListActionBar>
                     <Select value={grouping[0] || 'none'} onValueChange={(val) => setGrouping(val === 'none' ? [] : [val])}>
                         <SelectTrigger className="w-40 bg-transparent border-white/20 text-white h-10 hover:border-[var(--category-accent-color)]">
-                            {/* استفاده از متغیر تم برای آیکون فیلتر */}
-                            <ListFilter size={16} className="text-[var(--category-accent-color)] ml-2"/>
+                            <ListFilter size={16} className="text-[var(--category-accent-color)] ml-2" />
                             <SelectValue placeholder="گروه‌بندی" />
                         </SelectTrigger>
                         <SelectContent className="bg-[#1d252e] border-white/20 text-white">
@@ -468,42 +485,31 @@ export default function PersonnelListPage() {
                             <SelectItem value="status">وضعیت</SelectItem>
                         </SelectContent>
                     </Select>
-                    
-                    <Button 
+
+                    <Button
                         onClick={() => setViewMode(viewMode === 'table' ? 'card' : 'table')}
-                        variant="ghost" 
-                        // استفاده از متغیر تم برای هاور
+                        variant="ghost"
                         className="text-white/80 hover:text-[var(--category-accent-color)] h-10"
                     >
                         {viewMode === 'table' ? <LayoutList size={20} /> : <Table size={20} />}
                     </Button>
 
-                    <Button 
+                    <Button
                         onClick={() => refetch()}
-                        variant="ghost" 
-                         // استفاده از متغیر تم برای هاور
+                        variant="ghost"
                         className="text-white/80 hover:text-[var(--category-accent-color)] h-10"
                         disabled={isLoading}
                     >
                         {isLoading ? <RotateCcw size={20} className="animate-spin" /> : <RotateCcw size={20} />}
                     </Button>
-
-                    <Button 
-                        // استفاده از متغیر تم برای دکمه اصلی
-                        className="bg-[var(--category-accent-color)] text-slate-900 hover:bg-[var(--category-accent-color)]/90 h-10 flex items-center gap-2"
-                        onClick={() => {setSelectedPersonnel(null); setIsFormOpen(true);}}
-                    >
-                         <UserPlus size={18} />
-                         افزودن پرسنل
-                    </Button>
-                </div>
-            </div>
+                </ListActionBar>
+            </FilterBar>
 
             <div className="mt-4 px-4">
                 {isLoading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6 mt-6">
                         {[...Array(5)].map((_, i) => (
-                            <Skeleton key={i} className="h-[200px] rounded-xl bg-white/5"/>
+                            <Skeleton key={i} className="h-[200px] rounded-xl bg-white/5" />
                         ))}
                     </div>
                 ) : isError ? (
@@ -512,16 +518,20 @@ export default function PersonnelListPage() {
                         <p className="mt-4 text-xl">خطا در بارگذاری اطلاعات پرسنل. لطفا دوباره تلاش کنید.</p>
                         <Button onClick={() => refetch()} className="mt-4 bg-red-600 hover:bg-red-700">تلاش مجدد</Button>
                     </div>
+                ) : viewMode === 'table' ? (
+                    <TableShell className="reports-panel mt-6">
+                        <PersonnelTable />
+                    </TableShell>
                 ) : (
-                    viewMode === 'table' ? <PersonnelTable /> : <PersonnelCards />
+                    <PersonnelCards />
                 )}
             </div>
-            
-            <PersonnelFormDialog 
-                isOpen={isFormOpen} 
-                onClose={() => {setIsFormOpen(false); setSelectedPersonnel(null);}} 
-                personnel={selectedPersonnel} 
+
+            <PersonnelFormDialog
+                isOpen={isFormOpen}
+                onClose={() => { setIsFormOpen(false); setSelectedPersonnel(null); }}
+                personnel={selectedPersonnel}
             />
-        </div>
+        </ListPageLayout>
     );
 }

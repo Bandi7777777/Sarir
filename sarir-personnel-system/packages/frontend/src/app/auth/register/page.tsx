@@ -2,11 +2,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import Input from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import { PlusIcon } from "@heroicons/react/24/solid";
 
 export default function RegisterPersonnel() {
-  const t = useTranslations("RegisterPersonnel");
   const [expanded, setExpanded] = useState(false);
   const [formData, setFormData] = useState({
     name: "",

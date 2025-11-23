@@ -11,9 +11,9 @@ import {
 import { toast } from "react-hot-toast";
 
 /* فرض بر وجود کامپوننت‌های UI در مسیرهای زیر */
-import Input from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import Skeleton from "@/components/ui/skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 // import { cn } from "@/lib/utils"; // در صورت نیاز برای ترکیب کلاس‌ها
@@ -114,7 +114,7 @@ const KPISection = ({ data }: { data: BoardMember[] }) => {
             <Card 
                 icon={<Calendar size={20} className="text-[#4DA8FF]"/>} 
                 title="متوسط سابقه" 
-                value={`${avgTenure.toFixed(1).toLocaleString('fa-IR')} سال`} 
+                value={`${Number(avgTenure.toFixed(1)).toLocaleString('fa-IR', { minimumFractionDigits: 1 })} سال`} 
                 color="text-[#4DA8FF]"
             />
         </div>
@@ -179,7 +179,7 @@ const MemberDetailsDialog = ({ member, setMember }: { member: BoardMember | null
                         <div className="flex items-center gap-2">
                             <Calendar size={16} className="text-[#0097B2]"/>
                             <span className="font-semibold">تاریخ شروع:</span>
-                            <span>{member.startDate.toLocaleString('fa-IR')}</span>
+                            <span>{member.startDate}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <CheckCircle size={16} className="text-green-400"/>
@@ -245,13 +245,17 @@ export default function BoardMembersPage() {
             
             {/* Toolbar: Search, Filter, Refresh */}
             <div className="reports-toolbar-panel flex flex-col md:flex-row justify-between items-stretch md:items-center mt-8 p-4 rounded-xl mx-4 gap-4">
-                <Input
-                    placeholder="جستجو بر اساس نام، نقش یا بیوگرافی..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full md:w-96 h-10 bg-transparent border-white/20 text-white placeholder-white/50 focus:border-[#0097B2]"
-                    icon={<Search size={18} className="text-white/50"/>}
-                />
+                <div className="relative w-full md:w-96">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Search size={18} className="text-white/50"/>
+                    </div>
+                    <Input
+                        placeholder="جستجو بر اساس نام، نقش یا بیوگرافی..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="w-full h-10 bg-transparent border-white/20 text-white placeholder-white/50 focus:border-[#0097B2] pl-10"
+                    />
+                </div>
                 
                 <div className="flex items-center gap-3">
                     <Select value={filterRole} onValueChange={setFilterRole}>

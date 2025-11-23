@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion"; // تغییر: اضافه
 import { toast } from "react-hot-toast"; // تغییر: اضافه
 import { Button } from "@/components/ui/button";
-import Input from "@/components/ui/input";
+import { Input } from "@/components/ui/input";
 import { CogIcon } from "@heroicons/react/24/solid"; // تغییر: icon
 
 /* ─────────────── Theme helpers ─────────────── */ // تغییر: تم

@@ -3,8 +3,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import Input from "@/components/ui/input";
-import Button from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
 import {
   MagnifyingGlassIcon,
@@ -37,8 +37,8 @@ const initialContracts: Contract[] = [
 /* ---------------- Animations ---------------- */
 const listItem = {
   hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeOut" } },
-  exit: { opacity: 0, y: -10, transition: { duration: 0.25, ease: "easeIn" } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
+  exit: { opacity: 0, y: -10, transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] } },
 };
 const stagger = {
   hidden: { opacity: 0 },

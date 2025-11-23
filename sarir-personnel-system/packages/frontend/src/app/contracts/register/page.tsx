@@ -3,8 +3,8 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import Sidebar from "@/components/ui/Sidebar";
-import Input from "@/components/ui/input";
-import Button from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { toast } from "react-hot-toast";
 import {
   PlusIcon,

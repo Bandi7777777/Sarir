@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Input from "@/components/ui/input";
-import Button from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import * as XLSX from "xlsx";
 import {
   ChevronDownIcon, ChevronUpIcon, DownloadIcon, UploadIcon, CheckIcon, XIcon, RefreshCwIcon,

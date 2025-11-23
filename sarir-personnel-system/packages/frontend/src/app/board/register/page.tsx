@@ -1,14 +1,6 @@
 "use client";
-
-import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
-import { toast } from "react-hot-toast";
-import { PDFDocument, StandardFonts } from "pdf-lib";
-// QR را اختیاری لود می‌کنیم، تا اگر پکیج نصب نبود بیلد نشکند.
-type QRModule = { default: { toDataURL: (text: string, opts?: any) => Promise<string> } };
-
+import
 import {
-  PlusIcon,
   DocumentTextIcon,
   EnvelopeIcon,
   NewspaperIcon,
@@ -18,6 +10,14 @@ import {
   InformationCircleIcon,
   TrashIcon,
 } from "@heroicons/react/24/solid";
+import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
+import { toast } from "react-hot-toast";
+import { PDFDocument, StandardFonts, degrees } from "pdf-lib";
+// QR را اختیاری لود می‌کنیم، تا اگر پکیج نصب نبود بیلد نشکند.
+// اگر بسته types نصب نشده باشد اعلام نوع ماژول در فایل .d.ts صورت گرفته است (src/types/qrcode.d.ts).
+type QRModule = { default: { toDataURL: (text: string, opts?: unknown) => Promise<string> } };
+
 import * as z from "zod";
 
 /* رنگ‌ها + UI سبک */
@@ -354,7 +354,7 @@ export default function RegisterBoardMember() {
       setErrs({});
       return true;
     } catch (e) {
-      const fl = (e as z.ZodError).flatten().fieldErrors;
+      const fl = (e as z.ZodError).flatten().fieldErrors as Record<string, string[] | undefined>;
       setErrs(Object.fromEntries(Object.entries(fl).map(([k, v]) => [k, v?.[0] || ""])));
       return false;
     }
@@ -398,7 +398,7 @@ export default function RegisterBoardMember() {
       size: 90,
       font,
       opacity: 0.05,
-      rotate: { type: "degrees", angle: 25 },
+      rotate: degrees(25),
     });
 
     // QR اختیاری (اگر پکیج نصب بود)
@@ -464,7 +464,9 @@ export default function RegisterBoardMember() {
 
     const bytes = await pdf.save();
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([bytes], { type: "application/pdf" }));
+    // Create a proper ArrayBufferView from the returned bytes so Blob typing is satisfied
+    const blob = new Blob([new Uint8Array(bytes)], { type: "application/pdf" });
+    a.href = URL.createObjectURL(blob);
     a.download = `${title}.pdf`;
     a.click();
     URL.revokeObjectURL(a.href);
