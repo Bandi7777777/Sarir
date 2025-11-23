@@ -1,5 +1,5 @@
-import { API_BASE_URL } from "@/lib/config";
 import { getAccessToken } from "@/lib/auth";
+import { API_BASE_URL } from "@/lib/config";
 
 export interface ApiError {
   detail: string;

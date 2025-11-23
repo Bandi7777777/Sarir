@@ -2,7 +2,8 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import type { LatLngExpression } from "leaflet";
+
+type LatLngExpression = [number, number];
 
 type VehicleMarker = {
   id: string | number;

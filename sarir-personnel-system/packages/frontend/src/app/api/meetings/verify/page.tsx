@@ -1,8 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
-import Link from "next/link";
 
 /**
  * صفحهٔ تایید QR

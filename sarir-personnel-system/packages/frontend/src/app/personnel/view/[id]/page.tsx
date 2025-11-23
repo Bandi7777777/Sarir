@@ -1,13 +1,5 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useParams, useRouter, usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-
 import {
   UserIcon,
   EnvelopeIcon,
@@ -18,6 +10,13 @@ import {
   XMarkIcon,
   CheckIcon,
 } from "@heroicons/react/24/solid";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { useParams, useRouter, usePathname } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 /** ───────── schema ───────── **/
 const schema = z.object({
@@ -36,7 +35,7 @@ const schema = z.object({
   marital_status: z.enum(["single", "married", "divorced", "widowed"]).optional().or(z.literal("").transform(() => undefined)),
   address: z.string().optional(),
 });
-type FormData = z.infer<typeof schema>;
+type FormData = z.input<typeof schema>;
 
 type Employee = {
   id: string | number;

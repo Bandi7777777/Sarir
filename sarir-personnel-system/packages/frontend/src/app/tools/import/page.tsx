@@ -1,21 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import * as XLSX from "xlsx";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDownIcon, ChevronUpIcon, DownloadIcon, UploadIcon, CheckIcon, XIcon, RefreshCwIcon,
   SaveIcon, FolderOpenIcon, Trash2Icon, PlusIcon, RotateCcwIcon, RotateCwIcon, PlayIcon,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import * as XLSX from "xlsx";
+
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
 import {
   Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/components/ui/toast";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 type Row = Record<string, any>;
 type DbColumn = { name: string; type: string; nullable: boolean; primary_key: boolean };
@@ -136,7 +137,8 @@ function buildScorer(headers: string[], rows: Row[], dbFields: string[]) {
         const sc = scoreField(h, f);
         if (!best || sc > best.sc) best = { f, sc };
       });
-      if (best && best.sc >= 7) { m[h] = best.f; assigned.add(best.f); }
+      const bestMatch = best as { f: string; sc: number } | null;
+      if (bestMatch && bestMatch.sc >= 7) { m[h] = bestMatch.f; assigned.add(bestMatch.f); }
       else m[h] = "";
     });
     return m;
@@ -337,7 +339,7 @@ const uniqueDbFields = useMemo(
   [filteredDbFields]
 );
   const scorer = useMemo(() => {
-    let dbFields = dbFieldNames.length ? dbFieldNames : excelHeaders.map(norm);
+    const dbFields = dbFieldNames.length ? dbFieldNames : excelHeaders.map(norm);
     return buildScorer(excelHeaders, rows, dbFields);
   }, [excelHeaders, rows, dbFieldNames]);
 
@@ -867,12 +869,12 @@ const uniqueDbFields = useMemo(
                       <Pagination className="mt-4">
                         <PaginationContent>
                           <PaginationItem>
-                            <PaginationPrevious href="#" onClick={(e)=>{ e.preventDefault(); if (previewPage>1) setPreviewPage(previewPage-1); }}
+                            <PaginationPrevious size="default" href="#" onClick={(e)=>{ e.preventDefault(); if (previewPage>1) setPreviewPage(previewPage-1); }}
                               className={previewPage<=1? "pointer-events-none opacity-50": ""}/>
                           </PaginationItem>
-                          <PaginationItem><PaginationLink href="#" isActive>{previewPage}</PaginationLink></PaginationItem>
+                          <PaginationItem><PaginationLink href="#" size="default" isActive>{previewPage}</PaginationLink></PaginationItem>
                           <PaginationItem>
-                            <PaginationNext href="#" onClick={(e)=>{ e.preventDefault(); const total = Math.ceil(rows.length/previewPerPage); if (previewPage<total) setPreviewPage(previewPage+1); }}
+                            <PaginationNext size="default" href="#" onClick={(e)=>{ e.preventDefault(); const total = Math.ceil(rows.length/previewPerPage); if (previewPage<total) setPreviewPage(previewPage+1); }}
                               className={previewPage>=Math.ceil(rows.length/previewPerPage)? "pointer-events-none opacity-50": ""}/>
                           </PaginationItem>
                         </PaginationContent>

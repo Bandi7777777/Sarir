@@ -1,5 +1,6 @@
 // page.tsx (Server Component)
 import type { Metadata, Viewport } from "next";
+
 import RegisterDriver from "./RegisterDriver"; // مستقیم import کنید، بدون dynamic اگر لازم نیست
 
 export const metadata: Metadata = {

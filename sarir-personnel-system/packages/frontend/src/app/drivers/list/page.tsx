@@ -1,10 +1,5 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
-import { AnimatePresence, motion } from "framer-motion";
-import { toast } from "react-hot-toast";
-import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
 import {
   ArrowPathIcon,
   ChartBarIcon,
@@ -14,14 +9,20 @@ import {
   TrashIcon,
   TruckIcon,
 } from "@heroicons/react/24/solid";
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
+import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { toast } from "react-hot-toast";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
 import { ListPageLayout } from "@/components/layouts/ListPageLayout";
 import { FilterBar } from "@/components/list/FilterBar";
 import { ListActionBar } from "@/components/list/ListActionBar";
 import { TableShell } from "@/components/list/TableShell";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 type Driver = {
   id?: number | string | null;
@@ -466,12 +467,12 @@ function Chip({
   );
 }
 
-const modalVariants = {
+const modalVariants: Variants = {
   hidden: { opacity: 0, scale: 0.96 },
   show: { opacity: 1, scale: 1, transition: { duration: 0.2, ease: "easeOut" } },
 };
 
-const stagger = {
+const stagger: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,

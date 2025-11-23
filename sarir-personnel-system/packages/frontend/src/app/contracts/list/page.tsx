@@ -1,22 +1,36 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
-import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { toast } from "react-hot-toast";
 import {
-  MagnifyingGlassIcon,
-  FunnelIcon,
   ArrowPathIcon,
-  EyeIcon,
-  PencilIcon,
-  TrashIcon,
+  DocumentArrowDownIcon,
   DocumentTextIcon,
+  EyeIcon,
+  MagnifyingGlassIcon,
+  PencilIcon,
   PlusIcon,
+  TrashIcon,
   XMarkIcon,
 } from "@heroicons/react/24/solid";
+import { AnimatePresence, motion, type Variants } from "framer-motion";
+import Link from "next/link";
+import React, { useEffect, useMemo, useState } from "react";
+import { toast } from "react-hot-toast";
+
+import { ContractForm, type ContractFormValues } from "@/components/contracts/ContractForm";
+import { ListPageLayout } from "@/components/layouts/ListPageLayout";
+import { FilterBar } from "@/components/list/FilterBar";
+import { ListActionBar } from "@/components/list/ListActionBar";
+import { ListHeader } from "@/components/list/ListHeader";
+import { TableShell } from "@/components/list/TableShell";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 /* ---------------- Types ---------------- */
 type Contract = {
@@ -29,18 +43,18 @@ type Contract = {
 
 /* ---------------- Sample Data ---------------- */
 const initialContracts: Contract[] = [
-  { id: 1, title: "قرارداد حمل و نقل", party: "شرکت آلفا", date: "2025-03-12", amount: 120_000_000 },
-  { id: 2, title: "قرارداد خدمات IT", party: "شرکت بتا", date: "2025-05-21", amount: 48_000_000 },
-  { id: 3, title: "قرارداد لجستیک معدن", party: "چادرملو", date: "2025-06-01", amount: 265_000_000 },
+  { id: 1, title: "??????? ??? ? ???", party: "???? ????", date: "2025-03-12", amount: 120_000_000 },
+  { id: 2, title: "??????? ????? IT", party: "???? ???", date: "2025-05-21", amount: 48_000_000 },
+  { id: 3, title: "??????? ?????? ????", party: "???????", date: "2025-06-01", amount: 265_000_000 },
 ];
 
 /* ---------------- Animations ---------------- */
-const listItem = {
+const listItem: Variants = {
   hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
-  exit: { opacity: 0, y: -10, transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] } },
+  show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: "easeInOut" } },
+  exit: { opacity: 0, y: -10, transition: { duration: 0.25, ease: "easeInOut" } },
 };
-const stagger = {
+const stagger: Variants = {
   hidden: { opacity: 0 },
   show: { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.05 } },
 };
@@ -69,7 +83,7 @@ function Drawer({
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.5 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-black"
+            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
             onClick={onClose}
           />
           <motion.section
@@ -78,17 +92,19 @@ function Drawer({
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "tween", duration: 0.35 }}
-            className="fixed inset-y-0 right-0 z-50 w-full max-w-lg bg-white/90 backdrop-blur-xl shadow-2xl border-l border-[#07657E]/20"
+            className="fixed inset-y-0 right-0 z-50 w-full max-w-xl border-l border-border bg-background shadow-2xl"
           >
-            <header className="flex items-center justify-between px-5 py-4 border-b border-[#07657E]/10 bg-white/70">
-              <h2 className="text-lg md:text-xl font-extrabold tracking-tight text-[#07657E]">{title}</h2>
-              <button
+            <header className="flex items-center justify-between border-b border-border/60 px-5 py-4">
+              <h2 className="text-lg font-semibold tracking-tight">{title}</h2>
+              <Button
                 aria-label="بستن"
-                className="p-2 rounded-lg hover:bg-black/5"
+                variant="ghost"
+                size="icon-sm"
+                className="rounded-full"
                 onClick={onClose}
               >
-                <XMarkIcon className="h-6 w-6 text-[#2E3234]" />
-              </button>
+                <XMarkIcon className="h-5 w-5" />
+              </Button>
             </header>
             <div className="p-5">{children}</div>
           </motion.section>
@@ -99,15 +115,13 @@ function Drawer({
 }
 
 export default function ContractsListPage() {
-  // Hydration guard برای جلوگیری از mismatch
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  // data
   const [contracts, setContracts] = useState<Contract[]>(initialContracts);
 
   // filters
-  const [q, setQ] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
   const [partyFilter, setPartyFilter] = useState<string>("all");
   const [fromDate, setFromDate] = useState<string>("");
   const [toDate, setToDate] = useState<string>("");
@@ -115,12 +129,7 @@ export default function ContractsListPage() {
   // form (drawer)
   const [editing, setEditing] = useState<Contract | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [form, setForm] = useState<{ title: string; party: string; date: string; amount: string }>({
-    title: "",
-    party: "",
-    date: "",
-    amount: "",
-  });
+  const [form, setForm] = useState<ContractFormValues>({ title: "", party: "", date: "", amount: "" });
 
   const parties = useMemo(
     () => ["all", ...Array.from(new Set(contracts.map((c) => c.party)))],
@@ -130,7 +139,7 @@ export default function ContractsListPage() {
   const filtered = useMemo(() => {
     let res = contracts.slice();
 
-    const query = q.trim().toLowerCase();
+    const query = searchTerm.trim().toLowerCase();
     if (query) {
       res = res.filter(
         (c) => c.title.toLowerCase().includes(query) || c.party.toLowerCase().includes(query)
@@ -145,7 +154,12 @@ export default function ContractsListPage() {
     if (toDate) res = res.filter((c) => new Date(c.date) <= new Date(toDate));
 
     return res;
-  }, [contracts, q, partyFilter, fromDate, toDate]);
+  }, [contracts, searchTerm, partyFilter, fromDate, toDate]);
+
+  const totalAmount = useMemo(
+    () => filtered.reduce((sum, c) => sum + c.amount, 0),
+    [filtered]
+  );
 
   const resetForm = () => {
     setEditing(null);
@@ -163,10 +177,9 @@ export default function ContractsListPage() {
     setDrawerOpen(true);
   };
 
-  const submitForm = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.title || !form.party || !form.date || !form.amount) {
-      toast.error("لطفاً تمام فیلدها را تکمیل کنید.");
+  const handleSubmit = (values: ContractFormValues) => {
+    if (!values.title || !values.party || !values.date || !values.amount) {
+      toast.error("لطفا همه فیلدها را تکمیل کنید.");
       return;
     }
 
@@ -174,7 +187,13 @@ export default function ContractsListPage() {
       setContracts((prev) =>
         prev.map((c) =>
           c.id === editing.id
-            ? { ...c, title: form.title, party: form.party, date: form.date, amount: Number(form.amount) }
+            ? {
+                ...c,
+                title: values.title,
+                party: values.party,
+                date: values.date,
+                amount: Number(values.amount),
+              }
             : c
         )
       );
@@ -183,9 +202,15 @@ export default function ContractsListPage() {
       const newId = Math.max(0, ...contracts.map((c) => c.id)) + 1;
       setContracts((prev) => [
         ...prev,
-        { id: newId, title: form.title, party: form.party, date: form.date, amount: Number(form.amount) },
+        {
+          id: newId,
+          title: values.title,
+          party: values.party,
+          date: values.date,
+          amount: Number(values.amount),
+        },
       ]);
-      toast.success("قرارداد ثبت شد.");
+      toast.success("قرارداد جدید اضافه شد.");
     }
     setDrawerOpen(false);
     resetForm();
@@ -207,266 +232,225 @@ export default function ContractsListPage() {
     a.download = "contracts.csv";
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("خروجی CSV دانلود شد.");
+    toast.success("خروجی CSV آماده شد.");
   };
 
-  if (!mounted) {
-    // Skeleton SSR-safe (نور ملایم و شبکه ظریف)
-    return (
-      <div
-        dir="rtl"
-        className="min-h-screen relative overflow-hidden"
-        style={{
-          background:
-            "radial-gradient(90rem 60rem at 120% -10%, rgba(7,101,126,0.18), transparent), radial-gradient(80rem 50rem at -10% 120%, rgba(242,153,31,0.18), transparent), #f3f7fb",
-        }}
-      >
-        <div className="pointer-events-none absolute inset-0 opacity-[.06] [background:repeating-linear-gradient(90deg,rgba(0,0,0,.25)_0_1px,transparent_1px_28px),repeating-linear-gradient(0deg,rgba(0,0,0,.2)_0_1px,transparent_1px_28px)]" />
-        <div className="max-w-7xl mx-auto px-5 py-8">
-          <div className="h-10 w-64 rounded-lg bg-black/10 mb-4" />
-          <div className="h-16 rounded-xl bg-white/70 backdrop-blur-md border border-[#07657E]/20" />
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 pt-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-28 bg-white/70 backdrop-blur-md border border-[#07657E]/20 rounded-2xl" />
+  const resetFilters = () => {
+    setSearchTerm("");
+    setPartyFilter("all");
+    setFromDate("");
+    setToDate("");
+    toast("فیلترها ریست شد.");
+  };
+
+  const toolbar = (
+    <FilterBar>
+      <div className="flex flex-1 items-center gap-3">
+        <MagnifyingGlassIcon className="h-5 w-5 text-muted-foreground" />
+        <Input
+          placeholder="جستجو در عنوان یا طرف قرارداد"
+          className="w-full"
+          dir="rtl"
+          value={searchTerm}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
+      <ListActionBar>
+        <Select value={partyFilter} onValueChange={setPartyFilter}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="طرف قرارداد" />
+          </SelectTrigger>
+          <SelectContent align="end">
+            {parties.map((p) => (
+              <SelectItem key={p} value={p}>
+                {p === "all" ? "همه طرف‌ها" : p}
+              </SelectItem>
             ))}
-          </div>
+          </SelectContent>
+        </Select>
+
+        <div className="flex items-center gap-2">
+          <Input
+            type="date"
+            value={fromDate}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFromDate(e.target.value)}
+            className="w-[140px]"
+          />
+          <Input
+            type="date"
+            value={toDate}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setToDate(e.target.value)}
+            className="w-[140px]"
+          />
         </div>
+
+        <Button variant="ghost" size="sm" onClick={resetFilters} title="بازنشانی فیلترها">
+          <ArrowPathIcon className="h-4 w-4" />
+          <span className="hidden sm:inline">بازنشانی</span>
+        </Button>
+
+        <Button variant="secondary" size="sm" onClick={exportCSV}>
+          <DocumentArrowDownIcon className="h-4 w-4" />
+          خروجی CSV
+        </Button>
+
+        <Button size="sm" onClick={openCreate}>
+          <PlusIcon className="h-4 w-4" />
+          قرارداد جدید
+        </Button>
+      </ListActionBar>
+    </FilterBar>
+  );
+
+  if (!mounted) {
+    return (
+      <div dir="rtl">
+        <ListPageLayout
+          title="مدیریت قراردادها"
+          description="نمایش و ثبت قراردادهای سازمان"
+          toolbar={toolbar}
+        >
+          <ListHeader title="قراردادها" description="در حال بارگذاری..." />
+          <TableShell>
+            <div className="grid gap-4 p-4 sm:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="h-28 rounded-xl bg-muted/60 animate-pulse" />
+              ))}
+            </div>
+          </TableShell>
+        </ListPageLayout>
       </div>
     );
   }
 
   return (
-    <div
-      dir="rtl"
-      className="min-h-screen relative overflow-hidden text-[#0b1220]"
-      style={{
-        // پس‌زمینه گلس + نئون سازمانی
-        background:
-          "radial-gradient(90rem 60rem at 120% -10%, rgba(7,101,126,0.18), transparent), radial-gradient(80rem 50rem at -10% 120%, rgba(242,153,31,0.18), transparent), #f6f9fc",
-      }}
-    >
-      {/* Grid overlay subtle */}
-      <div className="pointer-events-none absolute inset-0 opacity-[.06] [background:repeating-linear-gradient(90deg,rgba(0,0,0,.25)_0_1px,transparent_1px_28px),repeating-linear-gradient(0deg,rgba(0,0,0,.2)_0_1px,transparent_1px_28px)]" />
-
-      {/* Header */}
-      <header className="sticky top-0 z-20 bg-white/70 backdrop-blur-xl border-b border-[#07657E]/15">
-        <div className="max-w-7xl mx-auto px-5 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight text-[#07657E]">
-              مدیریت قراردادها
-            </h1>
-            <p className="text-sm text-[#2E3234]/70 mt-0.5">ثبت، جستجو، فیلتر و خروجی</p>
-          </div>
-          <div className="hidden md:flex items-center gap-2">
-            <Button
-              className="rounded-full bg-gradient-to-r from-[#07657E] to-[#0b7f9b] text-white px-4 py-2 shadow"
-              onClick={openCreate}
-            >
-              <PlusIcon className="h-5 w-5 ml-1" />
-              قرارداد جدید
-            </Button>
-            <Button onClick={exportCSV} className="rounded-full bg-[#F2991F] text-white px-4 py-2 shadow">
-              خروجی CSV
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      {/* Toolbar */}
-      <section className="max-w-7xl mx-auto px-5 py-4">
-        <div className="bg-white/80 backdrop-blur-md rounded-2xl border border-[#07657E]/20 shadow-sm p-4 flex flex-col lg:flex-row items-stretch lg:items-center gap-3">
-          <div className="flex-1 relative">
-            <MagnifyingGlassIcon className="h-5 w-5 text-[#07657E] absolute top-1/2 left-3 -translate-y-1/2" />
-            <Input
-              placeholder="جستجو در عنوان یا طرف قرارداد…"
-              className="pl-10"
-              value={q}
-              onChange={(e: any) => setQ(e.target.value)}
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <FunnelIcon className="h-5 w-5 text-[#07657E]" />
-            <select
-              className="px-3 py-2 rounded-xl bg-white border border-[#07657E]/30 text-sm"
-              value={partyFilter}
-              onChange={(e) => setPartyFilter(e.target.value)}
-            >
-              {parties.map((p) => (
-                <option key={p} value={p}>
-                  {p === "all" ? "همه طرف‌ها" : p}
-                </option>
-              ))}
-            </select>
-
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-[#2E3234]/70">از</span>
-              <Input type="date" value={fromDate} onChange={(e: any) => setFromDate(e.target.value)} />
-              <span className="text-xs text-[#2E3234]/70">تا</span>
-              <Input type="date" value={toDate} onChange={(e: any) => setToDate(e.target.value)} />
-            </div>
-
-            <Button
-              className="p-2 bg-white hover:bg-[#F2991F]/10"
-              onClick={() => {
-                setQ("");
-                setPartyFilter("all");
-                setFromDate("");
-                setToDate("");
-                toast("فیلترها ریست شد.");
-              }}
-              aria-label="ریست فیلترها"
-              title="ریست فیلترها"
-            >
-              <ArrowPathIcon className="h-5 w-5 text-[#07657E]" />
-            </Button>
-
-            <Button onClick={exportCSV} className="bg-[#F2991F] text-white rounded-xl">
-              خروجی CSV
-            </Button>
-
-            {/* موبایل: دکمه ثبت */}
-            <Button
-              className="lg:hidden rounded-xl bg-gradient-to-r from-[#07657E] to-[#0b7f9b] text-white"
-              onClick={openCreate}
-            >
-              <PlusIcon className="h-5 w-5 ml-1" />
-              جدید
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* List */}
-      <section className="max-w-7xl mx-auto px-5 pb-10">
-        {filtered.length === 0 ? (
-          <div className="text-center py-10 text-[#07657E]/70">موردی یافت نشد.</div>
-        ) : (
-          <motion.ul
-            variants={stagger}
-            initial="hidden"
-            animate="show"
-            className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 pt-1"
-          >
-            <AnimatePresence>
-              {filtered.map((c) => (
-                <motion.li
-                  key={c.id}
-                  variants={listItem}
-                  exit="exit"
-                  whileHover={{ scale: 1.02, boxShadow: "0 16px 40px rgba(7,101,126,0.15)" }}
-                  className="group bg-white/85 backdrop-blur-md border border-[#07657E]/20 rounded-2xl p-4 shadow-sm flex items-center justify-between"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="h-11 w-11 rounded-xl bg-[#07657E]/10 flex items-center justify-center group-hover:bg-[#07657E]/15 transition">
-                      <DocumentTextIcon className="h-6 w-6 text-[#07657E]" />
-                    </div>
-                    <div>
-                      <p className="font-extrabold tracking-tight text-[#0b1220]">{c.title}</p>
-                      <p className="text-sm text-[#2E3234]">
-                        طرف: {c.party} ・ تاریخ: {c.date} ・ مبلغ: {nf.format(c.amount)} تومان
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    <Link
-                      href={`/contracts/view/${c.id}`}
-                      className="p-2 rounded-full hover:bg-[#07657E]/10 text-[#07657E]"
-                      aria-label="مشاهده"
-                      title="مشاهده"
-                    >
-                      <EyeIcon className="h-5 w-5" />
-                    </Link>
-                    <Button
-                      className="p-2 rounded-full bg-transparent hover:bg-[#07657E]/10 text-[#07657E]"
-                      onClick={() => openEdit(c)}
-                      aria-label="ویرایش"
-                      title="ویرایش"
-                    >
-                      <PencilIcon className="h-5 w-5" />
-                    </Button>
-                    <Button
-                      className="p-2 rounded-full bg-transparent hover:bg-red-50 text-red-600"
-                      onClick={() => confirmDelete(c.id)}
-                      aria-label="حذف"
-                      title="حذف"
-                    >
-                      <TrashIcon className="h-5 w-5" />
-                    </Button>
-                  </div>
-                </motion.li>
-              ))}
-            </AnimatePresence>
-          </motion.ul>
-        )}
-      </section>
-
-      {/* Drawer (Create/Edit) */}
-      <Drawer
-        open={drawerOpen}
-        onClose={() => {
-          setDrawerOpen(false);
-          resetForm();
-        }}
-        title={editing ? "ویرایش قرارداد" : "قرارداد جدید"}
+    <div dir="rtl">
+      <ListPageLayout
+        title="مدیریت قراردادها"
+        description="جستجو، فیلتر و ثبت قراردادهای سازمان"
+        actions={
+          <Button asChild size="sm" variant="secondary">
+            <Link href="/contracts/register">ثبت قرارداد جدید</Link>
+          </Button>
+        }
+        toolbar={toolbar}
       >
-        <form onSubmit={submitForm} className="grid grid-cols-1 gap-4">
-          <div>
-            <label className="block text-sm font-semibold text-[#07657E] mb-1">عنوان قرارداد</label>
-            <Input
-              placeholder="مثال: قرارداد حمل و نقل"
-              value={form.title}
-              onChange={(e: any) => setForm((p) => ({ ...p, title: e.target.value }))}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-semibold text-[#07657E] mb-1">طرف قرارداد</label>
-            <Input
-              placeholder="مثال: شرکت آلفا"
-              value={form.party}
-              onChange={(e: any) => setForm((p) => ({ ...p, party: e.target.value }))}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-semibold text-[#07657E] mb-1">تاریخ</label>
-              <Input
-                type="date"
-                value={form.date}
-                onChange={(e: any) => setForm((p) => ({ ...p, date: e.target.value }))}
-              />
+        <ListHeader
+          title="قراردادهای جاری"
+          description="لیست قراردادها به همراه امکان ویرایش سریع"
+          actions={
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm text-primary">
+                <DocumentTextIcon className="h-4 w-4" />
+                {filtered.length} قرارداد
+              </span>
+              <span className="flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground">
+                مجموع: {nf.format(totalAmount)} ریال
+              </span>
             </div>
-            <div>
-              <label className="block text-sm font-semibold text-[#07657E] mb-1">مبلغ (تومان)</label>
-              <Input
-                type="number"
-                inputMode="numeric"
-                placeholder="مثال: 120000000"
-                value={form.amount}
-                onChange={(e: any) => setForm((p) => ({ ...p, amount: e.target.value }))}
-              />
-            </div>
-          </div>
+          }
+        />
 
-          <div className="flex items-center justify-end gap-2 pt-2">
-            <Button
-              type="button"
-              variant="outline"
-              className="rounded-lg"
-              onClick={() => {
-                setDrawerOpen(false);
-                resetForm();
-              }}
-            >
-              انصراف
-            </Button>
-            <Button type="submit" className="rounded-lg bg-[#07657E] text-white">
-              {editing ? "ذخیره تغییرات" : "ثبت قرارداد"}
-            </Button>
+        <TableShell>
+          <div className="p-4">
+            {filtered.length === 0 ? (
+              <div className="rounded-xl border border-dashed p-10 text-center text-muted-foreground">
+                قراردادی یافت نشد.
+              </div>
+            ) : (
+              <motion.ul
+                variants={stagger}
+                initial="hidden"
+                animate="show"
+                className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
+              >
+                <AnimatePresence>
+                  {filtered.map((c) => (
+                    <ContractCard
+                      key={c.id}
+                      contract={c}
+                      onEdit={() => openEdit(c)}
+                      onDelete={() => confirmDelete(c.id)}
+                    />
+                  ))}
+                </AnimatePresence>
+              </motion.ul>
+            )}
           </div>
-        </form>
-      </Drawer>
+        </TableShell>
+
+        <Drawer
+          open={drawerOpen}
+          onClose={() => {
+            setDrawerOpen(false);
+            resetForm();
+          }}
+          title={editing ? "ویرایش قرارداد" : "قرارداد جدید"}
+        >
+          <ContractForm
+            values={form}
+            onChange={setForm}
+            onSubmit={handleSubmit}
+            submitLabel={editing ? "ذخیره تغییرات" : "ثبت قرارداد"}
+            onCancel={() => {
+              setDrawerOpen(false);
+              resetForm();
+            }}
+          />
+        </Drawer>
+      </ListPageLayout>
     </div>
+  );
+}
+
+function ContractCard({
+  contract,
+  onEdit,
+  onDelete,
+}: {
+  contract: Contract;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
+  return (
+    <motion.li
+      variants={listItem}
+      exit="exit"
+      whileHover={{ scale: 1.02 }}
+      className="group flex items-start justify-between gap-3 rounded-xl border border-border/60 bg-card/70 p-4 shadow-sm backdrop-blur-sm"
+    >
+      <div className="flex items-start gap-3">
+        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+          <DocumentTextIcon className="h-6 w-6" />
+        </div>
+        <div className="space-y-1">
+          <p className="font-semibold leading-tight text-foreground">{contract.title}</p>
+          <p className="text-sm text-muted-foreground">
+            طرف: {contract.party} • تاریخ: {contract.date} • مبلغ: {nf.format(contract.amount)} ریال
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-1">
+        <Button asChild variant="ghost" size="icon-sm" aria-label="مشاهده قرارداد">
+          <Link href={`/contracts/view/${contract.id}`}>
+            <EyeIcon className="h-4 w-4" />
+          </Link>
+        </Button>
+        <Button variant="ghost" size="icon-sm" aria-label="ویرایش" onClick={onEdit}>
+          <PencilIcon className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label="حذف"
+          className="text-destructive hover:text-destructive"
+          onClick={onDelete}
+        >
+          <TrashIcon className="h-4 w-4" />
+        </Button>
+      </div>
+    </motion.li>
   );
 }

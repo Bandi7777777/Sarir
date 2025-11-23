@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+
 import RegisterPersonnel from "./RegisterPersonnel";
 
 export const metadata: Metadata = {

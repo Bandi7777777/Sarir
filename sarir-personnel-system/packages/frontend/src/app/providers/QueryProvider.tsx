@@ -1,7 +1,7 @@
 "use client";
 
-import { ReactNode, useMemo } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactNode, useMemo } from "react";
 
 // نسخهٔ مینیمال و پایدار: فقط QueryClientProvider
 let _client: QueryClient | null = null;

@@ -1,6 +1,7 @@
-import { NextResponse } from "next/server";
 import { writeFile, mkdir } from "fs/promises";
 import path from "path";
+
+import { NextResponse } from "next/server";
 
 export const POST = async (req: Request) => {
   const form = await req.formData();

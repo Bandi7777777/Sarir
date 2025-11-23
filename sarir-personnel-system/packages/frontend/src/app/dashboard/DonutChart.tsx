@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useRef, useState } from "react";
 import {
   PieChart,
   Pie,
@@ -8,13 +9,14 @@ import {
   Legend,
   ResponsiveContainer,
   Sector,
+  type PieProps,
 } from "recharts";
-import { useMemo, useRef, useState } from "react";
 
 interface DonutDatum {
   category: string;
   count: number;
   color: string;
+  [key: string]: string | number;
 }
 interface Props {
   data: DonutDatum[];
@@ -106,6 +108,22 @@ export default function DonutChart({ data }: Props) {
   const onEnter = (_: any, index: number) => setActiveIndex(index);
   const onLeave = () => setActiveIndex(null);
 
+  const pieProps: PieProps & { activeIndex?: number | number[] } = {
+    data,
+    cx: "50%",
+    cy: "50%",
+    innerRadius: 90,
+    outerRadius: 140,
+    dataKey: "count",
+    nameKey: "category",
+    paddingAngle: 2,
+    onMouseEnter: onEnter,
+    onMouseLeave: onLeave,
+    activeIndex: activeIndex ?? undefined,
+    activeShape: renderActiveShape,
+    isAnimationActive: true,
+  };
+
   return (
     <div
       ref={wrapRef}
@@ -141,21 +159,7 @@ export default function DonutChart({ data }: Props) {
 
       <ResponsiveContainer width="100%" height={320}>
         <PieChart>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            innerRadius={90}
-            outerRadius={140}
-            dataKey="count"
-            nameKey="category"
-            paddingAngle={2}
-            onMouseEnter={onEnter}
-            onMouseLeave={onLeave}
-            activeIndex={activeIndex ?? undefined}
-            activeShape={renderActiveShape}
-            isAnimationActive
-          >
+          <Pie {...pieProps}>
             {data.map((entry, i) => (
               <Cell
                 key={i}

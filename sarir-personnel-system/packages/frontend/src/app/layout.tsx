@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+
 import "../styles/globals.css";
 import LayoutClient from "@/components/layout/LayoutClient";
 

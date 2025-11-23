@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
+
 import { publishEmployeeUpdated } from "@/lib/bus";
 
 const schema = z.object({
@@ -20,7 +21,7 @@ const schema = z.object({
   marital_status: z.enum(["single","married","divorced","widowed"]).optional().or(z.literal("").transform(() => undefined)),
   address: z.string().optional(),
 });
-type FormData = z.infer<typeof schema>;
+type FormData = z.input<typeof schema>;
 
 export default function EditPersonnelPage() {
   const { id } = useParams() as { id: string };
@@ -37,7 +38,7 @@ export default function EditPersonnelPage() {
     defaultValues: {
       personnel_code: "", employee_code: "", first_name: "", last_name: "", national_id: "",
       email: "", mobile_phone: "", position: "", department: "", education_level: "",
-      date_of_birth: "", hire_date: "", marital_status: "", address: "",
+      date_of_birth: "", hire_date: "", marital_status: undefined, address: "",
     },
   });
 
@@ -54,7 +55,7 @@ export default function EditPersonnelPage() {
           first_name: j.first_name ?? "", last_name: j.last_name ?? "", national_id: j.national_id ?? "",
           email: j.email ?? "", mobile_phone: j.mobile_phone ?? "", position: j.position ?? "", department: j.department ?? "",
           education_level: j.education_level ?? "", date_of_birth: j.date_of_birth ? j.date_of_birth.slice(0,10) : "",
-          hire_date: j.hire_date ? j.hire_date.slice(0,10) : "", marital_status: j.marital_status ?? "", address: j.address ?? "",
+          hire_date: j.hire_date ? j.hire_date.slice(0,10) : "", marital_status: j.marital_status || undefined, address: j.address ?? "",
         };
         if (!off) reset(dto);
       } catch (e:any) { if (!off) setErr(e?.message || "خطا در دریافت اطلاعات"); }

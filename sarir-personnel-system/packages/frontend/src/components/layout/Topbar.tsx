@@ -1,7 +1,9 @@
 "use client";
 
-import React from "react";
+import { HomeIcon } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
+import React from "react";
 
 /**
  * Topbar (Light pages)
@@ -10,43 +12,40 @@ import { usePathname } from "next/navigation";
  * - دکمه‌ها هماهنگ با .btn-primary ( #07657E ) و .btn-accent ( #F2991F ).
  */
 
-export default function Topbar() {
+export default function Topbar({ variant = "light" }: { variant?: "light" | "dark" }) {
   const pathname = usePathname();
-  if (pathname?.startsWith("/dashboard")) return null;
+
+  const bg =
+    variant === "dark"
+      ? "bg-white/5 border-white/10 text-white"
+      : "bg-white/70 border-black/10 text-slate-900";
 
   return (
     <header
       role="banner"
-      className="card mb-4 px-4 py-3 sticky top-0 z-30"
-      style={{
-        background:
-          "linear-gradient(180deg, rgba(7,101,126,0.07) 0%, rgba(255,255,255,0.70) 100%)",
-        backdropFilter: "saturate(1.1) blur(4px)",
-      }}
+      className={`sticky top-0 z-40 mb-2 border-b backdrop-blur-md ${bg}`}
     >
-      <div className="flex items-center justify-between gap-3">
-        {/* Left: Logo + Breadcrumbs */}
-        <div className="flex items-center gap-3 min-w-0">
-          <a href="/" aria-label="Sarir Logistic" className="shrink-0">
-            <img
-              src="/Logo-Sarir.png"
-              alt="SARIR LOGISTIC"
-              className="h-8 w-auto object-contain"
-              onError={(e) => ((e.currentTarget.style.display = "none"))}
-            />
-          </a>
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 lg:px-6">
+        <div className="flex min-w-0 items-center gap-3">
+          <Link href="/" aria-label="Sarir Logistic" className="flex items-center gap-2">
+            <div className="grid size-9 place-items-center rounded-xl bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-secondary)] text-white shadow">
+              <HomeIcon className="h-5 w-5" />
+            </div>
+            <span className="text-sm font-semibold">Sarir Logistic</span>
+          </Link>
           <Breadcrumbs pathname={pathname ?? "/"} />
         </div>
 
-        {/* Right: Actions */}
         <div className="flex items-center gap-2">
-          <button className="btn btn-outline" type="button">Notifications</button>
-          <div className="flex items-center gap-1" aria-label="Language switcher">
-            <button className="btn btn-accent" type="button">EN</button>
-            <button className="btn btn-outline" type="button">FA</button>
-            <button className="btn btn-outline" type="button">DE</button>
-          </div>
-          <a href="/" className="btn btn-primary">Home</a>
+          <Link href="/notifications" className="btn btn-outline">
+            اعلان‌ها
+          </Link>
+          <Link href="/reports" className="btn btn-accent">
+            گزارش‌ها
+          </Link>
+          <Link href="/" className="btn btn-primary">
+            خانه
+          </Link>
         </div>
       </div>
     </header>
@@ -75,9 +74,9 @@ function Breadcrumbs({ pathname }: { pathname: string }) {
         {isLast ? (
           <span className="font-medium text-foreground truncate">{label}</span>
         ) : (
-          <a href={href} className="text-foreground/70 hover:text-foreground transition-colors truncate">
+          <Link href={href} className="text-foreground/70 transition-colors hover:text-foreground truncate">
             {label}
-          </a>
+          </Link>
         )}
       </span>
     );
@@ -85,9 +84,9 @@ function Breadcrumbs({ pathname }: { pathname: string }) {
 
   return (
     <nav aria-label="Breadcrumb" className="text-sm flex items-center min-w-0 truncate">
-      <a href="/" className="font-medium text-foreground hover:opacity-80 transition-opacity">
+      <Link href="/" className="font-medium text-foreground transition-opacity hover:opacity-80">
         Home
-      </a>
+      </Link>
       {items}
     </nav>
   );

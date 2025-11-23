@@ -1,168 +1,100 @@
 "use client";
 
-import React from "react";
+import {
+  BarChart3,
+  FileText,
+  LayoutDashboard,
+  LogOut,
+  Settings,
+  ShieldCheck,
+  Truck,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import React from "react";
+
 import { cn } from "@/lib/utils";
-import {
-  LayoutDashboard,
-  Users,
-  Truck,
-  FileText,
-  ShieldCheck,
-  BarChart3,
-  Settings,
-  LogOut,
-  UserPlus,
-} from "lucide-react";
 
 type NavItem = {
   href: string;
   label: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
-  subItems?: { href: string; label: string }[];
 };
 
 const MAIN_ITEMS: NavItem[] = [
   { href: "/dashboard", label: "داشبورد", icon: LayoutDashboard },
-  { 
-    href: "/dashboard/personnel", 
-    label: "مدیریت پرسنل", 
-    icon: Users,
-    subItems: [
-      { href: "/dashboard/personnel/list", label: "لیست کارکنان" },
-      { href: "/dashboard/personnel/add", label: "استخدام جدید" },
-    ]
-  },
-  { href: "/dashboard/drivers", label: "ناوگان و رانندگان", icon: Truck },
-  { href: "/dashboard/contracts", label: "مدیریت قراردادها", icon: FileText },
-  { href: "/dashboard/insurance", label: "بیمه و سوابق", icon: ShieldCheck },
-  { href: "/dashboard/recruitment", label: "هسته گزینش", icon: UserPlus },
-  { href: "/reports", label: "گزارشات آماری", icon: BarChart3 },
+  { href: "/personnel/list", label: "پرسنل", icon: Users },
+  { href: "/drivers/list", label: "رانندگان", icon: Truck },
+  { href: "/vehicles/list", label: "ناوگان", icon: Truck },
+  { href: "/contracts/list", label: "قراردادها", icon: FileText },
+  { href: "/board/list", label: "هیئت مدیره", icon: ShieldCheck },
+  { href: "/reports", label: "گزارش‌ها", icon: BarChart3 },
 ];
 
 type SidebarProps = {
-  theme: "dark" | "light";
+  theme?: "dark" | "light";
 };
 
-export default function Sidebar({ theme }: SidebarProps) {
+export default function Sidebar({ theme = "light" }: SidebarProps) {
   const pathname = usePathname() || "";
   const isDark = theme === "dark";
 
-  // --- استایل‌های کانتینر اصلی ---
-  const sidebarClass = isDark
-    ? "bg-slate-950/50 backdrop-blur-xl border-white/5 text-slate-400"
-    : "bg-white border-slate-200 text-slate-600 shadow-lg"; // سایه قوی‌تر برای تم روشن
+  const containerClass = isDark
+    ? "bg-slate-950/60 text-slate-200 border-white/10"
+    : "bg-white text-slate-800 border-slate-200 shadow-lg";
 
-  // --- استایل آیتم‌های فعال و هاور ---
-  const activeItemClass = isDark
-    ? "bg-blue-600/20 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.3)] border border-blue-500/30"
-    : "bg-blue-50 text-blue-700 border border-blue-200 shadow-sm font-bold"; // رنگ تیره‌تر برای خوانایی در روشن
+  const activeClass = isDark
+    ? "bg-[rgba(7,101,126,0.18)] text-white border border-white/20 shadow-[0_0_12px_rgba(7,101,126,0.35)]"
+    : "bg-[rgba(7,101,126,0.08)] text-[var(--brand-primary)] border border-[rgba(7,101,126,0.25)] shadow-sm";
 
-  const hoverItemClass = isDark
-    ? "hover:bg-white/10 hover:text-white"
-    : "hover:bg-slate-100 hover:text-slate-900";
-
-  // --- استایل منوی شناور (Popover) - اصلاح شده برای تم روشن ---
-  const popoverClass = isDark
-    ? "bg-[#0f172a] border border-white/10 text-slate-200 shadow-2xl"
-    : "bg-white border border-slate-200 text-slate-800 shadow-[0_10px_30px_rgba(0,0,0,0.15)]"; // سایه و بوردر مشخص برای تم روشن
+  const hoverClass = isDark ? "hover:bg-white/10 hover:text-white" : "hover:bg-slate-100 hover:text-slate-900";
 
   return (
     <aside
+      role="complementary"
       className={cn(
-        "relative z-50 flex flex-col items-center py-4 h-screen w-16 border-l transition-all duration-300",
-        sidebarClass
+        "relative z-30 flex h-screen w-16 flex-col items-center border-l py-4 transition-colors duration-300",
+        containerClass
       )}
     >
-      {/* لوگو */}
-      <div className="mb-6 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-indigo-600 shadow-lg shadow-blue-500/20">
-        <span className="text-lg font-black text-white">S</span>
-      </div>
+      <Link
+        href="/dashboard"
+        className="mb-6 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-secondary)] text-white shadow-lg shadow-[var(--brand-primary)]/30"
+        aria-label="لوگوی ساریر"
+      >
+        <span className="text-lg font-black">S</span>
+      </Link>
 
-      {/* لیست منوها */}
-      <nav className="flex-1 flex flex-col gap-3 w-full px-2">
+      <nav className="flex w-full flex-1 flex-col items-center gap-3">
         {MAIN_ITEMS.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-
           return (
-            <div key={item.href} className="group relative flex items-center justify-center">
-              {/* دکمه اصلی */}
-              <Link
-                href={item.href}
-                className={cn(
-                  "flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200",
-                  isActive ? activeItemClass : hoverItemClass
-                )}
-              >
-                <item.icon className="h-5 w-5" strokeWidth={isActive ? 2.5 : 2} />
-              </Link>
-
-              {/* --- منوی شناور (زیرمنو) --- */}
-              {/* این بخش نامرئی برای جلوگیری از قطع شدن موس هنگام حرکت به سمت منو */}
-              <div className="absolute right-full top-0 h-full w-6 -mr-4 z-40 pointer-events-none group-hover:pointer-events-auto" />
-
-              <div className="absolute right-full top-0 pr-2 pointer-events-none opacity-0 -translate-x-2 group-hover:pointer-events-auto group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200 ease-out z-50 flex items-start">
-                
-                <div className={cn(
-                  "min-w-[170px] rounded-xl p-2 backdrop-blur-sm ml-1",
-                  popoverClass
-                )}>
-                  {/* عنوان منو */}
-                  <div className={cn(
-                    "px-3 py-2 text-sm font-bold mb-1 border-b",
-                    isDark ? "border-white/10" : "border-slate-100 text-slate-900"
-                  )}>
-                    {item.label}
-                  </div>
-
-                  {/* آیتم‌های زیرمنو */}
-                  {item.subItems && item.subItems.length > 0 ? (
-                    <div className="flex flex-col gap-1">
-                      {item.subItems.map((sub) => (
-                        <Link
-                          key={sub.href}
-                          href={sub.href}
-                          className={cn(
-                            "flex items-center gap-2 px-3 py-2 rounded-lg text-xs transition-colors",
-                            pathname === sub.href 
-                              ? (isDark ? "bg-blue-600 text-white" : "bg-blue-100 text-blue-800 font-bold")
-                              : (isDark ? "hover:bg-white/10 text-slate-300" : "hover:bg-slate-50 text-slate-600 hover:text-slate-900")
-                          )}
-                        >
-                          <span className={cn(
-                            "w-1.5 h-1.5 rounded-full",
-                            pathname === sub.href ? "bg-current" : "bg-gray-400"
-                          )} />
-                          {sub.label}
-                        </Link>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="px-3 pb-1">
-                      <span className="text-[10px] opacity-50">مشاهده صفحه اصلی</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
+            <Link
+              key={item.href}
+              href={item.href}
+              className={cn("flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200", isActive ? activeClass : hoverClass)}
+              aria-label={item.label}
+              title={item.label}
+            >
+              <item.icon className="h-5 w-5" strokeWidth={isActive ? 2.5 : 2} />
+            </Link>
           );
         })}
       </nav>
 
-      {/* فوتر */}
-      <div className="mt-auto flex flex-col gap-2 w-full px-2 pb-2">
+      <div className="mt-auto flex w-full flex-col gap-2 px-2 pb-2">
         <Link
           href="/settings"
-          className={cn(
-            "flex h-10 w-10 items-center justify-center rounded-xl transition-all",
-            hoverItemClass
-          )}
+          className={cn("flex h-10 w-10 items-center justify-center rounded-xl transition-all", hoverClass)}
+          aria-label="تنظیمات"
         >
           <Settings className="h-5 w-5" />
         </Link>
         <button
-          className="flex h-10 w-10 items-center justify-center rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-500 transition-colors"
+          className="flex h-10 w-10 items-center justify-center rounded-xl text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-500"
+          aria-label="خروج"
+          type="button"
         >
           <LogOut className="h-5 w-5" />
         </button>

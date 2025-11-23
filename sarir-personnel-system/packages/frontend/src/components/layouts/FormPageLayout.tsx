@@ -1,6 +1,8 @@
 import React from "react";
-import { Card } from "@/components/ui/card";
+
 import { Page, PageHeader } from "./Page";
+
+import { Card } from "@/components/ui/card";
 
 type FormPageLayoutProps = {
   title: string;

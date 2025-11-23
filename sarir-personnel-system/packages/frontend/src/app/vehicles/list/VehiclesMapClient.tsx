@@ -8,11 +8,18 @@
  */
 
 import { useEffect, useState, useMemo } from "react";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-cluster";
+
 import ensureLeafletIcons from "@/lib/leaflet-fix";
 
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import type { LatLngExpression } from "leaflet";
-import MarkerClusterGroup from "react-leaflet-cluster";
+const MapContainerAny = MapContainer as any;
+const TileLayerAny = TileLayer as any;
+const MarkerAny = Marker as any;
+const PopupAny = Popup as any;
+const MarkerClusterGroupAny = MarkerClusterGroup as any;
+
+type LatLngExpression = [number, number];
 
 type VehicleMarker = {
   id: string | number;
@@ -62,31 +69,31 @@ export default function VehiclesMapClient({
   }
 
   const markersEl = data.map((m) => (
-    <Marker key={m.id} position={m.position}>
-      <Popup>
+    <MarkerAny key={m.id} position={m.position}>
+      <PopupAny>
         <div className="text-sm">
           <div className="font-semibold">{m.title}</div>
           {m.description ? <div className="text-muted-foreground">{m.description}</div> : null}
         </div>
-      </Popup>
-    </Marker>
+      </PopupAny>
+    </MarkerAny>
   ));
 
   return (
     <div className="relative z-0 w-full h-[70vh] rounded-2xl overflow-hidden border">
-      <MapContainer
+      <MapContainerAny
         center={center}
         zoom={zoom}
         style={{ width: "100%", height: "100%", zIndex: 0 }}
         scrollWheelZoom
         preferCanvas
       >
-        <TileLayer
+        <TileLayerAny
           attribution="&copy; OpenStreetMap contributors"
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        {useCluster ? <MarkerClusterGroup>{markersEl}</MarkerClusterGroup> : markersEl}
-      </MapContainer>
+        {useCluster ? <MarkerClusterGroupAny>{markersEl}</MarkerClusterGroupAny> : markersEl}
+      </MapContainerAny>
     </div>
   );
 }

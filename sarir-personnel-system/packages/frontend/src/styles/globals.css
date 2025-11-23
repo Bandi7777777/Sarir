@@ -27,6 +27,12 @@
   --turquoise-400: #4dd3e7;
   --orange-500: #f2991f;
   --orange-400: #ffac3d;
+  --shell-bg-light: radial-gradient(120rem 70rem at 120% -20%, rgba(7,101,126,0.08), transparent), radial-gradient(90rem 60rem at -10% 120%, rgba(242,153,31,0.08), transparent), #f8fafc;
+  --shell-bg-dark: radial-gradient(140rem 80rem at 130% -10%, rgba(34,211,238,0.16), transparent), radial-gradient(120rem 80rem at -20% 130%, rgba(99,102,241,0.16), transparent), #0b1220;
+  --shell-fg-light: #0b1220;
+  --shell-fg-dark: #e5e7eb;
+  --shell-bg: var(--shell-bg-light);
+  --shell-fg: var(--shell-fg-light);
   --sidebar: hsl(0 0% 98%);
   --sidebar-foreground: hsl(240 5.3% 26.1%);
   --sidebar-primary: hsl(240 5.9% 10%);
@@ -474,15 +480,24 @@ body {
   min-height: 100%;
   margin: 0;
   padding: 0;
-  background: #020617; /* همون رنگ تیره داشبورد */
-  color: #e5e7eb;
+  background: var(--shell-bg);
+  color: var(--shell-fg);
 }
 
 body {
   direction: rtl;
 }
 
-.dark {
+body.light {
+  --shell-bg: var(--shell-bg-light);
+  --shell-fg: var(--shell-fg-light);
+}
+
+.dark,
+body.dark {
+  --shell-bg: var(--shell-bg-dark);
+  --shell-fg: var(--shell-fg-dark);
+
   --sidebar: hsl(240 5.9% 10%);
   --sidebar-foreground: hsl(240 4.8% 95.9%);
   --sidebar-primary: hsl(224.3 76.3% 48%);
@@ -503,3 +518,4 @@ body {
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 }
+

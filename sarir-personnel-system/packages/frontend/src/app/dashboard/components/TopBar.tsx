@@ -1,9 +1,10 @@
 'use client';
 
-import Breadcrumbs from "./breadcrumbs/Breadcrumbs";
-import Link from "next/link";
 import { PlusIcon, BellIcon, DownloadIcon, Settings2Icon } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
+
+import Breadcrumbs from "./breadcrumbs/Breadcrumbs";
 
 export default function TopBar() {
   const [elevated, setElevated] = useState(false);

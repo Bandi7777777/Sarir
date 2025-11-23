@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+
 import { Providers } from "@/components/Providers"; // Assuming you have this from previous instructions
 
 export const metadata: Metadata = {

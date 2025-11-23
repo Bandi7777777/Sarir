@@ -1,9 +1,11 @@
 "use client";
-import { useState } from "react";
+import { PlusIcon } from "@heroicons/react/24/solid";
 import { motion } from "framer-motion";
+import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PlusIcon } from "@heroicons/react/24/solid";
+
 
 export default function RegisterPersonnel() {
   const [expanded, setExpanded] = useState(false);

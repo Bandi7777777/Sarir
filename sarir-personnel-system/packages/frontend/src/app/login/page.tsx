@@ -1,8 +1,9 @@
 "use client";
 
-import React from "react";
-import Image from "next/image";
 import dynamic from "next/dynamic";
+import Image from "next/image";
+import React from "react";
+
 import { FormPageLayout } from "@/components/layouts/FormPageLayout";
 
 const LoginForm = dynamic(() => import("@/components/auth/LoginForm"), {

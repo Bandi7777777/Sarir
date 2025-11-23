@@ -2,6 +2,7 @@
 "use client";
 
 import RegisterDriverImpl from "./_RegisterDriverImpl";
+
 import { FormPageLayout } from "@/components/layouts/FormPageLayout";
 
 export default function RegisterDriverPage() {

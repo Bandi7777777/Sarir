@@ -2,8 +2,9 @@
 
 import React, { useMemo } from "react";
 import { Marker, Popup, useMap } from "react-leaflet";
-import type { LatLngExpression } from "leaflet";
 import Supercluster from "supercluster";
+
+type LatLngExpression = [number, number];
 
 export type ClusterPoint = { id: string | number; position: [number, number]; title?: string };
 
@@ -11,7 +12,7 @@ export default function ClusterLayer({ points, radius = 60, maxZoom = 18 }: { po
   const map = useMap();
 
   const clusters = useMemo(() => {
-    const index = new Supercluster<{ point: ClusterPoint }>({ radius, maxZoom });
+    const index = new (Supercluster as any)({ radius, maxZoom });
     const feats = points.map((p) => ({
       type: "Feature" as const,
       properties: { point: p },

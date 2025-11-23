@@ -1,6 +1,5 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   createColumnHelper,
@@ -19,19 +18,21 @@ import {
   Briefcase, CornerDownLeft, UserCheck, DollarSign,
   ChevronUp, ChevronDown, ListFilter, Settings2, Table, LayoutList
 } from "lucide-react";
+import React, { useState, useMemo } from "react";
 import { toast } from "react-hot-toast";
+
 import { ListPageLayout } from "@/components/layouts/ListPageLayout";
-import { ListHeader } from "@/components/list/ListHeader";
 import { FilterBar } from "@/components/list/FilterBar";
 import { ListActionBar } from "@/components/list/ListActionBar";
+import { ListHeader } from "@/components/list/ListHeader";
 import { TableShell } from "@/components/list/TableShell";
 
 /* فرض بر وجود کامپوننت‌های UI در مسیرهای زیر: */
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 // import { cn } from "@/lib/utils"; // برای ترکیب کلاس‌ها
 
 // --- Type Definitions ---
@@ -134,7 +135,7 @@ const KPISection = ({ data }: { data: Personnel[] }) => {
             <Card 
                 icon={<DollarSign size={20} className={`text-${colors.salary}`}/>} 
                 title="متوسط حقوق" 
-                value={`${(avgSalary / 1000000).toFixed(1).toLocaleString('fa-IR', { minimumFractionDigits: 1 })} م.ت`} 
+                value={`${(avgSalary / 1_000_000).toLocaleString("fa-IR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} م.ت`} 
                 color={colors.salary}
             />
             <Card 
@@ -392,7 +393,7 @@ export default function PersonnelListPage() {
     const PersonnelCards = () => (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-6">
             {table.getRowModel().rows.map(row => {
-                if(row.getIsGrouped() || !row.getIsVisible()) return null; 
+                if (row.getIsGrouped()) return null; 
                 const p = row.original;
                 return (
                     <motion.div 
@@ -469,7 +470,6 @@ export default function PersonnelListPage() {
                     value={globalFilter}
                     onChange={(e) => setGlobalFilter(e.target.value)}
                     className="w-full md:w-96 h-10 bg-transparent border-white/20 text-white placeholder-white/50 focus:border-[var(--category-accent-color)]"
-                    icon={<Search size={18} className="text-white/50" />}
                 />
 
                 <ListActionBar>

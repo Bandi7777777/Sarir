@@ -1,10 +1,13 @@
 "use client";
 
-import * as React from "react";
 import { usePathname } from "next/navigation";
-import ClientProviders from "@/app/ClientProviders";
-import Sidebar from "@/components/ui/Sidebar";
+import * as React from "react";
 import { Toaster } from "react-hot-toast";
+
+import ClientProviders from "@/app/ClientProviders";
+import Topbar from "@/components/layout/Topbar";
+import Sidebar from "@/components/ui/Sidebar";
+
 
 type LayoutClientProps = {
   children: React.ReactNode;
@@ -42,18 +45,22 @@ export default function LayoutClient({ children }: LayoutClientProps) {
     );
   }
 
-  const mainBgClass = isDarkPage ? "bg-[#020617] text-white" : "bg-[#F8FAFC] text-slate-900";
+  const mainBgStyle = {
+    background: `var(${isDarkPage ? "--shell-bg-dark" : "--shell-bg-light"})`,
+    color: `var(${isDarkPage ? "--shell-fg-dark" : "--shell-fg-light"})`,
+  };
 
   return (
     <ClientProviders>
-      <div className={`flex h-screen w-full overflow-hidden ${mainBgClass}`} dir="rtl">
+      <div className="flex min-h-screen w-full overflow-hidden" dir="rtl" style={mainBgStyle}>
         <Sidebar theme={isDarkPage ? "dark" : "light"} />
 
-        <main className="flex-1 relative flex flex-col min-w-0 h-full">
-          <div className="flex-1 overflow-y-auto scroll-smooth w-full h-full">
-            <div className="w-full min-h-full">{children}</div>
-          </div>
-        </main>
+        <div className="relative flex min-h-screen flex-1 flex-col">
+          <Topbar variant={isDarkPage ? "dark" : "light"} />
+          <main className="flex-1 overflow-y-auto">
+            <div className="min-h-full w-full">{children}</div>
+          </main>
+        </div>
       </div>
       <Toaster position="top-center" toastOptions={{ duration: 3000 }} />
     </ClientProviders>

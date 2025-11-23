@@ -1,9 +1,5 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { motion } from "framer-motion";
 import {
   BellAlertIcon,
   CheckCircleIcon,
@@ -11,6 +7,11 @@ import {
   MagnifyingGlassIcon,
   TrashIcon,
 } from "@heroicons/react/24/solid";
+import { motion } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 type Notif = {
   id: number | string;

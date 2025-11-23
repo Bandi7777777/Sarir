@@ -1,19 +1,27 @@
 "use client";
 
+import { CogIcon } from "@heroicons/react/24/solid"; // تغییر: icon
+import { motion, type Variants } from "framer-motion"; // تغییر: اضافه
 import { useState } from "react";
-import { motion } from "framer-motion"; // تغییر: اضافه
 import { toast } from "react-hot-toast"; // تغییر: اضافه
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { CogIcon } from "@heroicons/react/24/solid"; // تغییر: icon
+
 
 /* ─────────────── Theme helpers ─────────────── */ // تغییر: تم
 const GLASS = "backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_15px_40px_rgba(0,0,0,.3)] glow-border";
 const PANELBG = "bg-white/10 dark:bg-white/10";
 
 /* ─────────────── Animations ─────────────── */ // تغییر: انیمیشن
-const rise = { hidden: { y: 20, opacity: 0 }, show: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 100, damping: 15 } } };
-const stagger = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } } };
+const rise: Variants = {
+  hidden: { y: 20, opacity: 0 },
+  show: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 100, damping: 15 } },
+};
+const stagger: Variants = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
+};
 
 export default function Settings() {
   const [expanded, setExpanded] = useState(false);

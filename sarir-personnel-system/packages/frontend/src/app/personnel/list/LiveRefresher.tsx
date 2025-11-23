@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+
 import { subscribeEmployeeEvents } from "@/lib/bus";
 
 export default function LiveRefresher() {
