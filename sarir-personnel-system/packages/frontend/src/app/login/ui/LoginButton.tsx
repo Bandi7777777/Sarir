@@ -1,13 +1,17 @@
 "use client";
 
-import type { ButtonHTMLAttributes } from "react";
+import React, { type ButtonHTMLAttributes } from "react";
 
-import styles from "../login.module.css";
+import styles from "./LoginButton.module.css";
 
-type Props = ButtonHTMLAttributes<HTMLButtonElement>;
+interface LoginButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  loading?: boolean;
+}
 
-export function LoginButton({ className, ...rest }: Props) {
+export function LoginButton({ loading, children, ...rest }: LoginButtonProps) {
   return (
-    <button {...rest} className={[styles.submitButton, className].filter(Boolean).join(" ")} />
+    <button className={styles.button} {...rest} disabled={loading || rest.disabled}>
+      {loading ? "در حال ورود..." : children}
+    </button>
   );
 }

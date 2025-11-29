@@ -1,56 +1,36 @@
 "use client";
 
-import { ArrowLeft } from "lucide-react";
-import Image from "next/image";
-
-import styles from "../login.module.css";
+import styles from "./LoginHero.module.css";
+import { TruckScene } from "./TruckScene";
 
 type Props = {
-  onCtaClick?: () => void;
+  onStartClick?: () => void;
 };
 
-export function LoginHero({ onCtaClick }: Props) {
+export function LoginHero({ onStartClick }: Props) {
   return (
-    <div className={styles.heroColumn}>
-      <div className={styles.heroArc} />
-      <div className={styles.heroOverlay} />
-      <div className={styles.heroLights} />
+    <section className={styles.root}>
+      <header className={styles.header}>
+        <div className={styles.brandBlock}>
+          <span className={styles.brandEn}>SARIR LOGISTIC</span>
+          <span className={styles.brandFa}>سریر لجستیک هوشمند ایرانیان</span>
+        </div>
+      </header>
 
-      <div className={styles.heroContent}>
-        <div className={styles.heroText}>
-          <p className={styles.heroTag}>SARIR LOGISTIC</p>
-          <h1 className={styles.heroTitle}>
-            سامانه هوشمند پرسنل
-            <br />
-            سریر لجستیک
+      <div className={styles.content}>
+        <div className={styles.copy}>
+          <h1 className={styles.title}>
+            <span>سامانه هوشمند پرسنل</span>
+            <span>سریر لجستیک</span>
           </h1>
-          <p className={styles.heroSubtitle}>
-            یک ورود امن و سریع برای مدیریت منابع انسانی، ناوگان و هیئتمدیره در یک پنل هوشمند.
-          </p>
-          <button type="button" className={styles.heroCta} onClick={onCtaClick}>
-            <span>شروع کن</span>
-            <ArrowLeft className={styles.heroCtaIcon} />
+          <p className={styles.subtitle}>یک پنل هوشمند.</p>
+          <button type="button" className={styles.cta} onClick={onStartClick}>
+            شروع کن
           </button>
         </div>
 
-        <div className={styles.heroVisual}>
-          <div className={styles.loginTruck}>
-            <Image
-              src="/images/truck.png"
-              alt="Sarir Logistic truck"
-              width={420}
-              height={220}
-              className={styles.truckImage}
-              priority
-            />
-          </div>
-          <div className={styles.roadWrap}>
-            <div className={styles.roadBase} />
-            <div className={styles.roadStripe} />
-          </div>
-          <p className={styles.tagline}>A NEW TRACK OF SUCCESS</p>
-        </div>
+        <TruckScene />
       </div>
-    </div>
+    </section>
   );
 }

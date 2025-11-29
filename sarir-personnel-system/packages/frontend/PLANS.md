@@ -29,3 +29,5 @@
 - `pnpm build` from packages/frontend passes; Next.js noted multiple lockfiles when inferring workspace root.
 - Latest: spacing/radius scaled down across Dashboard/List/Form layouts, FilterBar, TableShell; sidebar/topbar glass softened while keeping RTL/right rail. Dashboard/report toolbars + KPI tiles now use consistent Persian labels and compact padding; light list/form pages remain minimal, dark analytics pages keep subtle glass without heavy glow. `pnpm build` remains green and main routes render after the polish.
 - Current: sidebar/topbar shadows reduced, button/input/card sizing standardized to the compact scale, login wrapper moved to a light gradient card while preserving text; dark analytics pages stay dark, CRUD pages stay light. Build stays green.
+- [x] Login page rebuilt as a centered two-column hero/form card with curved boundary, truck-road animation, and scoped styling.
+- 2025-02-21 Codex: Deep polish of /login (curved light panel, dark hero with road + horizontal truck motion, compact form card).

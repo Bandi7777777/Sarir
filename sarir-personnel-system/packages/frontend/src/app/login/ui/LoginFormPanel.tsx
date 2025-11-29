@@ -10,8 +10,8 @@ type Props = {
 
 export function LoginFormPanel({ children }: Props) {
   return (
-    <div className={styles.formColumn}>
-      <div className={styles.formPanel}>{children}</div>
+    <div className={styles.formPanelOuter}>
+      <div className={styles.formPanelInner}>{children}</div>
     </div>
   );
 }

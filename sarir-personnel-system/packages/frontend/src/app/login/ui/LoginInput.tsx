@@ -1,23 +1,25 @@
 "use client";
 
-import { forwardRef } from "react";
-import type { InputHTMLAttributes, ReactNode } from "react";
+import React, { forwardRef, type InputHTMLAttributes, type ReactNode } from "react";
 
-import styles from "../login.module.css";
+import styles from "./LoginInput.module.css";
 
-type Props = InputHTMLAttributes<HTMLInputElement> & {
+interface LoginInputProps extends InputHTMLAttributes<HTMLInputElement> {
+  label: string;
   icon?: ReactNode;
-  rightSlot?: ReactNode;
-};
+}
 
-export const LoginInput = forwardRef<HTMLInputElement, Props>(({ className = "", icon, rightSlot, ...rest }, ref) => {
+export const LoginInput = forwardRef<HTMLInputElement, LoginInputProps>(function LoginInput(
+  { label, icon, id, className, ...rest },
+  ref
+) {
   return (
-    <div className={[styles.inputWrapper, className].filter(Boolean).join(" ")}>
-      {icon ? <span className={styles.inputBadge}>{icon}</span> : null}
-      <input ref={ref} {...rest} className={styles.inputField} />
-      {rightSlot ? <span className={styles.inputRight}>{rightSlot}</span> : null}
-    </div>
+    <label className={[styles.field, className].filter(Boolean).join(" ")} htmlFor={id}>
+      <span className={styles.label}>{label}</span>
+      <div className={styles.inputWrapper}>
+        {icon ? <span className={styles.icon} aria-hidden>{icon}</span> : null}
+        <input ref={ref} id={id} className={styles.input} {...rest} />
+      </div>
+    </label>
   );
 });
-
-LoginInput.displayName = "LoginInput";

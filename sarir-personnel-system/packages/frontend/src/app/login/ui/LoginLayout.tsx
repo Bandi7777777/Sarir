@@ -11,13 +11,12 @@ type Props = {
 
 export default function LoginLayout({ hero, form }: Props) {
   return (
-    <main className={styles.page} dir="rtl">
-      <section className={styles.cardSection}>
-        <div className={styles.cardShell}>
-          <div className={styles.cardGrid}>
-            {form}
-            {hero}
-          </div>
+    <main className={styles.loginRoot} dir="rtl" suppressHydrationWarning>
+      <section className={styles.loginShell}>
+        <div className={styles.heroSide}>{hero}</div>
+        <div className={styles.formSide}>
+          <div className={styles.formCurve} />
+          {form}
         </div>
       </section>
     </main>
