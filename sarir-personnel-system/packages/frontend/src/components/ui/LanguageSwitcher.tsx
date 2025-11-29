@@ -7,6 +7,9 @@ import { ChangeEvent } from "react";
 // TODO: اگر i18n داخلی دارید، از آن import کنید:
 // import { locales as availableLocales } from "@/i18n/i18n";
 const availableLocales = ["fa", "en", "ar"] as const;
+type Locale = (typeof availableLocales)[number];
+
+const isLocale = (value: string): value is Locale => availableLocales.includes(value as Locale);
 
 export default function LanguageSwitcher() {
   const locale = useLocale();
@@ -18,7 +21,7 @@ export default function LanguageSwitcher() {
     const base = pathname || "/";
     // جایگزینی پیشوند locale در مسیر
     const parts = base.split("/").filter(Boolean);
-    if (availableLocales.includes(parts[0] as any)) parts.shift();
+    if (parts[0] && isLocale(parts[0])) parts.shift();
     const newPath = `/${newLocale}/${parts.join("/")}`;
     router.push(newPath);
   };

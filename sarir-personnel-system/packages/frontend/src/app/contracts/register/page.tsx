@@ -46,8 +46,8 @@ type Contract = {
 };
 
 const initialContracts: Contract[] = [
-  { id: 1, title: "??????? ??? ? ???", party: "???? X", date: "2025-07-01", amount: 10_000_000 },
-  { id: 2, title: "??????? ????? IT", party: "???? Y", date: "2025-06-15", amount: 5_000_000 },
+  { id: 1, title: "قرارداد خرید تجهیزات", party: "شرکت تجهیز ایرانیان", date: "2025-07-01", amount: 10_000_000 },
+  { id: 2, title: "قرارداد پشتیبانی IT", party: "شرکت رایان", date: "2025-06-15", amount: 5_000_000 },
 ];
 
 const listItem: Variants = {
@@ -106,7 +106,7 @@ export default function RegisterContract() {
 
   const handleCreate = (values: ContractFormValues) => {
     if (!values.title || !values.party || !values.date || !values.amount) {
-      toast.error("???? ??? ?????? ?? ????? ????.");
+      toast.error("لطفاً همه فیلدها را تکمیل کنید.");
       return;
     }
 
@@ -119,12 +119,12 @@ export default function RegisterContract() {
       amount: Number(values.amount),
     };
     setContracts((prev) => [...prev, newContract]);
-    toast.success("??????? ??? ????? ??.");
+    toast.success("قرارداد جدید ثبت شد.");
     setFormData({ title: "", party: "", date: "", amount: "" });
   };
 
   const exportCSV = () => {
-    const header = ["?????", "??? ???????", "?????", "????"];
+    const header = ["عنوان", "طرف قرارداد", "تاریخ", "مبلغ"];
     const rows = filteredContracts.map((c) => [c.title, c.party, c.date, String(c.amount)]);
     const csvContent = "\uFEFF" + [header, ...rows].map((r) => r.join(",")).join("\n");
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -134,7 +134,7 @@ export default function RegisterContract() {
     a.download = "contracts.csv";
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("???? CSV ?? ?????? ?????? ??!");
+    toast.success("فایل CSV با موفقیت آماده شد!");
   };
 
   const openEditModal = (contract: Contract) => {
@@ -156,7 +156,7 @@ export default function RegisterContract() {
   const handleDelete = () => {
     if (selectedContract) {
       setContracts((prev) => prev.filter((c) => c.id !== selectedContract.id));
-      toast.success("??????? ??? ??");
+      toast.success("قرارداد حذف شد");
     }
     setDeleteModalOpen(false);
     setSelectedContract(null);
@@ -165,7 +165,7 @@ export default function RegisterContract() {
   const handleEditSubmit = (values: ContractFormValues) => {
     if (!selectedContract) return;
     if (!values.title || !values.party || !values.date || !values.amount) {
-      toast.error("???? ??? ?????? ?? ????? ????.");
+      toast.error("لطفاً همه فیلدها را تکمیل کنید.");
       return;
     }
 
@@ -182,7 +182,7 @@ export default function RegisterContract() {
           : c
       )
     );
-    toast.success("??????? ??????? ????? ??!");
+    toast.success("ویرایش قرارداد ذخیره شد!");
     setEditModalOpen(false);
     setSelectedContract(null);
   };
@@ -192,14 +192,14 @@ export default function RegisterContract() {
     setFilterParty("all");
     setFilterFrom("");
     setFilterTo("");
-    toast("????? ???? ??.");
+    toast("فیلترها بازنشانی شد.");
   };
 
   const toolbar = (
     <FilterBar>
       <div className="flex flex-1 items-center gap-3">
         <Input
-          placeholder="?????? ???????..."
+          placeholder="جستجو در قراردادها..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="w-full"
@@ -209,12 +209,12 @@ export default function RegisterContract() {
       <ListActionBar>
         <Select value={filterParty} onValueChange={setFilterParty}>
           <SelectTrigger className="w-40">
-            <SelectValue placeholder="??? ???????" />
+            <SelectValue placeholder="همه طرف‌ها" />
           </SelectTrigger>
           <SelectContent align="end">
             {parties.map((p) => (
               <SelectItem key={p} value={p}>
-                {p === "all" ? "??? ??????" : p}
+                {p === "all" ? "همه طرف‌ها" : p}
               </SelectItem>
             ))}
           </SelectContent>
@@ -237,11 +237,11 @@ export default function RegisterContract() {
 
         <Button variant="ghost" size="sm" onClick={resetFilters}>
           <ArrowPathIcon className="h-4 w-4" />
-          <span className="hidden sm:inline">????????</span>
+          <span className="hidden sm:inline">بازنشانی</span>
         </Button>
         <Button variant="secondary" size="sm" onClick={exportCSV}>
           <DocumentArrowDownIcon className="h-4 w-4" />
-          ????? CSV
+          خروجی CSV
         </Button>
       </ListActionBar>
     </FilterBar>
@@ -250,11 +250,11 @@ export default function RegisterContract() {
   return (
     <div dir="rtl">
       <FormPageLayout
-        title="??? ??????? ????"
-        description="??????? ??????? ?? ??? ???? ??? ?? ??????? ???????"
+        title="ثبت و مدیریت قراردادها"
+        description="قراردادهای فعال را ثبت، جستجو و مدیریت کنید"
         actions={
           <Button asChild size="sm">
-            <Link href="/contracts/list">???? ??? ???????</Link>
+            <Link href="/contracts/list">مشاهده فهرست قراردادها</Link>
           </Button>
         }
       >
@@ -263,20 +263,20 @@ export default function RegisterContract() {
             values={formData}
             onChange={setFormData}
             onSubmit={handleCreate}
-            submitLabel="??? ???????"
+            submitLabel="ثبت قرارداد"
           />
 
           <ListHeader
-            title="?????????? ???????"
-            description="???? ????????? ????? ????"
+            title="قراردادهای ثبت‌شده"
+            description="مرور و ویرایش قراردادهای اخیر"
             actions={
               <div className="flex flex-wrap items-center gap-2">
                 <span className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1 text-sm text-primary">
                   <DocumentTextIcon className="h-4 w-4" />
-                  {filteredContracts.length} ??????? ??
+                  {filteredContracts.length} قرارداد ثبت‌شده
                 </span>
                 <span className="flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-sm text-muted-foreground">
-                  ?????: {nf.format(totalAmount)} ????
+                  مجموع: {nf.format(totalAmount)} ریال
                 </span>
               </div>
             }
@@ -288,7 +288,7 @@ export default function RegisterContract() {
             <div className="p-4">
               {filteredContracts.length === 0 ? (
                 <div className="rounded-xl border border-dashed p-10 text-center text-muted-foreground">
-                  ????? ???? ???.
+                  هیچ قراردادی ثبت نشده است.
                 </div>
               ) : (
                 <motion.ul
@@ -318,14 +318,14 @@ export default function RegisterContract() {
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
         <DialogContent dir="rtl">
           <DialogHeader>
-            <DialogTitle>?????? ???????</DialogTitle>
-            <DialogDescription>???? ??? ??????? ?? ????? ??? ???????</DialogDescription>
+            <DialogTitle>ویرایش قرارداد</DialogTitle>
+            <DialogDescription>اطلاعات قرارداد را ویرایش کنید</DialogDescription>
           </DialogHeader>
           <ContractForm
             values={editForm}
             onChange={setEditForm}
             onSubmit={handleEditSubmit}
-            submitLabel="????? ???????"
+            submitLabel="ذخیره تغییرات"
             onCancel={() => setEditModalOpen(false)}
           />
         </DialogContent>
@@ -334,17 +334,17 @@ export default function RegisterContract() {
       <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
         <DialogContent dir="rtl">
           <DialogHeader>
-            <DialogTitle>??? ???????</DialogTitle>
+            <DialogTitle>حذف قرارداد</DialogTitle>
             <DialogDescription>
-              ??? ????? ????? ?? ????????? ??? ??????? ?? ??? ?????.
+              آیا از حذف این قرارداد مطمئن هستید؟
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setDeleteModalOpen(false)}>
-              ???
+              انصراف
             </Button>
             <Button variant="destructive" onClick={handleDelete}>
-              ????
+              حذف
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -378,24 +378,24 @@ function ContractCard({
         <div className="space-y-1">
           <p className="font-semibold leading-tight text-foreground">{contract.title}</p>
           <p className="text-sm text-muted-foreground">
-            ???: {contract.party} • ?????: {contract.date} • ????: {nf.format(contract.amount)} ????
+            طرف: {contract.party} • تاریخ: {contract.date} • مبلغ: {nf.format(contract.amount)} ریال
           </p>
         </div>
       </div>
 
       <div className="flex items-center gap-1">
-        <Button asChild variant="ghost" size="icon-sm" aria-label="?????? ???????">
+        <Button asChild variant="ghost" size="icon-sm" aria-label="نمایش قرارداد">
           <Link href={`/contracts/view/${contract.id}`}>
             <EyeIcon className="h-4 w-4" />
           </Link>
         </Button>
-        <Button variant="ghost" size="icon-sm" aria-label="??????" onClick={onEdit}>
+        <Button variant="ghost" size="icon-sm" aria-label="ویرایش" onClick={onEdit}>
           <PencilIcon className="h-4 w-4" />
         </Button>
         <Button
           variant="ghost"
           size="icon-sm"
-          aria-label="???"
+          aria-label="حذف"
           className="text-destructive hover:text-destructive"
           onClick={onDelete}
         >

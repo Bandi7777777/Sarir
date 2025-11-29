@@ -10,7 +10,6 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 
-import { VehicleForm, type VehicleFormValues } from "@/components/vehicles/VehicleForm";
 import { FormPageLayout } from "@/components/layouts/FormPageLayout";
 import { FilterBar } from "@/components/list/FilterBar";
 import { ListActionBar } from "@/components/list/ListActionBar";
@@ -33,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { VehicleForm, type VehicleFormValues } from "@/components/vehicles/VehicleForm";
 
 type Vehicle = {
   id: number;

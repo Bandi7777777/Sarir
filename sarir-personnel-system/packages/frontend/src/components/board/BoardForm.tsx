@@ -10,17 +10,14 @@ import {
   NewspaperIcon,
   TrashIcon,
 } from "@heroicons/react/24/solid";
-import { motion } from "framer-motion";
 import { PDFDocument, StandardFonts, degrees } from "pdf-lib";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-hot-toast";
 import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-
-const CC = { teal: "#07657E", cyan: "#1FB4C8", orange: "#F2991F", dark: "#2E3234" };
 
 type MeetingType = "annual" | "ordinaryExtra" | "extraordinary";
 type Step = 1 | 2 | 3 | 4;
@@ -345,6 +342,7 @@ export default function BoardForm() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- next is defined later and stable for this usage
   }, [form]);
 
   useEffect(() => {
@@ -353,7 +351,7 @@ export default function BoardForm() {
 
   const setVal = (k: keyof FormState, v: string) => setForm((s) => ({ ...s, [k]: v }));
 
-  function validateAll() {
+  const validateAll = useCallback(() => {
     try {
       if (form.meetingType === "annual" && !form.fiscalYear) {
         setErrs((e) => ({ ...e, fiscalYear: "سال مالی را وارد کنید" }));
@@ -367,15 +365,15 @@ export default function BoardForm() {
       setErrs(Object.fromEntries(Object.entries(fl).map(([k, v]) => [k, v?.[0] || ""])));
       return false;
     }
-  }
+  }, [form]);
 
-  function next() {
+  const next = useCallback(() => {
     if (!validateAll()) {
       toast.error("خطا در تکمیل فرم");
       return;
     }
     setStep((s) => (s < 4 ? ((s + 1) as Step) : s));
-  }
+  }, [validateAll]);
   function prev() {
     setStep((s) => (s > 1 ? ((s - 1) as Step) : s));
   }

@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */ // TODO: refine driver list types
 
 import {
   ArrowPathIcon,

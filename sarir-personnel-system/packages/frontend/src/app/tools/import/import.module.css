@@ -1,0 +1,19 @@
+.shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+  background: radial-gradient(circle at 20% 15%, rgba(7, 101, 126, 0.18), transparent 40%),
+    radial-gradient(circle at 80% 0%, rgba(248, 156, 42, 0.14), transparent 45%),
+    linear-gradient(135deg, #0b1220 0%, #07111c 45%, #050c16 100%);
+  color: #e7ebf3;
+}
+
+.panel {
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}

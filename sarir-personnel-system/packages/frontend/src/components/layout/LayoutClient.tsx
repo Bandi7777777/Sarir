@@ -8,7 +8,6 @@ import ClientProviders from "@/app/ClientProviders";
 import Topbar from "@/components/layout/Topbar";
 import Sidebar from "@/components/ui/Sidebar";
 
-
 type LayoutClientProps = {
   children: React.ReactNode;
 };
@@ -16,50 +15,41 @@ type LayoutClientProps = {
 export default function LayoutClient({ children }: LayoutClientProps) {
   const pathname = usePathname() || "";
   const isAuthRoute = pathname.startsWith("/auth") || pathname === "/login";
+  const pageTheme = React.useMemo(() => {
+    if (pathname.startsWith("/dashboard")) return "dashboard";
+    if (pathname.startsWith("/reports")) return "reports";
+    if (pathname.startsWith("/personnel")) return "personnel";
+    if (pathname.startsWith("/drivers") || pathname.startsWith("/vehicles")) return "fleet";
+    if (pathname.startsWith("/contracts")) return "contracts";
+    if (pathname.startsWith("/board")) return "board";
+    return "app";
+  }, [pathname]);
+  const isDarkPage = pageTheme === "dashboard" || pageTheme === "reports";
 
-  // Determine page tone (dark shell for dashboards/reports).
-  const isDarkPage =
-    pathname === "/" ||
-    pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/reports");
-
-  // Flip body classes to keep global styles in sync.
   React.useEffect(() => {
-    const body = document.body;
-    if (isDarkPage) {
-      body.classList.add("dark");
-      body.classList.remove("light");
-    } else {
-      body.classList.add("light");
-      body.classList.remove("dark");
+    if (typeof document !== "undefined") {
+      document.body.dataset.page = isAuthRoute ? "auth" : pageTheme;
     }
-  }, [isDarkPage]);
+  }, [isAuthRoute, pageTheme]);
 
   if (isAuthRoute) {
     return (
       <ClientProviders>
-        <main className="h-screen w-screen overflow-hidden bg-background" dir="rtl">
+        <main data-page="auth" className="min-h-screen" dir="rtl">
           {children}
         </main>
       </ClientProviders>
     );
   }
 
-  const mainBgStyle = {
-    background: `var(${isDarkPage ? "--shell-bg-dark" : "--shell-bg-light"})`,
-    color: `var(${isDarkPage ? "--shell-fg-dark" : "--shell-fg-light"})`,
-  };
-
   return (
     <ClientProviders>
-      <div className="flex min-h-screen w-full overflow-hidden" dir="rtl" style={mainBgStyle}>
+      <div className="min-h-screen bg-slate-950 text-slate-50" dir="rtl" data-page={pageTheme}>
         <Sidebar theme={isDarkPage ? "dark" : "light"} />
 
-        <div className="relative flex min-h-screen flex-1 flex-col">
+        <div className="flex min-h-screen flex-col pr-[80px]">
           <Topbar variant={isDarkPage ? "dark" : "light"} />
-          <main className="flex-1 overflow-y-auto">
-            <div className="min-h-full w-full">{children}</div>
-          </main>
+          <main className="flex-1 overflow-y-auto px-3 py-4 lg:px-6 lg:py-6">{children}</main>
         </div>
       </div>
       <Toaster position="top-center" toastOptions={{ duration: 3000 }} />

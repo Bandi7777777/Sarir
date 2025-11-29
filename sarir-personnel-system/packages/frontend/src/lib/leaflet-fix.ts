@@ -1,5 +1,7 @@
 // packages/frontend/src/lib/leaflet-fix.ts
+// Note: require() usage is intentional to keep this SSR-safe when window is unavailable.
 // هدف: لود تنبل leaflet فقط در محیط کلاینت و فیکس آیکون‌ها بدون SSR error (window is not defined)
+/* eslint-disable @typescript-eslint/no-require-imports */
 
 let _patched = false;
 

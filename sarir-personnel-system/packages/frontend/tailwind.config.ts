@@ -1,11 +1,12 @@
 import type { Config } from "tailwindcss";
+import { fontFamily } from "tailwindcss/defaultTheme";
 
 const config: Config = {
   darkMode: ["class"],
   content: [
-    './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/components/**/*.{js,ts,jsx,tsx,mdx}',
-    './src/app/**/*.{js,ts,jsx,tsx,mdx}',
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     container: {
@@ -16,46 +17,61 @@ const config: Config = {
       },
     },
     extend: {
-      // این بخش حیاتی است: اتصال متغیرهای CSS به کلاس‌های تیلوند
+      fontFamily: {
+        sans: ["var(--font-sans)", "Vazirmatn", ...fontFamily.sans],
+      },
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        sarir: {
+          bg: "var(--color-shell-bg)",
+          bgSoft: "var(--sarir-color-surface-soft)",
+          surface: "var(--color-surface)",
+          surfaceMuted: "var(--color-surface-muted)",
+          surfaceGlass: "var(--color-surface-glass)",
+          border: "var(--color-border-subtle)",
+          primary: "var(--color-brand-primary)",
+          primarySoft: "var(--color-brand-primary-soft)",
+          accent: "var(--color-brand-accent)",
+          text: "var(--color-text-main)",
+          muted: "var(--color-text-muted)",
+        },
+        border: "var(--color-border-subtle)",
+        input: "var(--input-border)",
+        ring: "var(--color-brand-primary)",
+        background: "var(--color-shell-bg)",
+        foreground: "var(--color-text-main)",
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: "var(--color-brand-primary)",
+          foreground: "#ffffff",
         },
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: "var(--color-surface-muted)",
+          foreground: "var(--color-text-main)",
         },
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: "var(--color-danger)",
+          foreground: "#ffffff",
         },
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: "var(--sarir-color-surface-soft)",
+          foreground: "var(--color-text-muted)",
         },
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: "var(--color-brand-accent)",
+          foreground: "var(--color-text-main)",
         },
         popover: {
-          DEFAULT: "hsl(var(--popover))",
-          foreground: "hsl(var(--popover-foreground))",
+          DEFAULT: "var(--color-surface)",
+          foreground: "var(--color-text-main)",
         },
         card: {
-          DEFAULT: "hsl(var(--card))",
-          foreground: "hsl(var(--card-foreground))",
+          DEFAULT: "var(--color-surface)",
+          foreground: "var(--color-text-main)",
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "var(--sarir-radius-lg)",
+        md: "var(--sarir-radius-md)",
+        sm: "var(--sarir-radius-sm)",
       },
     },
   },

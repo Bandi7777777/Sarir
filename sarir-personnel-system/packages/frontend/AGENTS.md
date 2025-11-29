@@ -74,3 +74,11 @@ You must work ONLY on this local workspace. Do NOT use any remote repos or URLs.
 
 - For large UI refactors, follow the ExecPlan in `PLANS.md`.
 - At the start of each new Codex session (CLI or VS Code), first read `AGENTS.md` and `PLANS.md`, then continue from the next iteration.
+
+### Progress note
+- Refreshed Sarir tokens (primary/accent, light/dark surfaces) and global RTL typography using Vazirmatn; body/data-page now sets theme variables.
+- Sidebar/Topbar converted to right-anchored glass rails with compact spacing; LayoutClient passes dark neon theme to dashboard/reports and light minimal theme to CRUD pages.
+- Shared atoms/layouts (buttons, inputs, cards, badges, pagination, list scaffolding, page headers/forms) slimmed down to minimal, token-driven styling; login page cleaned to the light theme.
+- `pnpm build` (packages/frontend) passes; Next.js warned about multiple lockfiles when inferring workspace root.
+- Latest pass: tightened spacing/radius across Dashboard/List/Form layouts, FilterBar, TableShell; sidebar/topbar glass reduced with RTL/right anchoring intact. Dashboard/report toolbars/KPI cards use smaller scale and consistent Persian labels; light list/form pages stay minimal while dark dashboard/report pages keep the subtle glass theme. `pnpm build` and key routes render after the refinements.
+- Current update: further softened shell (sidebar/topbar) shadows, compacted shared inputs/buttons/cards, and aligned login wrapper to the light gradient card; dark analytics pages remain on the dark base while list/form pages stay light. Build remains green.

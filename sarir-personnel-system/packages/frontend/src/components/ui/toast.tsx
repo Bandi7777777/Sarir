@@ -61,8 +61,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 export function useToast() {
   const ctx = useContext(ToastCtx);
   if (!ctx) {
-    // در صورت استفاده خارج از Provider، خطا نمی‌دهیم تا بیلد نشکند
-    return { toast: (_t: any) => {}, items: [] as ToastItem[], remove: (_id: number) => {} };
+    const noop = () => {};
+    return { toast: noop, items: [] as ToastItem[], remove: noop };
   }
   return { toast: ctx.toast, items: ctx.items, remove: ctx.remove };
 }

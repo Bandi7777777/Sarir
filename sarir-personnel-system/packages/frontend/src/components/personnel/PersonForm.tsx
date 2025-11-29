@@ -80,7 +80,10 @@ type FormConfig = {
   fields: FieldConfig[];
   excel: {
     downloadTemplate: () => void;
-    parseRow: (row: (string | number | undefined)[], setValue: (field: keyof CombinedFormData, value: any) => void) => void;
+    parseRow: (
+      row: (string | number | undefined)[],
+      setValue: (field: keyof CombinedFormData, value: CombinedFormData[keyof CombinedFormData]) => void
+    ) => void;
   };
 };
 
@@ -163,17 +166,17 @@ const formConfigs: Record<PersonFormVariant, FormConfig> = {
     excel: {
       downloadTemplate: downloadPersonnelTemplate,
       parseRow: (row, setValue) => {
-        setValue("unit", row[1] || "");
-        setValue("personnel_code", row[2] || "");
-        const fullName = (row[3] as string) || "";
+        setValue("unit", String(row[1] ?? ""));
+        setValue("personnel_code", String(row[2] ?? ""));
+        const fullName = String(row[3] ?? "");
         const parts = fullName.split(" ");
         setValue("first_name", parts[0] || "");
         setValue("last_name", parts.slice(1).join(" ") || "");
-        setValue("position", row[4] || "");
-        setValue("national_id", row[5] || "");
-        setValue("education_level", getEducationLevel((row[7] as string) || ""));
-        setValue("insurance_history", row[8] || "");
-        setValue("hire_date", formatDate((row[9] as string) || ""));
+        setValue("position", String(row[4] ?? ""));
+        setValue("national_id", String(row[5] ?? ""));
+        setValue("education_level", getEducationLevel(String(row[7] ?? "")));
+        setValue("insurance_history", String(row[8] ?? ""));
+        setValue("hire_date", formatDate(String(row[9] ?? "")));
       },
     },
   },
@@ -233,15 +236,15 @@ const formConfigs: Record<PersonFormVariant, FormConfig> = {
     excel: {
       downloadTemplate: downloadDriverTemplate,
       parseRow: (row, setValue) => {
-        setValue("driver_code", row[2] || "");
-        const fullName = (row[3] as string) || "";
+        setValue("driver_code", String(row[2] ?? ""));
+        const fullName = String(row[3] ?? "");
         const parts = fullName.split(" ");
         setValue("first_name", parts[0] || "");
         setValue("last_name", parts.slice(1).join(" ") || "");
-        setValue("national_id", row[5] || "");
-        setValue("education_level", getEducationLevel((row[7] as string) || ""));
-        setValue("insurance_history", row[8] || "");
-        setValue("hire_date", formatDate((row[9] as string) || ""));
+        setValue("national_id", String(row[5] ?? ""));
+        setValue("education_level", getEducationLevel(String(row[7] ?? "")));
+        setValue("insurance_history", String(row[8] ?? ""));
+        setValue("hire_date", formatDate(String(row[9] ?? "")));
       },
     },
   },
@@ -262,7 +265,7 @@ export function PersonForm({ variant = "personnel" }: PersonFormProps) {
     setValue,
     setFocus,
   } = useForm<CombinedFormData>({
-    resolver: zodResolver(config.schema as any) as any,
+    resolver: zodResolver(config.schema as unknown as any) as any,
     defaultValues: config.defaultValues as CombinedFormData,
   });
 
@@ -298,7 +301,7 @@ export function PersonForm({ variant = "personnel" }: PersonFormProps) {
 
   useEffect(() => {
     const firstField = config.fields[0]?.name;
-    if (firstField) setFocus(firstField as any);
+    if (firstField) setFocus(firstField as keyof CombinedFormData);
   }, [config.fields, setFocus]);
 
   const dupBlocked = useMemo(
@@ -353,9 +356,10 @@ export function PersonForm({ variant = "personnel" }: PersonFormProps) {
       reset(config.defaultValues as CombinedFormData);
       setDupState({});
       setMode("Manual");
-    } catch (err: any) {
+    } catch (err) {
       setSubmitted("err");
-      setMessage(err?.message || "خطا در ثبت اطلاعات.");
+      const message = err instanceof Error ? err.message : "خطا در ثبت اطلاعات.";
+      setMessage(message);
     } finally {
       setLoading(false);
     }
@@ -387,6 +391,7 @@ export function PersonForm({ variant = "personnel" }: PersonFormProps) {
   const renderField = (field: FieldConfig) => {
     const error = errors[field.name as keyof typeof errors];
     const dup = dupState[field.name as string];
+    const errorMessage = typeof error?.message === "string" ? error.message : "";
     const commonProps = {
       id: field.name as string,
       className: "person-form-field",
@@ -406,7 +411,7 @@ export function PersonForm({ variant = "personnel" }: PersonFormProps) {
             {field.label} {field.required ? "*" : ""}
           </label>
           <select
-            {...register(field.name as any, registerOptions)}
+            {...register(field.name, registerOptions)}
             {...commonProps}
             defaultValue=""
             className="h-10 w-full rounded-xl border border-[var(--input-border)] bg-[var(--input-bg)] px-3 text-sm text-[var(--input-fg)] outline-none ring-0 placeholder:text-[var(--input-muted)] focus:border-[var(--brand-primary)] focus:ring-1 focus:ring-[var(--brand-primary)]"
@@ -421,7 +426,7 @@ export function PersonForm({ variant = "personnel" }: PersonFormProps) {
             ))}
           </select>
           {dup === true && <p className="text-xs text-amber-600">این مقدار قبلا ثبت شده است.</p>}
-          {error && <p className="text-xs text-destructive">{(error as any).message}</p>}
+          {errorMessage && <p className="text-xs text-destructive">{errorMessage}</p>}
         </div>
       );
     }
@@ -435,14 +440,14 @@ export function PersonForm({ variant = "personnel" }: PersonFormProps) {
           {field.label} {field.required ? "*" : ""}
         </label>
         <Input
-          {...register(field.name as any, registerOptions)}
+          {...register(field.name, registerOptions)}
           {...commonProps}
           type={field.type ?? "text"}
           placeholder={field.placeholder}
           dir="rtl"
         />
         {dup === true && <p className="text-xs text-amber-600">این مقدار قبلا ثبت شده است.</p>}
-        {error && <p className="text-xs text-destructive">{(error as any).message}</p>}
+        {errorMessage && <p className="text-xs text-destructive">{errorMessage}</p>}
       </div>
     );
   };

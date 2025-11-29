@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 
 
 export default function RegisterPersonnel() {
-  const [expanded, setExpanded] = useState(false);
+  const expanded = false;
   const [formData, setFormData] = useState({
     name: "",
     email: "",

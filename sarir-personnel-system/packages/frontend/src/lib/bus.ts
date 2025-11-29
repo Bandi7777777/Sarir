@@ -1,11 +1,11 @@
 // Lightweight event bus using BroadcastChannel (across tabs)
 export type EmployeeEvent =
-  | { type: "employee.updated"; id: string | number; payload?: any }
+  | { type: "employee.updated"; id: string | number; payload?: unknown }
   | { type: "employee.deleted"; id: string | number };
 
 const CH = "sarir-employee-bus";
 
-export function publishEmployeeUpdated(id: string | number, payload?: any) {
+export function publishEmployeeUpdated(id: string | number, payload?: unknown) {
   try { const bc = new BroadcastChannel(CH); bc.postMessage({ type: "employee.updated", id, payload } as EmployeeEvent); bc.close(); } catch {}
 }
 export function publishEmployeeDeleted(id: string | number) {

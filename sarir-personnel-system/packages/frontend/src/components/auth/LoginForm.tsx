@@ -36,8 +36,9 @@ export default function LoginForm() {
         saveAccessToken(access_token);
       }
       router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message || "خطا در ورود.");
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "خطا در ورود.";
+      setError(message);
     } finally {
       setLoading(false);
     }

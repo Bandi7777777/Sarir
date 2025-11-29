@@ -2,6 +2,7 @@ import React from "react";
 
 import { Page, PageHeader } from "./Page";
 
+import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 
 type FormPageLayoutProps = {
@@ -22,9 +23,13 @@ export function FormPageLayout({
   return (
     <Page>
       <PageHeader title={title} description={description} actions={actions} />
-      <div className="flex justify-center">
-        <Card className={`w-full ${widthClassName} p-6 space-y-4`}>{children}</Card>
-      </div>
+      <section className="rounded-2xl border border-slate-100 bg-white px-4 py-4 shadow-sm lg:px-5 lg:py-5">
+        <div className={cn("mx-auto w-full", widthClassName)}>
+          <Card className="w-full border border-slate-100 bg-white shadow-sm">
+            <div className="space-y-4 sm:space-y-5 p-4 sm:p-5">{children}</div>
+          </Card>
+        </div>
+      </section>
     </Page>
   );
 }

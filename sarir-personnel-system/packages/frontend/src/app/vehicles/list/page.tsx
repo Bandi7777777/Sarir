@@ -1,5 +1,6 @@
 // packages/frontend/src/app/vehicles/list/page.tsx
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */ // TODO: refine vehicle list types
 
 import "@/lib/leaflet-fix"; // keep SSR-safe leaflet setup
 import {
@@ -18,7 +19,7 @@ import {
   QueryClientProvider,
   useQuery,
 } from "@tanstack/react-query";
-import { AnimatePresence, motion, type Variants } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";

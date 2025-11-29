@@ -5,10 +5,14 @@ export type Role = "admin" | "manager" | "viewer";
 export function getCurrentUserRole(): Role {
   const token = getAccessToken();
   const claims = decodeToken(token);
-  if (claims?.is_superuser) return "admin";
-  if (claims && "role" in claims) {
-    const r = String((claims as any).role);
-    if (r === "admin" || r === "manager" || r === "viewer") return r;
+  if (claims && typeof claims === "object") {
+    if ("is_superuser" in claims && (claims as { is_superuser?: boolean }).is_superuser) {
+      return "admin";
+    }
+    if ("role" in claims) {
+      const roleValue = (claims as Record<string, unknown>).role;
+      if (roleValue === "admin" || roleValue === "manager" || roleValue === "viewer") return roleValue;
+    }
   }
   return claims ? "manager" : "viewer";
 }

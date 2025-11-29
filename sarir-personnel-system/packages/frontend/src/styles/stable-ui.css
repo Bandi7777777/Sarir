@@ -1,0 +1,14 @@
+/* Stable UI utilities for the locked pages */
+
+.stable-analytic-bg {
+  background: linear-gradient(135deg, #0b1724 0%, #020617 55%, #041b2a 100%);
+  color: #e5edf5;
+}
+
+.stable-analytic-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 28px 80px rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}

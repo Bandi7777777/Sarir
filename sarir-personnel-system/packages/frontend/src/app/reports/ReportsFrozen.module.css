@@ -1,0 +1,43 @@
+.shell {
+  position: relative;
+  isolation: isolate;
+  --color-surface: #0d1a2d;
+  --color-surface-muted: #10233a;
+  --color-border-subtle: rgba(148, 163, 184, 0.24);
+  --color-text-main: #e8f1ff;
+  --color-text-muted: #9bb2cc;
+  --color-brand-primary: #07657e;
+  --color-brand-primary-soft: #0f829f;
+  --color-brand-accent: #f89c2a;
+  background: radial-gradient(circle at 10% 15%, rgba(7, 101, 126, 0.22), transparent 36%),
+    radial-gradient(circle at 90% 20%, rgba(248, 156, 42, 0.12), transparent 30%),
+    linear-gradient(135deg, #050c16 0%, #0a1726 52%, #06101c 100%);
+}
+
+.panel {
+  background: linear-gradient(140deg, rgba(8, 17, 30, 0.95), rgba(6, 14, 25, 0.94));
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.95rem;
+  border-radius: 999px;
+  border: 1px solid rgba(7, 101, 126, 0.5);
+  background: rgba(7, 101, 126, 0.1);
+  color: #bfe7f9;
+  font-weight: 700;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.24);
+  background: rgba(255, 255, 255, 0.06);
+  color: #d7e6ff;
+  font-weight: 600;
+}

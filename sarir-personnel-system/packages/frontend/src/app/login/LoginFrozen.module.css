@@ -1,0 +1,23 @@
+.canvas {
+  position: relative;
+  isolation: isolate;
+}
+
+.canvas::before,
+.canvas::after {
+  content: "";
+  position: absolute;
+  inset: -120px;
+  background: radial-gradient(circle at 20% 20%, rgba(7, 101, 126, 0.35), transparent 45%),
+    radial-gradient(circle at 80% 80%, rgba(248, 156, 42, 0.25), transparent 42%);
+  filter: blur(40px);
+  opacity: 0.9;
+  z-index: 0;
+}
+
+.canvas::after {
+  inset: -160px;
+  background: radial-gradient(circle at 70% 10%, rgba(255, 255, 255, 0.08), transparent 40%),
+    radial-gradient(circle at 30% 80%, rgba(7, 101, 126, 0.18), transparent 38%);
+  mix-blend-mode: screen;
+}

@@ -9,14 +9,8 @@ type PageProps = {
 
 export function Page({ children, className }: PageProps) {
   return (
-    <div
-      className={cn(
-        "w-full min-h-screen bg-background text-foreground",
-        "px-4 py-6 sm:px-6 lg:px-10",
-        className
-      )}
-    >
-      {children}
+    <div className="w-full min-h-screen px-4 py-4 lg:px-6 lg:py-6">
+      <div className={cn("mx-auto flex w-full max-w-6xl flex-col gap-4", className)}>{children}</div>
     </div>
   );
 }
@@ -32,14 +26,18 @@ export function PageHeader({ title, description, actions, className }: PageHeade
   return (
     <div
       className={cn(
-        "mb-6 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between",
+        "mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between",
         className
       )}
     >
       <div className="space-y-1">
-        <h1 className="text-2xl font-semibold leading-tight">{title}</h1>
+        <h1 className="text-[21px] font-semibold leading-tight text-[var(--color-text-main)]">
+          {title}
+        </h1>
         {description ? (
-          <p className="text-sm text-muted-foreground max-w-3xl">{description}</p>
+          <p className="max-w-3xl text-[13px] leading-relaxed text-[var(--color-text-muted)]">
+            {description}
+          </p>
         ) : null}
       </div>
       {actions ? <div className="flex items-center gap-2">{actions}</div> : null}

@@ -14,7 +14,6 @@ const GenderDonut       = dynamic(() => import("./GenderDonut"),       { ssr: fa
 const LatestEmployees   = dynamic(() => import("./LatestEmployees"),   { ssr: false });
 const UpcomingBirthdays = dynamic(() => import("./UpcomingBirthdays"), { ssr: false });
 const Anniversaries     = dynamic(() => import("./Anniversaries"),     { ssr: false });
-const QuickActions      = dynamic(() => import("./QuickActions"),      { ssr: false });
 
 type Employee = {
   id?: string | number;

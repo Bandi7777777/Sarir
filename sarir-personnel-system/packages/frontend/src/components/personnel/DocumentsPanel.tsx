@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type Doc = {
   id: string;
@@ -19,45 +19,49 @@ type Doc = {
 };
 
 type Props = {
-  employeeId: string;        // UUID
-  accessToken: string;       // Bearer
+  employeeId: string;
+  accessToken: string;
 };
 
 export default function DocumentsPanel({ employeeId, accessToken }: Props) {
   const [list, setList] = useState<Doc[]>([]);
-  const [q, setQ] = useState('');
-  const [category, setCategory] = useState<string>('');
+  const [q, setQ] = useState("");
+  const [category, setCategory] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
-  const [title, setTitle] = useState('');
-  const [catNew, setCatNew] = useState('general');
+  const [title, setTitle] = useState("");
+  const [catNew, setCatNew] = useState("general");
 
-  async function load() {
+  const load = useCallback(async () => {
     try {
       setLoading(true);
       setErr(null);
-      const url = new URL('/api/documents', window.location.origin);
-      url.searchParams.set('subject_type', 'employee');
-      url.searchParams.set('subject_id', employeeId);
-      if (category) url.searchParams.set('category', category);
-      if (q) url.searchParams.set('q', q);
+      const url = new URL("/api/documents", window.location.origin);
+      url.searchParams.set("subject_type", "employee");
+      url.searchParams.set("subject_id", employeeId);
+      if (category) url.searchParams.set("category", category);
+      if (q) url.searchParams.set("q", q);
 
       const r = await fetch(url.toString(), {
         headers: { Authorization: `Bearer ${accessToken}` },
-        cache: 'no-store',
+        cache: "no-store",
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j?.detail || `HTTP ${r.status}`);
       setList(Array.isArray(j) ? j : []);
-    } catch (e: any) {
-      setErr(e?.message || 'خطا در دریافت مدارک');
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "مشکل در دریافت داده";
+      setErr(message);
     } finally {
       setLoading(false);
     }
-  }
+  }, [accessToken, category, employeeId, q]);
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, []);
+  useEffect(() => {
+    void load();
+  }, [load]);
+
   const filtered = useMemo(() => list, [list]);
 
   async function onUpload() {
@@ -67,38 +71,38 @@ export default function DocumentsPanel({ employeeId, accessToken }: Props) {
       setLoading(true);
       setErr(null);
       const form = new FormData();
-      form.append('subject_type', 'employee');
-      form.append('subject_id', employeeId);
-      if (title) form.append('title', title);
-      form.append('category', catNew || 'general');
-      form.append('file', file);
+      form.append("subject_type", "employee");
+      form.append("subject_id", employeeId);
+      if (title) form.append("title", title);
+      form.append("category", catNew || "general");
+      form.append("file", file);
 
-      const r = await fetch('/api/documents/upload', {
-        method: 'POST',
+      const r = await fetch("/api/documents/upload", {
+        method: "POST",
         headers: { Authorization: `Bearer ${accessToken}` },
         body: form,
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j?.detail || `HTTP ${r.status}`);
-      // reset
-      if (fileRef.current) fileRef.current.value = '';
-      setTitle('');
-      setCatNew('general');
+      if (fileRef.current) fileRef.current.value = "";
+      setTitle("");
+      setCatNew("general");
       await load();
-    } catch (e: any) {
-      setErr(e?.message || 'آپلود ناموفق بود');
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "بارگذاری ناموفق بود";
+      setErr(message);
       setLoading(false);
     }
   }
 
   async function onDelete(docId: string, hard = false) {
-    if (!confirm(hard ? 'حذف کامل فایل؟' : 'آرشیو شود؟')) return;
+    if (!confirm(hard ? "حذف کامل شود" : "حذف شود")) return;
     try {
       setLoading(true);
       setErr(null);
-      const url = `/api/documents/${docId}` + (hard ? '?hard=true' : '');
+      const url = `/api/documents/${docId}` + (hard ? "?hard=true" : "");
       const r = await fetch(url, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       if (!r.ok && r.status !== 204) {
@@ -106,14 +110,15 @@ export default function DocumentsPanel({ employeeId, accessToken }: Props) {
         throw new Error(j?.detail || `HTTP ${r.status}`);
       }
       await load();
-    } catch (e: any) {
-      setErr(e?.message || 'حذف/آرشیو ناموفق بود');
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "خطا/عدم دسترسی";
+      setErr(message);
       setLoading(false);
     }
   }
 
   function fmtSize(n?: number | null) {
-    if (!n || n <= 0) return '—';
+    if (!n || n <= 0) return "-";
     const kb = n / 1024;
     if (kb < 1024) return `${kb.toFixed(0)} KB`;
     return `${(kb / 1024).toFixed(2)} MB`;
@@ -121,12 +126,12 @@ export default function DocumentsPanel({ employeeId, accessToken }: Props) {
 
   return (
     <div dir="rtl" className="space-y-6">
-      {/* فیلترها */}
+      {/* جستجو */}
       <div className="flex flex-col md:flex-row items-start md:items-center gap-3">
         <div className="flex items-center gap-2">
           <input
             className="bg-white/10 border border-white/15 rounded px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-cyan-400/40"
-            placeholder="جستجو در عنوان/نام فایل…"
+            placeholder="جستجو در عنوان/دسته بندی."
             value={q}
             onChange={(e) => setQ(e.target.value)}
           />
@@ -135,7 +140,7 @@ export default function DocumentsPanel({ employeeId, accessToken }: Props) {
             onChange={(e) => setCategory(e.target.value)}
             className="bg-white/10 border border-white/15 rounded px-2 py-2 text-sm outline-none"
           >
-            <option value="">همه‌ی دسته‌ها</option>
+            <option value="">همه دسته‌ها</option>
             <option value="general">general</option>
             <option value="id">id</option>
             <option value="contract">contract</option>
@@ -146,16 +151,16 @@ export default function DocumentsPanel({ employeeId, accessToken }: Props) {
             onClick={load}
             className="px-3 py-2 bg-gradient-to-r from-cyan-400 to-indigo-500 text-[#0b1220] rounded text-sm font-semibold"
           >
-            اعمال فیلتر
+            به‌روزرسانی
           </button>
         </div>
-        {loading && <span className="text-xs opacity-70">در حال بارگذاری…</span>}
+        {loading && <span className="text-xs opacity-70">در حال بارگذاری.</span>}
         {err && <span className="text-xs text-rose-300">{err}</span>}
       </div>
 
       {/* آپلود */}
       <div className="border border-white/15 rounded-2xl bg-white/8 p-4 space-y-3">
-        <div className="text-sm font-semibold text-cyan-100">افزودن مدرک جدید</div>
+        <div className="text-sm font-semibold text-cyan-100">بارگذاری سند جدید</div>
         <div className="grid md:grid-cols-4 gap-3">
           <input
             className="bg-white/10 border border-white/15 rounded px-3 py-2 text-sm outline-none"
@@ -189,7 +194,7 @@ export default function DocumentsPanel({ employeeId, accessToken }: Props) {
         </div>
       </div>
 
-      {/* لیست مدارک */}
+      {/* جدول اسناد */}
       <div className="border border-white/15 rounded-2xl bg-white/8 overflow-hidden">
         <table className="w-full text-sm">
           <thead className="bg-white/10">
@@ -198,28 +203,29 @@ export default function DocumentsPanel({ employeeId, accessToken }: Props) {
               <th className="text-right p-2">دسته</th>
               <th className="text-right p-2">نام فایل</th>
               <th className="text-right p-2">حجم</th>
-              <th className="text-right p-2">تاریخ</th>
+              <th className="text-right p-2">ایجاد</th>
               <th className="text-right p-2">عملیات</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan={6} className="p-4 opacity-70">مدرکی موجود نیست.</td>
+                <td colSpan={6} className="p-4 opacity-70">موردی یافت نشد.</td>
               </tr>
-            ) : filtered.map(d => (
+            ) : filtered.map((d) => (
               <tr key={d.id} className="border-t border-white/10 hover:bg-white/5">
-                <td className="p-2">{d.title || '—'}</td>
+                <td className="p-2">{d.title || "-"}</td>
                 <td className="p-2">{d.category}</td>
                 <td className="p-2">{d.file_name}</td>
                 <td className="p-2">{fmtSize(d.file_size)}</td>
-                <td className="p-2">{new Date(d.created_at).toLocaleDateString('fa-IR')}</td>
+                <td className="p-2">{new Date(d.created_at).toLocaleDateString("fa-IR")}</td>
                 <td className="p-2">
                   <div className="flex items-center gap-2">
                     <a
                       className="px-2 py-1 rounded bg-white/10 hover:bg-white/15"
                       href={`/api/documents/${d.id}/download`}
-                      target="_blank" rel="noreferrer"
+                      target="_blank"
+                      rel="noreferrer"
                     >
                       دانلود
                     </a>
@@ -227,13 +233,13 @@ export default function DocumentsPanel({ employeeId, accessToken }: Props) {
                       onClick={() => onDelete(d.id, false)}
                       className="px-2 py-1 rounded bg-white/10 hover:bg-white/15"
                     >
-                      آرشیو
+                      حذف
                     </button>
                     <button
                       onClick={() => onDelete(d.id, true)}
                       className="px-2 py-1 rounded bg-rose-500/80 hover:bg-rose-500 text-[#0b1220] font-semibold"
                     >
-                      حذف‌کامل
+                      حذف دائمی
                     </button>
                   </div>
                 </td>

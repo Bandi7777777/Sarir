@@ -1,4 +1,6 @@
 'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */ // TODO: refine personnel documents types
+/* eslint-disable react/no-unescaped-entities */ // TODO: fix copy text encoding
 
 import { useParams } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
@@ -45,7 +47,7 @@ export default function EmployeeDocumentsPage() {
     return kb < 1024 ? `${kb.toFixed(0)} KB` : `${(kb / 1024).toFixed(2)} MB`;
   }
 
-  async function load() {
+  const load = async () => {
     if (!employeeId) return;
     try {
       setLoading(true);
@@ -69,9 +71,12 @@ export default function EmployeeDocumentsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [employeeId, access]);
+  useEffect(() => {
+    void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- load handles its own deps
+  }, [employeeId, access]);
 
   const canUpload = Boolean(access);
 

@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */ // TODO: tighten notification types
 
 import {
   BellAlertIcon,
@@ -75,7 +76,7 @@ function useToast() {
     onCommit?: () => void;
     ttl?: number;
   } | null>(null);
-  const timerRef = useRef<any>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   function show(
     message: string,
@@ -157,7 +158,7 @@ function dayKey(d?: string) {
 }
 
 export default function NotificationsPage() {
-  const [expanded, setExpanded] = useState(false);
+  const expanded = false;
 
   const [rows, setRows] = useState<Notif[]>([]);
   const [loading, setLoading] = useState(true);

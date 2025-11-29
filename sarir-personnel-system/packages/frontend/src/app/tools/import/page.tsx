@@ -5,18 +5,32 @@ import {
   ChevronDownIcon, ChevronUpIcon, DownloadIcon, UploadIcon, CheckIcon, XIcon, RefreshCwIcon,
   SaveIcon, FolderOpenIcon, Trash2Icon, PlusIcon, RotateCcwIcon, RotateCwIcon, PlayIcon,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ButtonHTMLAttributes,
+  type HTMLAttributes,
+  type InputHTMLAttributes,
+} from "react";
 import * as XLSX from "xlsx";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import {
   Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious,
 } from "@/components/ui/pagination";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/components/ui/toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+
+import { ImportBadge } from "./ui/ImportBadge";
+import { ImportButton } from "./ui/ImportButton";
+import { ImportCard } from "./ui/ImportCard";
+import { ImportInput } from "./ui/ImportInput";
+import { ImportShell } from "./ui/ImportShell";
+import { ImportSection } from "./ui/ImportSection";
 
 type Row = Record<string, any>;
 type DbColumn = { name: string; type: string; nullable: boolean; primary_key: boolean };
@@ -29,6 +43,32 @@ const SARIR = {
   brandSoft: "rgba(7,101,126,0.25)",
   accentSoft: "rgba(242,153,31,0.25)",
 };
+
+/* ---------- Local UI wrappers (page-scoped) ---------- */
+const Button = ({ className = "", ...rest }: ButtonHTMLAttributes<HTMLButtonElement>) => (
+  <ImportButton className={className} {...rest} />
+);
+
+const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(
+  ({ className = "", ...rest }, ref) => <ImportInput ref={ref} className={className} {...rest} />,
+);
+Input.displayName = "Input";
+
+const Card = ({ className = "", ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <ImportCard className={`p-4 md:p-5 ${className}`} {...rest} />
+);
+
+const CardHeader = ({ className = "", ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={`mb-4 flex flex-col gap-2 ${className}`} {...rest} />
+);
+
+const CardContent = ({ className = "", ...rest }: HTMLAttributes<HTMLDivElement>) => (
+  <div className={`space-y-4 ${className}`} {...rest} />
+);
+
+const CardTitle = ({ className = "", ...rest }: HTMLAttributes<HTMLHeadingElement>) => (
+  <h3 className={`text-lg font-semibold text-slate-100 ${className}`} {...rest} />
+);
 
 const norm = (s: string) => s.trim().toLowerCase().replace(/[‌\u200c]/g, "").replace(/\s+/g, "_");
 
@@ -190,6 +230,13 @@ export default function ImportEmployeesPage() {
   const [phaseProgress, setPhaseProgress] = useState(0);
   const [previewPage, setPreviewPage] = useState(1);
   const previewPerPage = 10;
+  const phaseLabels: Record<"idle"|"reading"|"parsing"|"uploading"|"done", string> = {
+    idle: "در انتظار انتخاب فایل",
+    reading: "در حال خواندن فایل",
+    parsing: "در حال پردازش داده",
+    uploading: "در حال ارسال داده",
+    done: "انجام شد",
+  };
 
   const [file, setFile] = useState<File|null>(null);
   const [rows, setRows] = useState<Row[]>([]);
@@ -570,23 +617,38 @@ const uniqueDbFields = useMemo(
   };
 
   return (
-    <div dir="rtl" className="min-h-screen text-gray-50" style={{
-      background:
-        `radial-gradient(1200px 800px at 10% -10%, ${SARIR.brandSoft}, transparent 60%),` +
-        `radial-gradient(1000px 700px at 110% 10%, ${SARIR.accentSoft}, transparent 55%),` +
-        `linear-gradient(135deg, #0b1220 0%, ${SARIR.dark} 100%)`,
-    }}>
-      <motion.main className="flex-1 p-6 md:p-10 space-y-8 max-w-7xl mx-auto" initial="hidden" animate="visible" variants={containerVariants}>
-        <Card className="border border-white/10 bg-white/5 backdrop-blur-md shadow-2xl">
+    <ImportShell>
+      <motion.main
+        className="space-y-8"
+        initial="hidden"
+        animate="visible"
+        variants={containerVariants}
+      >
+        <Card className="border border-slate-800/80 bg-[#050c16]/85 text-slate-100 shadow-[0_24px_80px_rgba(0,0,0,0.8)]">
           <CardHeader>
             <div className="flex items-center justify-between gap-4 flex-wrap">
               <div>
                 <CardTitle className="text-2xl md:text-3xl font-black" style={{ color: SARIR.accent }}>
-                  ورود اطلاعات پرسنل از اکسل
+                  ابزار وارد کردن داده‌ها از فایل اکسل
                 </CardTitle>
                 <p className="text-sm text-gray-300 mt-1">
-                  مپینگ خودکار + Drag & Drop + Dry-Run + Resume. <b style={{ color: SARIR.brand }}>SARIR</b>
+                  بارگذاری هوشمند فایل اکسل، کشیدن و رها کردن، اجرای آزمایشی و ادامه فرایند. <b style={{ color: SARIR.brand }}>SARIR</b>
                 </p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <ImportBadge className="border-slate-700/70 bg-slate-900/60">
+                    وضعیت: {phaseLabels[phase]}
+                  </ImportBadge>
+                  {resumeKey && (
+                    <ImportBadge className="border-[#07657E]/60 bg-[#07657E]/10 text-teal-100">
+                      ادامه پردازش ذخیره‌شده
+                    </ImportBadge>
+                  )}
+                  {dryRun && (
+                    <ImportBadge className="border-amber-500/60 bg-amber-500/10 text-amber-200">
+                      اجرای آزمایشی فعال
+                    </ImportBadge>
+                  )}
+                </div>
                 {schemaError && <div className="mt-2 text-amber-400 text-sm">⚠ {schemaError}</div>}
               </div>
 
@@ -605,7 +667,7 @@ const uniqueDbFields = useMemo(
                   <Trash2Icon className="w-4 h-4" /> پاک‌سازی
                 </Button>
 
-                <select value={selectedProfile} onChange={(e)=> setSelectedProfile(e.target.value)} className="bg-white/10 border border-white/20 rounded px-2 py-1 text-sm">
+                <select value={selectedProfile} onChange={(e)=> setSelectedProfile(e.target.value)} className="bg-slate-900/50 border border-slate-700/60 rounded px-2 py-1 text-sm">
                   <option value="">— پروفایل‌ها —</option>
                   {Object.keys(profiles).map((name)=> <option key={name} value={name}>{name}</option>)}
                 </select>
@@ -634,7 +696,7 @@ const uniqueDbFields = useMemo(
                   {phase==="uploading" && "در حال ارسال به سرور…"}
                   {phase==="done" && "انجام شد."}
                 </div>
-                <Progress value={overallProgress} className="h-2 bg-white/10" indicatorClassName="bg-[color:var(--sarir-accent,#F2991F)]"/>
+                <Progress value={overallProgress} className="h-2 bg-slate-900/50" indicatorClassName="bg-[color:var(--sarir-accent,#F2991F)]"/>
               </div>
             )}
 
@@ -646,11 +708,11 @@ const uniqueDbFields = useMemo(
           </CardHeader>
 
           <CardContent className="space-y-6">
-            <div ref={dropRef} className="rounded-xl border border-dashed border-white/15 p-6 md:p-8 bg-white/5 hover:bg-white/10 transition-all" style={{ boxShadow:`inset 0 0 0 1px ${SARIR.brandSoft}` }}>
+            <div ref={dropRef} className="rounded-xl border border-dashed border-slate-800/60 p-6 md:p-8 bg-slate-900/60 hover:bg-slate-900/50 transition-all" style={{ boxShadow:`inset 0 0 0 1px ${SARIR.brandSoft}` }}>
               <div className="flex items-center gap-4 flex-wrap">
                 <Input id="excel-file-input" type="file" accept=".xlsx,.xls,.csv,.tsv"
                   onChange={onFile}
-                  className="bg-white/10 border-white/15 text-gray-50 placeholder-gray-400 focus:ring-2 focus:ring-[color:var(--sarir-accent,#F2991F)]"/>
+                  className="bg-slate-900/50 border-slate-800/60 text-gray-50 placeholder-gray-400 focus:ring-2 focus:ring-[color:var(--sarir-accent,#F2991F)]"/>
                 <Button disabled={!file} onClick={()=> file && readWithWorker(file)} className="bg-[var(--sarir-brand,#07657E)] hover:brightness-110 flex items-center gap-2">
                   <UploadIcon className="w-4 h-4"/> خواندن فایل
                 </Button>
@@ -673,14 +735,14 @@ const uniqueDbFields = useMemo(
               {excelHeaders.length > 0 && (
                 <motion.div className="space-y-6" initial="hidden" animate="visible" exit="hidden" variants={containerVariants}>
                   <div className="flex flex-wrap items-center gap-3">
-                    <span className="text-xs px-3 py-1 rounded-full border border-white/15 bg-white/5">ستون‌ها: <b>{excelHeaders.length}</b></span>
-                    <span className="text-xs px-3 py-1 rounded-full border border-white/15 bg-white/5">ردیف‌ها: <b>{rows.length}</b></span>
-                    <span className="text-xs px-3 py-1 rounded-full border border-white/15" style={{ background:SARIR.brandSoft }}>
+                    <span className="text-xs px-3 py-1 rounded-full border border-slate-800/60 bg-slate-900/60">ستون‌ها: <b>{excelHeaders.length}</b></span>
+                    <span className="text-xs px-3 py-1 rounded-full border border-slate-800/60 bg-slate-900/60">ردیف‌ها: <b>{rows.length}</b></span>
+                    <span className="text-xs px-3 py-1 rounded-full border border-slate-800/60" style={{ background:SARIR.brandSoft }}>
                       فیلدهای اجباری: <b>{required.length}</b>
                     </span>
                   </div>
 
-                  <Card className="border border-white/10 bg-white/5">
+                  <Card className="border border-slate-800/70 bg-slate-900/60">
                     <CardHeader>
                       <CardTitle className="text-sm" style={{ color:SARIR.accent }}>
                         ۱) مپینگ هدرهای اکسل → فیلد دیتابیس {asDragMap ? "(Drag & Drop)" : "(Select)"}
@@ -690,14 +752,14 @@ const uniqueDbFields = useMemo(
                       <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
                         <Input ref={searchRef as any} placeholder="جستجو فیلد... ( / برای فوکوس )"
                           value={searchTerm} onChange={(e)=> setSearchTerm(e.target.value)}
-                          className="w-56 bg-white/10 border-white/15 text-gray-50 placeholder-gray-400 focus:ring-2 focus:ring-[color:var(--sarir-accent,#F2991F)]"/>
+                          className="w-56 bg-slate-900/50 border-slate-800/60 text-gray-50 placeholder-gray-400 focus:ring-2 focus:ring-[color:var(--sarir-accent,#F2991F)]"/>
                         <div className="flex items-center gap-2 flex-wrap">
                           <select value={bulkTarget} onChange={(e)=> setBulkTarget(e.target.value)}
-                            className="bg-white/10 border border-white/15 rounded px-2 py-1 text-sm"><option value="">— فیلد مقصد —</option>
+                            className="bg-slate-900/50 border border-slate-800/60 rounded px-2 py-1 text-sm"><option value="">— فیلد مقصد —</option>
                             {filteredDbFields.map((n)=> <option key={n} value={n}>{n}</option>)}
                           </select>
                           <Input placeholder="جداکننده (مثلاً « - »)" value={bulkSep} onChange={(e)=> setBulkSep(e.target.value)}
-                            className="w-32 bg-white/10 border-white/15 text-gray-50 placeholder-gray-400"/>
+                            className="w-32 bg-slate-900/50 border-slate-800/60 text-gray-50 placeholder-gray-400"/>
                           <Button onClick={()=>{
                               const headers = Object.entries(bulkSelected).filter(([,on])=>on).map(([h])=>h);
                               if (!bulkTarget || headers.length < 2) { alert("حداقل دو هدر و یک فیلد مقصد انتخاب کن."); return; }
@@ -713,7 +775,7 @@ const uniqueDbFields = useMemo(
                         <div className="mb-4 text-xs space-y-2">
                           {Object.entries(composites).map(([t,{headers,sep}])=> (
                             <div key={t} className="flex items-center gap-2">
-                              <span className="px-2 py-1 rounded bg-white/10 border border-white/15">{t} = {headers.join(` ${sep} `)}</span>
+                              <span className="px-2 py-1 rounded bg-slate-900/50 border border-slate-800/60">{t} = {headers.join(` ${sep} `)}</span>
                               <Button onClick={()=> setComposites((c)=> { const cp={...c}; delete cp[t]; return cp; })}
                                 className="bg-rose-700 hover:brightness-110">حذف</Button>
                             </div>
@@ -725,14 +787,14 @@ const uniqueDbFields = useMemo(
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div>
                             <h4 className="text-xs mb-2">هدرهای اکسل</h4>
-                            <div className="rounded-lg border border-white/15 bg-white/5 p-2 max-h-[420px] overflow-auto">
+                            <div className="rounded-lg border border-slate-800/60 bg-slate-900/60 p-2 max-h-[420px] overflow-auto">
                               {excelHeaders.map((h)=> {
                                 const target = mapping[h] || "";
                                 const conf = scorer.confidence(h, target);
                                 const confColor = conf >= 70 ? "text-emerald-300" : conf >= 40 ? "text-amber-300" : "text-rose-300";
                                 return (
                                   <div key={h} draggable onDragStart={()=> setDraggingHeader(h)}
-                                    className="flex items-center justify-between gap-2 px-2 py-1 rounded hover:bg-white/10 cursor-grab">
+                                    className="flex items-center justify-between gap-2 px-2 py-1 rounded hover:bg-slate-900/50 cursor-grab">
                                     <span className="truncate">{h}</span>
                                     <span className={`text-[10px] ${confColor}`}>{target? `${target} • ${conf}%` : "—"}</span>
                                   </div>
@@ -742,7 +804,7 @@ const uniqueDbFields = useMemo(
                           </div>
                           <div>
                             <h4 className="text-xs mb-2">فیلدهای دیتابیس (بکش و رها کن)</h4>
-                            <div className="rounded-lg border border-white/15 bg-white/5 p-2 max-h-[420px] overflow-auto">
+                            <div className="rounded-lg border border-slate-800/60 bg-slate-900/60 p-2 max-h-[420px] overflow-auto">
                               {filteredDbFields.map((f)=> {
                                 const isHover = hoverField === f;
                                 return (
@@ -751,7 +813,7 @@ const uniqueDbFields = useMemo(
                                     onDragOver={(e)=> e.preventDefault()}
                                     onDragLeave={()=> setHoverField(null)}
                                     onDrop={()=> onFieldDrop(f)}
-                                    className={`px-2 py-1 rounded mb-1 border ${isHover? "border-[color:var(--sarir-accent,#F2991F)] bg-white/10" : "border-white/10"}`}>
+                                    className={`px-2 py-1 rounded mb-1 border ${isHover? "border-[color:var(--sarir-accent,#F2991F)] bg-slate-900/50" : "border-slate-800/70"}`}>
                                     <div className="flex items-center justify-between gap-2">
                                       <span>{f}</span>
                                       {required.includes(f) && <span className="text-[10px] text-amber-300">required</span>}
@@ -764,7 +826,7 @@ const uniqueDbFields = useMemo(
                         </div>
                       ) : (
                         <div className="overflow-auto rounded-lg max-h-[420px] shadow-md">
-                          <table className="min-w-full text-sm divide-y divide-white/10">
+                          <table className="min-w-full text-sm divide-y divide-slate-800/60">
                             <thead className="sticky top-0" style={{ background:SARIR.dark }}>
                               <tr>
                                 <th className="px-4 py-3 text-right font-medium" style={{ color:SARIR.accent }}>هدر اکسل</th>
@@ -774,19 +836,19 @@ const uniqueDbFields = useMemo(
                                 <th className="px-4 py-3 text-right font-medium" style={{ color:SARIR.accent }}>اعتماد</th>
                               </tr>
                             </thead>
-                            <tbody className="divide-y divide-white/10">
+                            <tbody className="divide-y divide-slate-800/60">
                               <AnimatePresence>
                                 {excelHeaders.map((h) => {
                                   const target = mapping[h] || "";
                                   const highlight = target && missingRequired.includes(target);
                                   const conf = scorer.confidence(h, target);
                                   return (
-                                    <motion.tr key={h} className={`transition duration-200 ${highlight? "bg-rose-900/20":"hover:bg-white/5"}`}
+                                    <motion.tr key={h} className={`transition duration-200 ${highlight? "bg-rose-900/20":"hover:bg-slate-900/60"}`}
                                       variants={tableRowVariants} initial="hidden" animate="visible" exit="hidden">
                                       <td className="px-4 py-3 text-gray-50">{h}</td>
                                       <td className="px-4 py-3">
                                         <select value={mapping[h] || ""} onChange={(e)=>{ pushHistory(); setMapping((m)=> ({ ...m, [h]: e.target.value })); }}
-                                          className="border rounded-md px-2 py-1 bg-white/10 w-full text-gray-50 focus:ring-2 focus:ring-[color:var(--sarir-accent,#F2991F)] border-white/15">
+                                          className="border rounded-md px-2 py-1 bg-slate-900/50 w-full text-gray-50 focus:ring-2 focus:ring-[color:var(--sarir-accent,#F2991F)] border-slate-800/60">
                                           <option value="">— انتخاب کن —</option>
                                           {filteredDbFields.map((n)=> <option key={n} value={n}>{n}</option>)}
                                         </select>
@@ -819,7 +881,7 @@ const uniqueDbFields = useMemo(
                     </CardContent>
                   </Card>
 
-                  <Card className="border border-white/10 bg-white/5">
+                  <Card className="border border-slate-800/70 bg-slate-900/60">
                     <CardHeader>
                       <CardTitle className="text-sm" style={{ color:SARIR.accent }}>۲) فیلدهای اجباری</CardTitle>
                     </CardHeader>
@@ -830,7 +892,7 @@ const uniqueDbFields = useMemo(
                           return (
                             <motion.button key={n} onClick={()=>{ pushHistory(); setRequired((arr)=> on? arr.filter((x)=> x!==n): [...arr,n]); }}
                               className={`px-4 py-2 rounded-full text-sm font-medium border flex items-center gap-1 transition-all duration-300 hover:shadow-md ${
-                                on? "bg-[color:var(--sarir-accent,#F2991F)] text-gray-900 border-transparent" : "bg-white/10 border-white/15 text-gray-50 hover:bg-white/15"
+                                on? "bg-[color:var(--sarir-accent,#F2991F)] text-gray-900 border-transparent" : "bg-slate-900/50 border-slate-800/60 text-gray-50 hover:bg-slate-900/50"
                               }`} whileHover={{ scale:1.05 }} whileTap={{ scale:0.95 }}>
                               {on ? <CheckIcon className="w-4 h-4"/> : <XIcon className="w-4 h-4"/>}{n}
                             </motion.button>
@@ -840,7 +902,7 @@ const uniqueDbFields = useMemo(
                     </CardContent>
                   </Card>
 
-                  <Card className="border border-white/10 bg-white/5">
+                  <Card className="border border-slate-800/70 bg-slate-900/60">
                     <CardHeader className="flex flex-row items-center justify-between">
                       <CardTitle className="text-sm" style={{ color:SARIR.accent }}>۳) پیش‌نمایش {previewPerPage} ردیف (از {rows.length} ردیف)</CardTitle>
                       <motion.button onClick={()=> setExpanded(!expanded)} className="text-[color:var(--sarir-accent,#F2991F)] hover:brightness-110 flex items-center gap-1 transition-colors duration-300" whileHover={{ scale:1.05 }}>
@@ -850,14 +912,14 @@ const uniqueDbFields = useMemo(
                     <CardContent>
                       <motion.div className={`overflow-auto rounded-lg max-h-[300px] md:max-h-[600px] transition-max-height duration-500 ease-in-out ${expanded? "max-h-[600px]" : "max-h-[300px]"}`}
                         animate={{ maxHeight: expanded? 600: 300 }} transition={{ duration:0.5 }}>
-                        <table className="min-w-full text-xs divide-y divide-white/10">
+                        <table className="min-w-full text-xs divide-y divide-slate-800/60">
                           <thead className="sticky top-0" style={{ background:SARIR.dark }}>
                             <tr>{excelHeaders.map((h)=> <th key={h} className="px-4 py-3 text-right font-medium" style={{ color:SARIR.accent }}>{h}</th>)}</tr>
                           </thead>
-                          <tbody className="divide-y divide-white/10">
+                          <tbody className="divide-y divide-slate-800/60">
                             <AnimatePresence>
                               {rows.slice((previewPage-1)*previewPerPage, previewPage*previewPerPage).map((r,i)=> (
-                                <motion.tr key={i} className="hover:bg-white/5 transition duration-200" variants={tableRowVariants} initial="hidden" animate="visible" exit="hidden">
+                                <motion.tr key={i} className="hover:bg-slate-900/60 transition duration-200" variants={tableRowVariants} initial="hidden" animate="visible" exit="hidden">
                                   {excelHeaders.map((h)=> <td key={h} className="px-4 py-2 text-gray-50 truncate max-w-[240px]">{formatCell(h, r[h])}</td>)}
                                 </motion.tr>
                               ))}
@@ -885,7 +947,7 @@ const uniqueDbFields = useMemo(
                   <AnimatePresence>
                     {log && (
                       <motion.div className="space-y-6 mt-2" initial={{ opacity:0, y:20 }} animate={{ opacity:1, y:0 }} exit={{ opacity:0, y:20 }} transition={{ duration:0.5 }}>
-                        <Card className="border border-white/10 bg-white/5">
+                        <Card className="border border-slate-800/70 bg-slate-900/60">
                           <CardHeader>
                             <CardTitle className="text-sm flex items-center gap-2" style={{ color:SARIR.accent }}>
                               نتیجه: {dryRun? "Dry-Run": "Import"} — {log.status ?? 200} {log.status===200? <CheckIcon className="w-5 h-5 text-emerald-400"/> : <XIcon className="w-5 h-5 text-red-400"/>}
@@ -899,7 +961,7 @@ const uniqueDbFields = useMemo(
                                   <Button onClick={exportReportCSV} className="bg-emerald-700 hover:brightness-110">خروجی CSV گزارش</Button>
                                 </div>
                                 <div className="overflow-auto rounded-lg mt-2 max-h-[400px]">
-                                  <table className="min-w-full text-xs divide-y divide-white/10">
+                                  <table className="min-w-full text-xs divide-y divide-slate-800/60">
                                     <thead className="sticky top-0" style={{ background:SARIR.dark }}>
                                       <tr>
                                         <th className="px-4 py-3 text-right font-medium" style={{ color:SARIR.accent }}>چانک</th>
@@ -909,10 +971,10 @@ const uniqueDbFields = useMemo(
                                         <th className="px-4 py-3 text-right font-medium" style={{ color:SARIR.accent }}>خطا</th>
                                       </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-white/10">
+                                    <tbody className="divide-y divide-slate-800/60">
                                       <AnimatePresence>
                                         {log.reports.map((blk:any, ci:number)=> (blk.report||[]).slice(0, 10).map((r:any,i:number)=> (
-                                          <motion.tr key={`${ci}-${i}`} className="hover:bg-white/5 transition duration-200" variants={tableRowVariants} initial="hidden" animate="visible" exit="hidden">
+                                          <motion.tr key={`${ci}-${i}`} className="hover:bg-slate-900/60 transition duration-200" variants={tableRowVariants} initial="hidden" animate="visible" exit="hidden">
                                             <td className="px-4 py-2 text-gray-50">{ci}</td>
                                             <td className="px-4 py-2 text-gray-50">{r.row_index ?? ""}</td>
                                             <td className="px-4 py-2 text-gray-50">{r.key ?? ""}</td>
@@ -954,6 +1016,6 @@ const uniqueDbFields = useMemo(
           </CardContent>
         </Card>
       </motion.main>
-    </div>
+    </ImportShell>
   );
 }

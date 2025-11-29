@@ -1,5 +1,7 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
+import { motion, type Variants } from "framer-motion";
 import {
   AlertOctagon,
   Calendar,
@@ -7,13 +9,10 @@ import {
   Phone,
   RotateCcw,
   Search,
-  Settings2,
   User,
   UserCheck,
   Users,
 } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { AnimatePresence, motion, type Variants } from "framer-motion";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
@@ -123,7 +122,7 @@ export default function BoardMembersPage() {
     queryFn: getBoardMembers,
   });
 
-  const data = membersData ?? [];
+  const data = useMemo(() => membersData ?? [], [membersData]);
 
   const filteredMembers = useMemo(() => {
     let temp = data;
@@ -394,7 +393,7 @@ function MemberDetailsDialog({
         </DialogHeader>
 
         <div className="mt-4 space-y-4 text-muted-foreground">
-          <p className="border-b border-border pb-3 text-base leading-relaxed italic">"{member.bio}"</p>
+          <p className="border-b border-border pb-3 text-base leading-relaxed italic">&ldquo;{member.bio}&rdquo;</p>
 
           <div className="grid grid-cols-2 gap-3 text-sm">
             <div className="flex items-center gap-2">

@@ -24,7 +24,7 @@ const stagger: Variants = {
 };
 
 export default function Settings() {
-  const [expanded, setExpanded] = useState(false);
+  const expanded = false;
   const [formData, setFormData] = useState({
     language: "فارسی",
     theme: "روشن",

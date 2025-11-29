@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable import/order */ // TODO: revisit import sorting
 
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -13,12 +14,8 @@ import {
   ColumnDef,
 } from "@tanstack/react-table";
 import { motion } from "framer-motion";
-import {
-  Users, UserPlus, Search, Edit, Trash2, RotateCcw,
-  Briefcase, CornerDownLeft, UserCheck, DollarSign,
-  ChevronUp, ChevronDown, ListFilter, Settings2, Table, LayoutList
-} from "lucide-react";
-import React, { useState, useMemo } from "react";
+import { UserPlus, Edit, Trash2, RotateCcw, Briefcase, CornerDownLeft, UserCheck, DollarSign, ChevronUp, ChevronDown, ListFilter, Table, LayoutList } from "lucide-react";
+import React, { useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 
 import { ListPageLayout } from "@/components/layouts/ListPageLayout";
@@ -29,6 +26,7 @@ import { TableShell } from "@/components/list/TableShell";
 
 /* فرض بر وجود کامپوننت‌های UI در مسیرهای زیر: */
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -70,85 +68,66 @@ async function getPersonnelData(): Promise<Personnel[]> {
     return new Promise(resolve => setTimeout(() => resolve(mockPersonnel), 800)); 
 }
 
-// --- Component: Header & KPIs ---
-const PersonnelHeader = ({ totalCount }: { totalCount: number }) => (
-    <div className="flex justify-between items-center mb-6 pt-4 px-4">
-        <h1 className="text-3xl font-bold tracking-tight text-white flex items-center gap-3">
-            {/* استفاده از متغیر تم برای آیکون */}
-            <Users size={28} className="text-[var(--category-accent-color)]"/>
-            مدیریت پرسنل و منابع انسانی
-        </h1>
-        <div className="flex items-center gap-4 text-white/80">
-            {/* استفاده از متغیر تم برای آمار کلی */}
-            <div className="text-lg font-semibold flex items-center gap-2 px-3 py-1 bg-[var(--category-accent-color)]/10 rounded-full border border-[var(--category-accent-color)]/30">
-                <Users size={18} className="text-[var(--category-accent-color)]"/>
-                <span>{totalCount.toLocaleString('fa-IR')}</span>
-                <span className="text-sm text-white/60">پرسنل</span>
-            </div>
-            <Button variant="ghost" className="text-white/80 hover:text-[var(--category-accent-color)]">
-                 <Settings2 size={20} />
-            </Button>
-        </div>
-    </div>
-);
-
 const KPISection = ({ data }: { data: Personnel[] }) => {
     const activeCount = data.filter(p => p.status === 'Active').length;
-    const avgSalary = data.length > 0 
-        ? data.reduce((sum, p) => sum + p.salary, 0) / data.length 
+    const avgSalary = data.length > 0
+        ? data.reduce((sum, p) => sum + p.salary, 0) / data.length
         : 0;
-    const itCount = data.filter(p => p.department === 'فناوری اطلاعات').length;
-        
-    const Card = ({ icon, title, value, color }: { icon: React.ReactNode, title: string, value: string, color: string }) => (
-        <motion.div 
-            className={`reports-panel p-6 rounded-xl border-t-4 border-${color}/50 hover:shadow-lg transition-all duration-300`}
-            whileHover={{ scale: 1.02 }}
+    const itDepartment = data[0]?.department;
+    const itCount = itDepartment ? data.filter(p => p.department === itDepartment).length : 0;
+
+    const toneStyles = {
+        primary: "bg-[var(--color-brand-primary-soft)] text-[var(--color-brand-primary)]",
+        accent: "bg-[var(--color-brand-accent-soft)] text-[var(--color-brand-accent)]",
+        success: "bg-emerald-50 text-emerald-600",
+    } as const;
+
+    const StatCard = ({ icon, title, value, tone }: { icon: React.ReactNode, title: string, value: string, tone: keyof typeof toneStyles }) => (
+        <motion.div
+            className="rounded-2xl shadow-[var(--sarir-shadow-soft)]"
+            whileHover={{ scale: 1.02, y: -4 }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: "spring", stiffness: 100, delay: 0.1 }}
         >
-            <div className="flex items-center justify-between">
-                <span className={`text-sm font-medium text-${color}`}>{title}</span>
-                <div className={`p-2 rounded-full bg-${color}/20`}>
-                    {icon}
+            <Card className="p-5">
+                <div className="flex items-center justify-between">
+                    <span className="text-sm font-semibold text-[var(--color-text-muted)]">{title}</span>
+                    <div className={`p-2 rounded-xl ${toneStyles[tone]}`}>
+                        {icon}
+                    </div>
                 </div>
-            </div>
-            <p className="mt-4 text-3xl font-extrabold text-white tracking-tight">{value}</p>
+                <p className="mt-4 text-3xl font-extrabold text-[var(--color-text-main)] tracking-tight">{value}</p>
+            </Card>
         </motion.div>
     );
 
-    // برای تنوع، از دو رنگ دیگر سازمان در KPI استفاده شده است
-    const colors = {
-        active: 'green-400', // ثابت می‌ماند چون وضعیت است
-        salary: '[var(--brand-accent)]', // نارنجی سازمانی
-        it: '[var(--brand-primary)]' // فیروزه‌ای سازمانی
-    };
-    
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 px-4 mb-8">
-            <Card 
-                icon={<UserCheck size={20} className={`text-${colors.active}`}/>} 
-                title="پرسنل فعال" 
-                value={activeCount.toLocaleString('fa-IR')} 
-                color={colors.active}
+            <StatCard
+                icon={<UserCheck size={20} className="text-emerald-600"/>}
+                title="کارکنان فعال"
+                value={activeCount.toLocaleString('fa-IR')}
+                tone="success"
             />
-            <Card 
-                icon={<DollarSign size={20} className={`text-${colors.salary}`}/>} 
-                title="متوسط حقوق" 
-                value={`${(avgSalary / 1_000_000).toLocaleString("fa-IR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} م.ت`} 
-                color={colors.salary}
+            <StatCard
+                icon={<DollarSign size={20} className="text-[var(--color-brand-accent)]"/>}
+                title="میانگین حقوق"
+                value={`${(avgSalary / 1_000_000).toLocaleString("fa-IR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} م.ت`}
+                tone="accent"
             />
-            <Card 
-                icon={<Briefcase size={20} className={`text-${colors.it}`}/>} 
-                title="تعداد در IT" 
-                value={itCount.toLocaleString('fa-IR')} 
-                color={colors.it}
+            <StatCard
+                icon={<Briefcase size={20} className="text-[var(--color-brand-primary)]"/>}
+                title="نیروی IT"
+                value={itCount.toLocaleString('fa-IR')}
+                tone="primary"
             />
         </div>
     );
 };
 
 // --- Custom Components ---
+
 
 // وضعیت: فعال، مرخصی، اخراج شده (ثابت می‌ماند)
 const StatusBadge = ({ status }: { status: Personnel['status'] }) => {
@@ -173,10 +152,10 @@ const PersonnelFormDialog = ({ isOpen, onClose, personnel }: { isOpen: boolean, 
     const isEdit = !!personnel;
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="bg-[#1d252e] text-white border-[var(--category-accent-color)]/50 reports-panel max-w-2xl">
+            <DialogContent className="bg-[var(--color-surface-glass)] text-[var(--color-text-main)] border-[var(--color-brand-primary)]/50 reports-panel max-w-2xl">
                 <DialogHeader>
                     {/* استفاده از متغیر تم برای عنوان */}
-                    <DialogTitle className="text-2xl font-extrabold text-[var(--category-accent-color)]">
+                    <DialogTitle className="text-2xl font-extrabold text-[var(--color-brand-primary)]">
                         {isEdit ? `ویرایش پرسنل: ${personnel?.fullName}` : "افزودن پرسنل جدید"}
                     </DialogTitle>
                 </DialogHeader>
@@ -187,10 +166,10 @@ const PersonnelFormDialog = ({ isOpen, onClose, personnel }: { isOpen: boolean, 
                     <Input defaultValue={personnel?.mobile} placeholder="شماره تماس" />
                     <Input defaultValue={personnel?.position} placeholder="سمت سازمانی" />
                     <Select defaultValue={personnel?.department}>
-                        <SelectTrigger className="bg-transparent border-white/20 text-white hover:border-[var(--category-accent-color)]">
+                        <SelectTrigger className="bg-transparent border-[var(--color-border-subtle)] text-[var(--color-text-main)] hover:border-[var(--color-brand-primary)]">
                             <SelectValue placeholder="بخش / دپارتمان" />
                         </SelectTrigger>
-                        <SelectContent className="bg-[#1d252e] border-white/20 text-white">
+                        <SelectContent className="bg-[var(--color-surface-glass)] border-[var(--color-border-subtle)] text-[var(--color-text-main)]">
                             {['فناوری اطلاعات', 'مالی', 'تولید', 'منابع انسانی', 'بازرگانی'].map(dept => (
                                 <SelectItem key={dept} value={dept}>{dept}</SelectItem>
                             ))}
@@ -199,10 +178,10 @@ const PersonnelFormDialog = ({ isOpen, onClose, personnel }: { isOpen: boolean, 
                     <Input defaultValue={personnel?.salary?.toString()} placeholder="حقوق (تومان)" />
                     <Input defaultValue={personnel?.startDate} placeholder="تاریخ شروع به کار (مثال: 1402/01/01)" />
                     <Select defaultValue={personnel?.status}>
-                        <SelectTrigger className="bg-transparent border-white/20 text-white hover:border-[var(--category-accent-color)]">
+                        <SelectTrigger className="bg-transparent border-[var(--color-border-subtle)] text-[var(--color-text-main)] hover:border-[var(--color-brand-primary)]">
                             <SelectValue placeholder="وضعیت" />
                         </SelectTrigger>
-                        <SelectContent className="bg-[#1d252e] border-white/20 text-white">
+                        <SelectContent className="bg-[var(--color-surface-glass)] border-[var(--color-border-subtle)] text-[var(--color-text-main)]">
                             {['Active', 'On Leave', 'Terminated'].map(s => (
                                 <SelectItem key={s} value={s}>{s === 'Active' ? 'فعال' : s === 'On Leave' ? 'مرخصی' : 'ترک کار'}</SelectItem>
                             ))}
@@ -211,9 +190,9 @@ const PersonnelFormDialog = ({ isOpen, onClose, personnel }: { isOpen: boolean, 
                 </div>
 
                 <div className="flex justify-end gap-3 pt-6">
-                    <Button onClick={onClose} variant="ghost" className="text-white/70 hover:bg-white/10">انصراف</Button>
+                    <Button onClick={onClose} variant="ghost" className="text-[var(--color-text-muted)] hover:bg-[var(--color-surface-glass)]">انصراف</Button>
                     {/* استفاده از متغیر تم برای دکمه اصلی */}
-                    <Button className="bg-[var(--category-accent-color)] text-slate-900 hover:bg-[var(--category-accent-color)]/90">
+                    <Button className="bg-[var(--color-brand-primary)] text-slate-900 hover:bg-[var(--color-brand-primary)]/90">
                         {isEdit ? "ذخیره تغییرات" : "ثبت پرسنل"}
                     </Button>
                 </div>
@@ -243,10 +222,10 @@ export default function PersonnelListPage() {
     const columnHelper = createColumnHelper<Personnel>();
 
     // تعریف ستون‌ها برای TanStack Table
-    const columns = useMemo<ColumnDef<Personnel, any>[]>(() => [
+    const columns = useMemo(() => [
         columnHelper.accessor('fullName', {
             header: () => <div className="text-right">نام پرسنل</div>,
-            cell: info => <div className="font-semibold text-white">{info.getValue()}</div>,
+            cell: info => <div className="font-semibold text-[var(--color-text-main)]">{info.getValue()}</div>,
             footer: props => props.column.id,
             enableGrouping: false,
         }),
@@ -259,7 +238,7 @@ export default function PersonnelListPage() {
         }),
         columnHelper.accessor('position', {
             header: 'سمت',
-            cell: info => <span className="text-white/80">{info.getValue()}</span>,
+            cell: info => <span className="text-[var(--color-text-muted)]">{info.getValue()}</span>,
             footer: props => props.column.id,
             enableGrouping: true,
         }),
@@ -270,7 +249,7 @@ export default function PersonnelListPage() {
         }),
         columnHelper.accessor('startDate', {
             header: 'تاریخ شروع',
-            cell: info => <span className="text-white/60">{info.getValue()}</span>,
+            cell: info => <span className="text-[var(--color-text-muted)]">{info.getValue()}</span>,
             footer: props => props.column.id,
             enableGrouping: false,
         }),
@@ -289,7 +268,7 @@ export default function PersonnelListPage() {
                         size="sm" 
                         variant="ghost" 
                         // استفاده از متغیر تم برای ویرایش
-                        className="text-[var(--category-accent-color)] hover:text-white hover:bg-[var(--category-accent-color)]/20"
+                        className="text-[var(--color-brand-primary)] hover:text-[var(--color-text-main)] hover:bg-[var(--color-brand-primary)]/20"
                         onClick={() => { setSelectedPersonnel(row.original); setIsFormOpen(true); }}
                     >
                         <Edit size={16} />
@@ -297,7 +276,7 @@ export default function PersonnelListPage() {
                     <Button 
                         size="sm" 
                         variant="ghost" 
-                        className="text-red-400 hover:text-white hover:bg-red-400/20"
+                        className="text-red-400 hover:text-[var(--color-text-main)] hover:bg-red-400/20"
                         onClick={() => toast.error(`حذف ${row.original.fullName} انجام نشد!`)}
                     >
                         <Trash2 size={16} />
@@ -329,9 +308,9 @@ export default function PersonnelListPage() {
     
     // --- Table Renderer ---
     const PersonnelTable = () => (
-        <div className="relative overflow-x-auto rounded-xl reports-panel mt-6">
-            <table className="w-full text-sm text-right text-gray-400">
-                <thead className="text-xs text-white/70 uppercase bg-white/5 border-b border-white/10 sticky top-0 z-10">
+        <div className="relative overflow-x-auto rounded-2xl">
+            <table className="table text-sm">
+                <thead className="sticky top-0 z-10 bg-[color-mix(in_srgb,var(--color-brand-primary)_6%,white)]">
                     {table.getHeaderGroups().map(headerGroup => (
                         <tr key={headerGroup.id}>
                             {headerGroup.headers.map(header => (
@@ -346,7 +325,7 @@ export default function PersonnelListPage() {
                                             ? null
                                             : flexRender(header.column.columnDef.header, header.getContext())}
                                         {/* استفاده از متغیر تم برای آیکون گروه بندی */}
-                                        {header.column.getIsGrouped() && <Briefcase size={14} className="ml-1 text-[var(--category-accent-color)]" />}
+                                        {header.column.getIsGrouped() && <Briefcase size={14} className="ml-1 text-[var(--color-brand-primary)]" />}
                                         {header.column.getIsSorted() === 'asc' ? <ChevronUp size={14} /> : header.column.getIsSorted() === 'desc' ? <ChevronDown size={14} /> : null}
                                     </div>
                                 </th>
@@ -354,11 +333,11 @@ export default function PersonnelListPage() {
                         </tr>
                     ))}
                 </thead>
-                <tbody className="text-white">
+                <tbody className="text-[var(--color-text-main)]">
                     {table.getRowModel().rows.map(row => (
                         <tr 
                             key={row.id} 
-                            className={`border-b border-white/10 transition-colors hover:bg-white/5 ${row.getIsGrouped() ? 'bg-white/10 font-bold' : ''}`}
+                            className={`border-b border-[var(--color-border-subtle)] transition-colors hover:bg-[var(--color-surface-glass)] ${row.getIsGrouped() ? 'bg-[var(--color-surface-glass)] font-bold' : ''}`}
                         >
                             {row.getVisibleCells().map(cell => (
                                 <td 
@@ -369,13 +348,13 @@ export default function PersonnelListPage() {
                                         // نمایش ردیف‌های گروه‌بندی شده
                                         <div className="flex items-center gap-2 cursor-pointer" onClick={row.getToggleExpandedHandler()}>
                                             {/* استفاده از متغیر تم برای آیکون گروه بندی */}
-                                            <CornerDownLeft size={16} className="text-[var(--category-accent-color)]" />
+                                            <CornerDownLeft size={16} className="text-[var(--color-brand-primary)]" />
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())} 
-                                            <span className="text-white/60 text-xs">({row.subRows.length.toLocaleString('fa-IR')} نفر)</span>
+                                            <span className="text-[var(--color-text-muted)] text-xs">({row.subRows.length.toLocaleString('fa-IR')} نفر)</span>
                                         </div>
                                     ) : cell.getIsAggregated() ? (
                                         // نمایش داده‌های تجمیعی (مثلاً مجموع حقوق)
-                                        <div className="font-bold text-lg text-[var(--category-accent-color)]">{/* Aggregate Data Here if needed */}</div>
+                                        <div className="font-bold text-lg text-[var(--color-brand-primary)]">{/* Aggregate Data Here if needed */}</div>
                                     ) : cell.getIsPlaceholder() ? null : (
                                         // نمایش داده‌های عادی
                                         flexRender(cell.column.columnDef.cell, cell.getContext())
@@ -399,25 +378,25 @@ export default function PersonnelListPage() {
                     <motion.div 
                         key={p.id} 
                         // استفاده از متغیر تم برای border و رنگ عنوان
-                        className="reports-panel p-5 rounded-xl border-t-4 border-[var(--category-accent-color)]/50 flex flex-col space-y-3 shadow-lg"
+                        className="reports-panel p-5 rounded-xl border-t-4 border-[var(--color-brand-primary)]/50 flex flex-col space-y-3 shadow-lg"
                         initial={{ opacity: 0, scale: 0.98 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 0.2 }}
                     >
                         <div className="flex justify-between items-start">
-                            <h3 className="text-lg font-bold text-[var(--category-accent-color)]">{p.fullName}</h3>
+                            <h3 className="text-lg font-bold text-[var(--color-brand-primary)]">{p.fullName}</h3>
                             <StatusBadge status={p.status} />
                         </div>
-                        <p className="text-sm text-white/70 flex items-center gap-2">
-                            <Briefcase size={14} className="text-white/50"/>
+                        <p className="text-sm text-[var(--color-text-muted)] flex items-center gap-2">
+                            <Briefcase size={14} className="text-[var(--color-text-muted)]"/>
                             {p.position} - {p.department}
                         </p>
-                        <div className="pt-3 border-t border-white/10 space-y-2 text-sm">
-                             <div className="flex justify-between text-white/80">
+                        <div className="pt-3 border-t border-[var(--color-border-subtle)] space-y-2 text-sm">
+                             <div className="flex justify-between text-[var(--color-text-muted)]">
                                  <span className="font-medium">حقوق (م.ت):</span>
                                  <span className="text-green-400 font-mono">{(p.salary / 1000000).toLocaleString('fa-IR', { minimumFractionDigits: 1 })}</span>
                              </div>
-                             <div className="flex justify-between text-white/80">
+                             <div className="flex justify-between text-[var(--color-text-muted)]">
                                  <span className="font-medium">تاریخ شروع:</span>
                                  <span>{p.startDate}</span>
                              </div>
@@ -426,7 +405,7 @@ export default function PersonnelListPage() {
                             <Button 
                                 size="sm" 
                                 // استفاده از متغیر تم برای دکمه ویرایش
-                                className="bg-[var(--category-accent-color)] hover:bg-[var(--category-accent-color)]/90"
+                                className="bg-[var(--color-brand-primary)] hover:bg-[var(--color-brand-primary)]/90"
                                 onClick={() => { setSelectedPersonnel(p); setIsFormOpen(true); }}
                             >
                                 <Edit size={14} className="ml-2"/> ویرایش
@@ -435,25 +414,23 @@ export default function PersonnelListPage() {
                     </motion.div>
                 );
             })}
-            {data.length === 0 && <p className="text-white/70 col-span-full">هیچ کارمندی یافت نشد.</p>}
+            {data.length === 0 && <p className="text-[var(--color-text-muted)] col-span-full">هیچ کارمندی یافت نشد.</p>}
         </div>
     );
 
     return (
         <ListPageLayout
-            title="پرسنل و منابع انسانی"
-            description="مدیریت فهرست و ویرایش پرسنل"
-            className="reports-neon min-h-screen pb-10"
+            title="فهرست پرسنل"
+            description="مدیریت و جستجوی اطلاعات پرسنل"
+            className="space-y-6 pb-10"
         >
-            <div className="orb orb--top" />
-            <div className="orb orb--bottom" />
 
             <ListHeader
-                title="پرسنل و منابع انسانی"
+                title="فهرست پرسنل"
                 description="نمایش وضعیت و گزارش سریع"
                 actions={
                     <Button
-                        className="bg-[var(--category-accent-color)] text-slate-900 hover:bg-[var(--category-accent-color)]/90 h-10 flex items-center gap-2"
+                        className="h-10 px-4 flex items-center gap-2"
                         onClick={() => { setSelectedPersonnel(null); setIsFormOpen(true); }}
                     >
                         <UserPlus size={18} />
@@ -469,16 +446,16 @@ export default function PersonnelListPage() {
                     placeholder="جستجوی عمومی (نام، کد ملی، دپارتمان...)"
                     value={globalFilter}
                     onChange={(e) => setGlobalFilter(e.target.value)}
-                    className="w-full md:w-96 h-10 bg-transparent border-white/20 text-white placeholder-white/50 focus:border-[var(--category-accent-color)]"
+                    className="w-full md:w-96"
                 />
 
                 <ListActionBar>
                     <Select value={grouping[0] || 'none'} onValueChange={(val) => setGrouping(val === 'none' ? [] : [val])}>
-                        <SelectTrigger className="w-40 bg-transparent border-white/20 text-white h-10 hover:border-[var(--category-accent-color)]">
-                            <ListFilter size={16} className="text-[var(--category-accent-color)] ml-2" />
+                        <SelectTrigger className="w-40 h-10">
+                            <ListFilter size={16} className="text-[var(--color-brand-primary)] ml-2" />
                             <SelectValue placeholder="گروه‌بندی" />
                         </SelectTrigger>
-                        <SelectContent className="bg-[#1d252e] border-white/20 text-white">
+                        <SelectContent className="bg-[var(--color-surface-glass)] border-[var(--color-border-subtle)] text-[var(--color-text-main)]">
                             <SelectItem value="none">بدون گروه‌بندی</SelectItem>
                             <SelectItem value="department">دپارتمان</SelectItem>
                             <SelectItem value="position">سمت</SelectItem>
@@ -489,7 +466,7 @@ export default function PersonnelListPage() {
                     <Button
                         onClick={() => setViewMode(viewMode === 'table' ? 'card' : 'table')}
                         variant="ghost"
-                        className="text-white/80 hover:text-[var(--category-accent-color)] h-10"
+                        className="text-[var(--color-text-muted)] hover:text-[var(--color-brand-primary)] h-10"
                     >
                         {viewMode === 'table' ? <LayoutList size={20} /> : <Table size={20} />}
                     </Button>
@@ -497,7 +474,7 @@ export default function PersonnelListPage() {
                     <Button
                         onClick={() => refetch()}
                         variant="ghost"
-                        className="text-white/80 hover:text-[var(--category-accent-color)] h-10"
+                        className="text-[var(--color-text-muted)] hover:text-[var(--color-brand-primary)] h-10"
                         disabled={isLoading}
                     >
                         {isLoading ? <RotateCcw size={20} className="animate-spin" /> : <RotateCcw size={20} />}
@@ -509,7 +486,7 @@ export default function PersonnelListPage() {
                 {isLoading ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6 mt-6">
                         {[...Array(5)].map((_, i) => (
-                            <Skeleton key={i} className="h-[200px] rounded-xl bg-white/5" />
+                            <Skeleton key={i} className="h-[200px] rounded-xl bg-[var(--color-surface-glass)]" />
                         ))}
                     </div>
                 ) : isError ? (
@@ -519,7 +496,7 @@ export default function PersonnelListPage() {
                         <Button onClick={() => refetch()} className="mt-4 bg-red-600 hover:bg-red-700">تلاش مجدد</Button>
                     </div>
                 ) : viewMode === 'table' ? (
-                    <TableShell className="reports-panel mt-6">
+                    <TableShell className="mt-6">
                         <PersonnelTable />
                     </TableShell>
                 ) : (

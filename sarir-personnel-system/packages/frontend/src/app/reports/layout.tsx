@@ -13,7 +13,9 @@ export default function ReportsLayout({
 }) {
   return (
     <Providers>
-      <div className="reports-layout">{children}</div>
+      <div className="min-h-screen bg-[var(--color-shell-bg)] text-[var(--color-text-main)]">
+        {children}
+      </div>
     </Providers>
   );
 }

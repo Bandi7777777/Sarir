@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */ // TODO: refine personnel view types
 
 import {
   UserIcon,
@@ -8,12 +9,11 @@ import {
   PencilIcon,
   PaperClipIcon,
   XMarkIcon,
-  CheckIcon,
 } from "@heroicons/react/24/solid";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { useParams, useRouter, usePathname } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -57,7 +57,6 @@ type Employee = {
 export default function EmployeeViewPage() {
   const { id } = useParams() as { id: string };
   const router = useRouter();
-  const pathname = usePathname();
 
   const [data, setData] = useState<Employee | null>(null);
   const [loading, setLoading] = useState(true);

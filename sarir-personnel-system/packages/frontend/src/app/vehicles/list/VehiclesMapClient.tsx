@@ -1,5 +1,6 @@
 // packages/frontend/src/app/vehicles/list/VehiclesMapClient.tsx
 "use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */ // TODO: refine vehicle map types
 
 /**
  * فقط در کلاینت اجرا می‌شود.
@@ -97,3 +98,5 @@ export default function VehiclesMapClient({
     </div>
   );
 }
+
+

@@ -22,10 +22,10 @@ export default function EmployeesTable(){
       try{
         const r = await fetch("/api/employees", { cache: "no-store" });
         if (!r.ok) throw new Error("خطا در دریافت لیست پرسنل");
-        const j = await r.json();
-        if (alive) setData(j.data as Employee[]);
-      }catch(e:any){
-        if (alive) setErr(e?.message || "خطای ناشناخته");
+        const j = (await r.json()) as { data?: Employee[] };
+        if (alive) setData(Array.isArray(j.data) ? j.data : []);
+      }catch(e){
+        if (alive) setErr(e instanceof Error ? e.message : "خطای ناشناخته");
       }finally{
         if (alive) setLoading(false);
       }

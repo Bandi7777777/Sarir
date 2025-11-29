@@ -1,103 +1,185 @@
 "use client";
 
-import {
-  BarChart3,
-  FileText,
-  LayoutDashboard,
-  LogOut,
-  Settings,
-  ShieldCheck,
-  Truck,
-  Users,
-} from "lucide-react";
+import { Car, FileText, LayoutDashboard, LogOut, Settings, ShieldCheck, Truck, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
+import type { ComponentType, SVGProps } from "react";
 
 import { cn } from "@/lib/utils";
 
-type NavItem = {
-  href: string;
+type NavChild = { label: string; route: string };
+type NavSection = {
   label: string;
-  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  route?: string;
+  icon: ComponentType<SVGProps<SVGSVGElement>>;
+  children?: NavChild[];
 };
 
-const MAIN_ITEMS: NavItem[] = [
-  { href: "/dashboard", label: "داشبورد", icon: LayoutDashboard },
-  { href: "/personnel/list", label: "پرسنل", icon: Users },
-  { href: "/drivers/list", label: "رانندگان", icon: Truck },
-  { href: "/vehicles/list", label: "ناوگان", icon: Truck },
-  { href: "/contracts/list", label: "قراردادها", icon: FileText },
-  { href: "/board/list", label: "هیئت مدیره", icon: ShieldCheck },
-  { href: "/reports", label: "گزارش‌ها", icon: BarChart3 },
+const NAV_SECTIONS: NavSection[] = [
+  {
+    label: "داشبورد",
+    route: "/dashboard",
+    icon: LayoutDashboard,
+    children: [
+      { label: "داشبورد منابع انسانی", route: "/dashboard" },
+      { label: "گزارش‌ها", route: "/reports" },
+      { label: "اعلان‌ها", route: "/notifications" },
+    ],
+  },
+  {
+    label: "پرسنل",
+    icon: Users,
+    children: [
+      { label: "لیست پرسنل", route: "/personnel/list" },
+      { label: "ثبت پرسنل جدید", route: "/personnel/register" },
+      { label: "آمار پرسنل", route: "/stats/personnel" },
+    ],
+  },
+  {
+    label: "رانندگان",
+    icon: Truck,
+    children: [
+      { label: "لیست رانندگان", route: "/drivers/list" },
+      { label: "ثبت راننده", route: "/drivers/register" },
+      { label: "آمار رانندگان", route: "/stats/drivers" },
+    ],
+  },
+  {
+    label: "ناوگان",
+    icon: Car,
+    children: [
+      { label: "لیست خودروها", route: "/vehicles/list" },
+      { label: "ثبت خودرو", route: "/vehicles/register" },
+    ],
+  },
+  {
+    label: "قراردادها",
+    icon: FileText,
+    children: [
+      { label: "لیست قراردادها", route: "/contracts/list" },
+      { label: "ثبت قرارداد", route: "/contracts/register" },
+    ],
+  },
+  {
+    label: "هیئت مدیره",
+    icon: ShieldCheck,
+    children: [
+      { label: "لیست اعضا", route: "/board/list" },
+      { label: "ثبت عضو جدید", route: "/board/register" },
+    ],
+  },
+  {
+    label: "تنظیمات و ابزارها",
+    icon: Settings,
+    children: [
+      { label: "تنظیمات سامانه", route: "/settings" },
+      { label: "ورود داده‌ها", route: "/tools/import" },
+      { label: "اعلان‌ها و هشدارها", route: "/notifications" },
+      { label: "گزارش‌های مدیریتی", route: "/reports" },
+    ],
+  },
 ];
 
 type SidebarProps = {
   theme?: "dark" | "light";
 };
 
-export default function Sidebar({ theme = "light" }: SidebarProps) {
+export default function Sidebar({ theme: _theme = "light" }: SidebarProps) {
   const pathname = usePathname() || "";
-  const isDark = theme === "dark";
 
-  const containerClass = isDark
-    ? "bg-slate-950/60 text-slate-200 border-white/10"
-    : "bg-white text-slate-800 border-slate-200 shadow-lg";
+  const isActiveRoute = (route?: string, children?: NavChild[]) => {
+    if (!route && !children) return false;
+    if (route && (pathname === route || pathname.startsWith(`${route}/`))) return true;
+    if (children) {
+      return children.some((child) => pathname === child.route || pathname.startsWith(`${child.route}/`));
+    }
+    return false;
+  };
 
-  const activeClass = isDark
-    ? "bg-[rgba(7,101,126,0.18)] text-white border border-white/20 shadow-[0_0_12px_rgba(7,101,126,0.35)]"
-    : "bg-[rgba(7,101,126,0.08)] text-[var(--brand-primary)] border border-[rgba(7,101,126,0.25)] shadow-sm";
-
-  const hoverClass = isDark ? "hover:bg-white/10 hover:text-white" : "hover:bg-slate-100 hover:text-slate-900";
+  const baseItem =
+    "flex h-10 w-10 items-center justify-center rounded-full text-slate-400 hover:text-white hover:bg-slate-800 transition";
+  const activeItem = "bg-[#07657E] text-white shadow-[0_0_18px_rgba(7,101,126,0.9)]";
 
   return (
     <aside
-      role="complementary"
+      role="navigation"
       className={cn(
-        "relative z-30 flex h-screen w-16 flex-col items-center border-l py-4 transition-colors duration-300",
-        containerClass
+        "fixed inset-y-0 right-0 z-40 flex w-[80px] flex-col items-center justify-between py-4",
+        "border-l border-slate-800/80 bg-gradient-to-b from-[#050b16]/92 via-[#040a14]/92 to-[#060d1b]/95 text-slate-100 shadow-[0_0_35px_rgba(15,23,42,0.85)] backdrop-blur-xl ring-1 ring-slate-900/70"
       )}
     >
-      <Link
-        href="/dashboard"
-        className="mb-6 flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--brand-primary)] to-[var(--brand-secondary)] text-white shadow-lg shadow-[var(--brand-primary)]/30"
-        aria-label="لوگوی ساریر"
-      >
-        <span className="text-lg font-black">S</span>
-      </Link>
+      <div className="flex flex-col items-center gap-4">
+        <div className="mt-2 mb-3 flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-700/70 bg-slate-900 text-xs font-semibold text-slate-100 shadow-[0_0_18px_rgba(7,101,126,0.55)]">
+          <Link
+            href="/dashboard"
+            className="text-sm font-black tracking-tight"
+            aria-label="ساریر"
+          >
+            S
+          </Link>
+        </div>
 
-      <nav className="flex w-full flex-1 flex-col items-center gap-3">
-        {MAIN_ITEMS.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn("flex h-10 w-10 items-center justify-center rounded-xl transition-all duration-200", isActive ? activeClass : hoverClass)}
-              aria-label={item.label}
-              title={item.label}
-            >
-              <item.icon className="h-5 w-5" strokeWidth={isActive ? 2.5 : 2} />
-            </Link>
-          );
-        })}
-      </nav>
+        <nav className="flex w-full flex-1 flex-col items-center gap-3">
+          {NAV_SECTIONS.map((section) => {
+            const active = isActiveRoute(section.route, section.children);
+            const Icon = section.icon;
+            const primaryRoute = section.route || section.children?.[0]?.route || "#";
+            return (
+              <div key={section.label} className="group relative w-full">
+                <Link
+                  href={primaryRoute}
+                  className={cn(baseItem, active && activeItem)}
+                  aria-label={section.label}
+                >
+                  <Icon className="h-5 w-5" />
+                </Link>
 
-      <div className="mt-auto flex w-full flex-col gap-2 px-2 pb-2">
+                <div
+                  className={cn(
+                    "pointer-events-none absolute left-[calc(100%+10px)] top-0 z-30 hidden min-w-[220px] -translate-y-2 rounded-2xl border border-slate-700/70 bg-slate-900/90 shadow-[0_14px_30px_rgba(6,30,48,0.18)] backdrop-blur-xl",
+                    "group-hover:block group-focus-within:block group-hover:pointer-events-auto group-focus-within:pointer-events-auto"
+                  )}
+                >
+                  <div className="flex flex-col gap-1 p-3">
+                    {(section.children || []).map((child) => {
+                      const childActive = pathname === child.route || pathname.startsWith(`${child.route}/`);
+                      return (
+                        <Link
+                          key={child.route}
+                          href={child.route}
+                          className={cn(
+                            "flex items-center justify-between rounded-lg px-3 py-2 text-xs transition-colors",
+                            childActive ? "bg-[#07657E]/10 text-white" : "text-slate-200 hover:text-white hover:bg-slate-800/70"
+                          )}
+                        >
+                          <span>{child.label}</span>
+                          {childActive ? <span className="h-2 w-2 rounded-full bg-[var(--color-brand-accent)]" /> : null}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </nav>
+      </div>
+
+      <div className="mb-3 flex flex-col items-center gap-3">
         <Link
           href="/settings"
-          className={cn("flex h-10 w-10 items-center justify-center rounded-xl transition-all", hoverClass)}
+          className={cn(baseItem, "h-11 w-11 border border-slate-800/80 hover:border-slate-700")}
           aria-label="تنظیمات"
         >
           <Settings className="h-5 w-5" />
         </Link>
-        <button
-          className="flex h-10 w-10 items-center justify-center rounded-xl text-red-400 transition-colors hover:bg-red-500/10 hover:text-red-500"
+        <Link
+          href="/login"
+          className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-800/80 text-rose-300 transition hover:border-rose-400 hover:text-rose-200 hover:bg-slate-800/80"
           aria-label="خروج"
-          type="button"
         >
           <LogOut className="h-5 w-5" />
-        </button>
+        </Link>
       </div>
     </aside>
   );

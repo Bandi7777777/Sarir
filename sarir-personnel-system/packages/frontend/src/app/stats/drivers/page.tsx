@@ -9,7 +9,7 @@ type Row = { id:number; first_name:string; last_name:string; email?:string|null;
 export default function DriversStatsPage() {
   const [list, setList] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expanded, setExpanded] = useState(false);
+  const expanded = false;
 
   useEffect(() => {
     (async () => {

@@ -133,8 +133,26 @@ Codex should:
 
 Automatically continue to the next iteration after finishing one.
 
-NOT ask the user “should I continue?” unless there is a blocking error.
+NOT ask the user "should I continue?" unless there is a blocking error.
 
 Keep the app buildable at every step.
 
 Follow the shared layouts and design system defined in AGENTS.md.
+
+Progress note:
+- Core lint/style cleanup for shared layouts, UI atoms, personnel/drivers/vehicles/board/dashboard/reports/contracts is now in place (clean or explicitly suppressed where intentional).
+- Remaining lint debt deferred: tools/import pages and xlsx.worker, stats pages, map utilities, some API routes/legacy pages.
+- Dashboard visual corrections done: content now uses the new design system with balanced grid/KPIs/charts instead of oversized donut layouts.
+- Dashboard Internal Server Error resolved; runtime now stable without altering the design system.
+- Visual polish pass completed for the core surfaces (shell, auth, Dashboard/Reports, personnel/drivers/vehicles/contracts/board lists & forms) with the new brand/light glass theme; optional follow-ups: dark mode, deeper tokenization, and secondary page refinements.
+- UI/UX phase:
+  - Shell + dashboard visual refinement with real brand colors is done.
+  - Future optional work: polish other pages + potential dark mode.
+  - Second /dashboard Internal Server Error after the light theme pass is resolved with minimal runtime fixes (design system retained).
+- Dashboard + Reports layout/brand refinement completed; dark theme and professional sidebar applied. Next optional step: align personnel/drivers/vehicles/contracts/board pages with the same system.
+- Runtime stability for /dashboard and /reports after dark-theme/sidebar refactor is confirmed; continue aligning remaining sections next.
+- Neon/glass dark Sarir theme aligned across dashboard/reports/login and the main list/register flows; Farsi placeholders replaced; sidebar/login refreshed; remaining work: secondary page theming + legacy lint cleanup.
+- Route-scoped neon/glass accents added (dashboard/reports/fleet/personnel), sidebar anchored on the RTL right with glass flyouts, and empty-black layouts on login/reports/personnel lists cleaned up; next: refine secondary pages + legacy lint debt.
+- Current polish iteration: neon/glass theme tightened, sidebar right-aligned with Sarir accents, key pages (login/dashboard/reports/personnel list) aligned with per-page accents and Farsi labels; remaining optional work: full dark/light switcher, secondary page polish, global lint cleanup.
+- UI polish iteration complete: neon/glass Sarir theme aligned across login/dashboard/reports/personnel list with right-anchored sidebar, localized Farsi labels, and per-page accents. Remaining optional work: add a dark/light switcher, polish secondary pages, and finish global lint cleanup.
+- Latest: dark neon Sarir shell + glass cards tightened; sidebar stays right and glowy; login/dashboard/reports/personnel list aligned on the refreshed theme with cleaned Farsi labels. Still open: optional dark/light switcher, secondary page polish, and lingering lint debt.

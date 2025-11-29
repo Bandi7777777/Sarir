@@ -13,14 +13,18 @@ export function ListHeader({ title, description, actions, className }: ListHeade
   return (
     <div
       className={cn(
-        "flex flex-col gap-3 md:flex-row md:items-start md:justify-between",
+        "flex flex-col gap-2 md:flex-row md:items-start md:justify-between",
         className
       )}
     >
       <div className="space-y-1">
-        <h1 className="text-2xl font-semibold leading-tight">{title}</h1>
+        <h1 className="text-[21px] font-bold leading-tight text-[var(--color-text-main)]">
+          {title}
+        </h1>
         {description ? (
-          <p className="text-sm text-muted-foreground max-w-3xl">{description}</p>
+          <p className="max-w-3xl text-sm leading-relaxed text-[var(--color-text-muted)]">
+            {description}
+          </p>
         ) : null}
       </div>
       {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
