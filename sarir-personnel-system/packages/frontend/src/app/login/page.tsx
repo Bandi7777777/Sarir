@@ -9,6 +9,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { Lock, User2 } from "lucide-react";
 
 import { FrozenButton } from "@/components/frozen/FrozenButton";
 import { FrozenCard } from "@/components/frozen/FrozenCard";
@@ -73,24 +74,25 @@ export default function LoginPage() {
   return (
     <main data-page="login" dir="rtl" className={styles.screen}>
       <div className={styles.shell}>
-        <div className={styles.formBg} aria-hidden="true" />
+        <div className={styles.curveLayer} aria-hidden="true">
+          <div className={styles.curveShape} />
+          <div className={styles.roadGlow} />
+          <div className={styles.roadLine} />
+        </div>
         <div className={styles.twoColumn}>
-          {/* بخش هیرو و کامیون - ستون چپ */}
           <section className={`${styles.hero} ${styles.heroColumn}`}>
-            <div className={styles.heroTop}>
+            <div className={styles.heroContent}>
               <div className={styles.heroBadgeRow}>
                 <span className={styles.heroBadge}>SARIR LOGISTIC</span>
               </div>
 
               <div className={styles.heroHeading}>
-                <h1>
-                  سامانه هوشمند پرسنل
-                  <br />
-                  سرير لجستیک
-                </h1>
-                <p>
-                  یک ورود امن و سریع برای مدیریت منابع انسانی ناوگان و هیئتمدیره در یک پنل
-                  هوشمند.
+                <p className={styles.heroKicker}>سامانه هوشمند پرسنل</p>
+                <h1 className={styles.heroTitle}>هوشمند پرسنل را شروع کن</h1>
+                <p className={styles.heroSubtitle}>سرير لجستیک، هوشمند ایرانیان</p>
+                <p className={styles.heroBody}>
+                  مسیر تازه‌ای برای تیم منابع انسانی، رانندگان و مدیران؛ همه در یک داشبورد امن و
+                  یکپارچه کنار هم هستند.
                 </p>
               </div>
 
@@ -99,12 +101,12 @@ export default function LoginPage() {
                 className={styles.heroCta}
                 onClick={focusUsername}
               >
-                <span></span>
+                <span className={styles.heroCtaDot} />
                 <span>شروع کن</span>
               </button>
             </div>
 
-            <div className={styles.heroBottom}>
+            <div className={styles.heroVisual}>
               <div className={styles.truckScene}>
                 <div className={styles.truckImageWrap}>
                   <Image
@@ -122,22 +124,26 @@ export default function LoginPage() {
             </div>
           </section>
 
-          {/* بخش ورود - ستون راست */}
           <section className={`${styles.formSide} ${styles.formColumn}`}>
+            <div className={styles.formBg} aria-hidden="true" />
             <FrozenCard className={styles.formCard}>
               <header className={styles.formHeader}>
-                <div className={styles.formLogoBadge}>S</div>
-                <div>
+                <Image
+                  src="/images/logo-square.svg"
+                  alt="لوگوی سرير"
+                  width={48}
+                  height={48}
+                  className={styles.logoSquare}
+                />
+                <div className={styles.formBrandText}>
                   <p className={styles.formLogoTitle}>SARIR LOGISTIC</p>
-                  <p className={styles.formLogoSubtitle}>
-                    سرير لجستیک هوشمند ایرانیان
-                  </p>
+                  <p className={styles.formLogoSubtitle}>سامانه هوشمند پرسنل سرير</p>
                 </div>
               </header>
 
               <div className={styles.formCopy}>
-                <h2>ورود به سامانه</h2>
-                <p>برای ادامه نام کاربری و کلمه عبور خود را وارد کنید.</p>
+                <h2>خوش آمدید</h2>
+                <p>سرير لجستیک؛ هوشمندی ایرانیان. لطفا نام کاربری و کلمه عبور خود را وارد کنید.</p>
               </div>
 
               {error && <div className={styles.errorBox}>{error}</div>}
@@ -147,30 +153,38 @@ export default function LoginPage() {
                   <label htmlFor="username" className={styles.fieldLabel}>
                     نام کاربری
                   </label>
-                  <FrozenInput
-                    id="username"
-                    type="text"
-                    required
-                    autoComplete="username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="نام کاربری خود را وارد کنید"
-                  />
+                  <div className={styles.inputWrapper}>
+                    <User2 className={styles.inputIcon} aria-hidden="true" />
+                    <FrozenInput
+                      id="username"
+                      type="text"
+                      required
+                      autoComplete="username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="نام کاربری خود را وارد کنید"
+                      className={styles.inputField}
+                    />
+                  </div>
                 </div>
 
                 <div className={styles.fieldGroup}>
                   <label htmlFor="password" className={styles.fieldLabel}>
                     کلمه عبور
                   </label>
-                  <FrozenInput
-                    id="password"
-                    type="password"
-                    required
-                    autoComplete="current-password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="کلمه عبور را وارد کنید"
-                  />
+                  <div className={styles.inputWrapper}>
+                    <Lock className={styles.inputIcon} aria-hidden="true" />
+                    <FrozenInput
+                      id="password"
+                      type="password"
+                      required
+                      autoComplete="current-password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="کلمه عبور را وارد کنید"
+                      className={styles.inputField}
+                    />
+                  </div>
                 </div>
 
                 <div className={styles.supportRow}>
