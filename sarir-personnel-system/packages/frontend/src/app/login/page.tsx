@@ -74,6 +74,11 @@ export default function LoginPage() {
   return (
     <main data-page="login" dir="rtl" className={styles.screen}>
       <div className={styles.shell}>
+        <div className={styles.curveLayer} aria-hidden="true">
+          <div className={styles.curveShape} />
+          <div className={styles.roadGlow} />
+          <div className={styles.roadLine} />
+        </div>
         <div className={styles.twoColumn}>
           <section className={`${styles.hero} ${styles.heroColumn}`}>
             <div className={styles.heroContent}>
@@ -82,15 +87,12 @@ export default function LoginPage() {
               </div>
 
               <div className={styles.heroHeading}>
-                <p className={styles.heroKicker}>ورود امن به پنل مدیر</p>
-                <h1>
-                  سامانه هوشمند مدیریت پرسنل
-                  <br />
-                  و ناوگان سرير لجستیک
-                </h1>
-                <p>
-                  همه‌ی تیم منابع انسانی، رانندگان و هیئت‌مدیره در یک داشبورد یکپارچه. داده‌ها
-                  همیشه در دسترس شما هستند.
+                <p className={styles.heroKicker}>سامانه هوشمند پرسنل</p>
+                <h1 className={styles.heroTitle}>هوشمند پرسنل را شروع کن</h1>
+                <p className={styles.heroSubtitle}>سرير لجستیک، هوشمند ایرانیان</p>
+                <p className={styles.heroBody}>
+                  مسیر تازه‌ای برای تیم منابع انسانی، رانندگان و مدیران؛ همه در یک داشبورد امن و
+                  یکپارچه کنار هم هستند.
                 </p>
               </div>
 
@@ -141,7 +143,7 @@ export default function LoginPage() {
 
               <div className={styles.formCopy}>
                 <h2>خوش آمدید</h2>
-                <p>برای ورود، نام کاربری و کلمه عبور خود را وارد کنید.</p>
+                <p>سرير لجستیک؛ هوشمندی ایرانیان. لطفا نام کاربری و کلمه عبور خود را وارد کنید.</p>
               </div>
 
               {error && <div className={styles.errorBox}>{error}</div>}
