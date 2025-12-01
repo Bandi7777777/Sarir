@@ -1,514 +1,531 @@
-/* BEGIN LoginFrozen.module.css */
 .screen {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 3.5rem 1.5rem;
-  background:
-    radial-gradient(circle at 18% 22%, rgba(183, 215, 255, 0.45), transparent 38%),
-    radial-gradient(circle at 82% 12%, rgba(198, 222, 255, 0.55), transparent 32%),
-    radial-gradient(circle at 80% 86%, rgba(167, 204, 255, 0.48), transparent 38%),
-    linear-gradient(135deg, #edf3ff 0%, #d7e6ff 45%, #f1f6ff 100%);
-}
-
-.shell {
   position: relative;
-  width: 100%;
-  max-width: 1040px;
-  min-height: min(560px, 64vh);
-  border-radius: 36px;
+  min-height: 100vh;
   overflow: hidden;
-  display: block;
-  background: radial-gradient(circle at 22% 50%, rgba(34, 83, 145, 0.4), transparent 58%),
-    linear-gradient(145deg, #082648 0%, #0c3a6f 42%, #0e4a8e 100%);
-  box-shadow: 0 28px 110px rgba(4, 33, 79, 0.45);
-  direction: ltr;
+  background: linear-gradient(135deg, #1d252e 0%, #202a33 32%, #323d44 60%, #00617d 100%);
+  color: #eaf4f8;
+  isolation: isolate;
 }
 
-.curveLayer {
+.backdrop {
   position: absolute;
   inset: 0;
+  overflow: hidden;
   pointer-events: none;
   z-index: 0;
 }
 
-.curveShape {
+.backgroundGradient {
   position: absolute;
-  inset: -14% 22% -14% 46%;
-  background: radial-gradient(120% 120% at 0% 50%, rgba(12, 65, 126, 0.95) 0%, rgba(12, 65, 126, 0.9) 52%, rgba(12, 65, 126, 0.75) 60%, transparent 72%);
-  filter: drop-shadow(-26px 0 74px rgba(0, 0, 0, 0.32));
-}
-
-.roadGlow {
-  position: absolute;
-  inset: 16% 26% 16% auto;
-  width: 48%;
-  background: radial-gradient(120% 120% at 24% 50%, rgba(8, 65, 117, 0.6) 0%, rgba(8, 65, 117, 0.35) 46%, transparent 66%);
+  inset: -12%;
+  background:
+    radial-gradient(60% 60% at 16% 22%, rgba(0, 175, 196, 0.28), transparent 55%),
+    radial-gradient(52% 52% at 70% 14%, rgba(248, 156, 42, 0.14), transparent 54%),
+    radial-gradient(62% 50% at 82% 68%, rgba(0, 175, 196, 0.2), transparent 60%),
+    linear-gradient(135deg, rgba(11, 81, 101, 0.75), rgba(12, 55, 70, 0.8));
   mix-blend-mode: screen;
-  opacity: 0.9;
+  opacity: 0.82;
 }
 
-.roadLine {
+.backgroundSheen {
   position: absolute;
-  inset: 18% 30% 18% auto;
-  width: 46%;
-  border: 12px solid rgba(255, 255, 255, 0.14);
-  border-left: none;
-  border-top: none;
-  border-bottom: none;
-  border-radius: 130% 0 0 130%;
-  transform: translateX(10%) rotate(-3deg);
-  box-shadow: -10px 0 38px rgba(0, 0, 0, 0.28);
+  inset: -30% 10% -10% -30%;
+  background: radial-gradient(60% 110% at 0% 50%, rgba(0, 175, 196, 0.24), transparent 70%);
+  filter: blur(24px);
+  opacity: 0.85;
 }
 
-.roadLine::after {
-  content: "";
+.rightLight {
   position: absolute;
-  inset: -2px -10px -2px;
-  border: 6px solid rgba(255, 255, 255, 0.78);
-  border-left: none;
-  border-top: none;
-  border-bottom: none;
-  border-radius: 999px 0 0 999px;
-  filter: drop-shadow(-6px 0 22px rgba(255, 255, 255, 0.28));
+  inset: 0 -12% 0 38%;
+  background: linear-gradient(120deg, rgba(50, 61, 68, 0.2), rgba(50, 61, 68, 0.65));
 }
 
-.twoColumn {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  align-items: stretch;
-  z-index: 1;
+.orbit {
+  position: absolute;
+  border: 1px solid rgba(0, 162, 194, 0.12);
+  border-radius: 999px;
+  filter: drop-shadow(0 0 28px rgba(0, 162, 194, 0.16));
 }
 
-.heroColumn {
-  order: 1;
-}
-
-.formColumn {
-  order: 2;
-}
-
-/* HERO (left) */
-.hero {
-  position: relative;
-  z-index: 1;
-  padding: 3.5rem 3.25rem 2.75rem;
-  color: #f5f9ff;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  direction: rtl;
-  background: linear-gradient(150deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
-}
-
-.heroBadgeRow {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.heroBadge {
-  padding: 0.55rem 1.45rem;
-  border-radius: 14px;
-  background: linear-gradient(120deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.05));
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  font-size: 0.75rem;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: #d8eaff;
-}
-
-.heroContent {
-  display: flex;
-  flex-direction: column;
-  gap: 1.8rem;
-}
-
-.heroHeading {
-  text-align: right;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.heroHeading h1 {
-  font-size: 2.65rem;
-  line-height: 1.2;
+.ghostWord {
+  position: absolute;
   font-weight: 800;
-  max-width: 520px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(7, 101, 126, 0.12);
+  text-shadow: 0 0 60px rgba(7, 101, 126, 0.08);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.accentDot {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%, #00afc4, #07657e);
+  box-shadow:
+    0 0 14px rgba(0, 162, 194, 0.58),
+    0 0 0 4px rgba(0, 162, 194, 0.06);
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 4rem 1.75rem;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  align-items: center;
+  gap: 3.25rem;
+}
+
+.heroSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2.6rem;
+  justify-content: space-between;
+  min-height: 520px;
+  text-align: right;
+}
+
+.heroCopy {
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+  max-width: 640px;
+}
+
+.heroChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+  align-self: flex-start;
+  padding: 0.65rem 1.6rem 0.65rem 1.2rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 175, 196, 0.4);
+  background: rgba(7, 101, 126, 0.24);
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+.heroChipBar {
+  width: 32px;
+  height: 3px;
+  border-radius: 999px;
+  background: #f89c2a;
+  box-shadow: 0 0 18px rgba(248, 156, 42, 0.6);
+}
+
+.heroChipText {
+  color: #f89c2a;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-size: 0.95rem;
 }
 
 .heroTitle {
-  color: #f4f8ff;
+  font-size: clamp(2.2rem, 2.6vw + 1.2rem, 3.4rem);
+  line-height: 1.15;
+  font-weight: 800;
+  color: #ffffff;
+  text-shadow: 0 26px 90px rgba(0, 0, 0, 0.48);
 }
 
 .heroSubtitle {
   font-size: 1rem;
-  color: #dce9ff;
-}
-
-.heroBody {
-  margin-top: 0.5rem;
-  font-size: 0.94rem;
-  color: #cddcf8;
-  max-width: 520px;
-}
-
-.heroKicker {
-  font-size: 0.95rem;
-  color: #e1ebff;
-  margin-bottom: 0.35rem;
-  font-weight: 600;
-}
-
-.heroCta {
-  margin-top: 1.5rem;
-  align-self: flex-start;
-  padding: 0.85rem 2.65rem;
-  border-radius: 14px;
-  border: none;
-  cursor: pointer;
-  background: linear-gradient(135deg, #1a2d53, #0e4a8e);
-  color: #f9fafb;
-  font-size: 0.96rem;
-  font-weight: 700;
-  box-shadow: 0 18px 40px rgba(6, 36, 73, 0.55);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.heroCtaDot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25);
-}
-
-.heroCta:disabled {
-  opacity: 0.6;
+  line-height: 1.7;
+  color: rgba(235, 245, 248, 0.78);
+  max-width: 560px;
 }
 
 .heroVisual {
-  margin-top: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  align-items: center;
+  align-items: flex-start;
+  gap: 0.75rem;
 }
 
-.truckScene {
+.truckPlate {
   position: relative;
-  margin: 2.8rem auto 0;
-  max-width: 26rem;
-  width: 100%;
+  width: min(100%, 680px);
 }
 
-.truckImageWrap {
-  position: relative;
-  z-index: 2;
+.truckGlow {
+  position: absolute;
+  inset: 6% 10% 10%;
+  background: radial-gradient(70% 60% at 35% 60%, rgba(0, 175, 196, 0.4), transparent 80%);
+  filter: blur(20px);
+  transform: rotate(-4deg);
+}
+
+.truckShadow {
+  position: absolute;
+  left: 14%;
+  right: 6%;
+  bottom: -12px;
+  height: 38px;
+  border-radius: 999px;
+  background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0.36), transparent 70%);
+  filter: blur(2px);
+  opacity: 0.95;
 }
 
 .truckImage {
+  width: 100%;
+  height: auto;
   display: block;
-  width: 100%;
-  max-height: 260px;
-  object-fit: contain;
-  filter: drop-shadow(0 26px 70px rgba(0, 0, 0, 0.58));
+  filter: drop-shadow(0 26px 70px rgba(0, 0, 0, 0.62));
 }
 
-.truckRoad {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: -22px;
-  width: 115%;
-  height: 32px;
-  border-radius: 999px;
-  background:
-    radial-gradient(
-      ellipse at center,
-      rgba(0, 0, 0, 0.78) 0%,
-      rgba(0, 0, 0, 0.55) 30%,
-      rgba(0, 0, 0, 0.25) 55%,
-      transparent 100%
-    );
-  box-shadow:
-    0 18px 40px rgba(0, 0, 0, 0.75),
-    0 0 0 1px rgba(15, 23, 42, 0.7);
-  opacity: 0.9;
-}
-
-.heroTagline {
-  text-align: center;
-  font-size: 0.72rem;
-  letter-spacing: 0.35em;
-  color: rgba(226, 232, 240, 0.9);
-}
-
-/* FORM (right) */
-.formSide {
-  position: relative;
-  z-index: 1;
-  padding: 3.25rem 3rem 3.25rem 2.75rem;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  direction: rtl;
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0));
-}
-
-.formBg {
-  position: absolute;
-  inset: 8% 0 8% auto;
-  width: 46%;
-  background: linear-gradient(150deg, #f9fbff, #eaf1ff);
-  border-radius: 46% 0 0 46%;
-  box-shadow: -22px 0 60px rgba(15, 38, 78, 0.18);
-  border: 1px solid #e3e8ef;
-  z-index: 0;
-}
-
-.formCard {
-  position: relative;
-  z-index: 1;
-  width: 100%;
-  max-width: 360px;
-  border-radius: 26px;
-  background: #ffffff;
-  box-shadow: 0 22px 70px rgba(6, 49, 112, 0.14);
-  padding: 2rem 1.9rem 1.5rem;
-  border: 1px solid #dfe4ec;
-}
-
-.formHeader {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  margin-bottom: 1.25rem;
-  flex-direction: row-reverse;
-  justify-content: space-between;
-}
-
-.logoSquare {
-  border-radius: 12px;
-  box-shadow: 0 12px 28px rgba(15, 38, 78, 0.2);
-}
-
-.formLogoTitle {
-  font-size: 0.82rem;
-  letter-spacing: 0.2em;
+.heroSlogan {
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: #334155;
-}
-
-.formLogoSubtitle {
-  margin-top: 0.15rem;
   font-size: 0.78rem;
-  color: #475569;
+  color: rgba(235, 245, 248, 0.7);
 }
 
-.formBrandText {
+.formSection {
   display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  text-align: right;
+  justify-content: flex-end;
 }
 
-.formCopy {
-  margin-bottom: 1.5rem;
-  text-align: right;
+.glassCard {
+  position: relative;
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem;
+  border-radius: 28px;
+  background: linear-gradient(160deg, rgba(50, 61, 68, 0.9), rgba(29, 37, 46, 0.96));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.72),
+    0 0 0 1px rgba(0, 175, 196, 0.06);
+  backdrop-filter: blur(22px);
+  overflow: hidden;
 }
 
-.formCopy h2 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #0f172a;
+.cardHighlight {
+  position: absolute;
+  inset: -18% auto auto -16%;
+  width: 72%;
+  height: 72%;
+  background: radial-gradient(120% 120% at 30% 30%, rgba(0, 175, 196, 0.4), transparent 70%);
+  filter: blur(12px);
+  opacity: 0.8;
 }
 
-.formCopy p {
-  margin-top: 0.4rem;
-  font-size: 0.82rem;
-  color: #64748b;
-}
-
-.errorBox {
+.cardHeader {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
   margin-bottom: 1rem;
-  border-radius: 12px;
-  padding: 0.75rem 0.9rem;
-  font-size: 0.8rem;
-  background: #fee2e2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
 }
 
-.formFields {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+.logoBadge {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: rgba(7, 101, 126, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: 0 16px 44px rgba(0, 0, 0, 0.35);
 }
 
-.fieldGroup {
+.brandStack {
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.15rem;
+}
+
+.brandTitle {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #00afc4;
+}
+
+.brandSubtitle {
+  font-size: 0.85rem;
+  color: rgba(231, 241, 245, 0.78);
+}
+
+.cardIntro {
+  position: relative;
+  margin-bottom: 1.25rem;
+  color: #f7fbff;
+}
+
+.cardIntro h2 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.cardIntro p {
+  font-size: 0.95rem;
+  color: rgba(231, 241, 245, 0.75);
+  line-height: 1.6;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.95rem;
+  position: relative;
+  z-index: 1;
 }
 
 .fieldLabel {
-  font-size: 0.8rem;
-  color: #0f172a;
-  font-weight: 500;
+  font-size: 0.92rem;
+  color: #e3edf2;
 }
 
-.inputWrapper {
+.inputShell {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  background: #ffffff;
-  border: 1px solid #e1e7f0;
-  border-radius: 14px;
-  padding: 0.4rem 0.95rem 0.4rem 0.8rem;
+  gap: 0.65rem;
+  padding: 0.7rem 1rem;
+  border-radius: 999px;
+  background: rgba(21, 28, 35, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.95),
-    0 6px 22px rgba(15, 38, 78, 0.08);
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 12px 40px rgba(0, 0, 0, 0.4);
+  transition: border-color 180ms ease, box-shadow 180ms ease, background 180ms ease;
+}
+
+.inputShell:focus-within {
+  border-color: rgba(0, 162, 194, 0.85);
+  box-shadow:
+    0 0 0 1px rgba(0, 162, 194, 0.45),
+    0 16px 44px rgba(0, 162, 194, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  background: rgba(27, 36, 45, 0.95);
+}
+
+.inputShell input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f3fbff;
+  font-size: 0.98rem;
+  height: 2.8rem;
+}
+
+.inputShell input::placeholder {
+  color: rgba(235, 245, 248, 0.55);
 }
 
 .inputIcon {
   width: 18px;
   height: 18px;
-  color: #7a8aa6;
+  color: #7ec7d9;
   flex-shrink: 0;
 }
 
-.inputField {
-  background: transparent;
-  border: none;
-  color: #0f172a;
-  height: 3.1rem;
-  padding-right: 0.2rem;
-}
-
-.inputField:focus {
-  border: none;
-  outline: none;
-  box-shadow: none;
-}
-
-.supportRow {
-  margin-top: 0.75rem;
+.formMeta {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  font-size: 0.74rem;
-  color: #8a9ab6;
+  gap: 0.9rem;
+  color: rgba(231, 241, 245, 0.78);
+  font-size: 0.88rem;
+  margin-top: 0.15rem;
 }
 
-.supportLink {
-  color: #0e4a8e;
+.checkboxLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #00afc4;
+}
+
+.forgotLink {
+  color: #00afc4;
   text-decoration: none;
+  font-size: 0.84rem;
 }
 
-.supportLink:hover {
-  color: #0d3f7b;
+.forgotLink:hover {
+  text-decoration: underline;
 }
 
 .submitButton {
+  position: relative;
   margin-top: 0.4rem;
-  height: 2.95rem;
-  font-size: 0.95rem;
-  background: linear-gradient(145deg, #1a2d53, #0e4a8e);
-  color: #fff;
-  box-shadow: 0 18px 40px rgba(8, 47, 112, 0.35);
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #00617d, #07657e, #00afc4);
+  background-size: 200% 200%;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.95rem 1.2rem;
+  cursor: pointer;
+  box-shadow:
+    0 22px 70px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.08);
+  transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+  overflow: hidden;
 }
 
-/* footer bottom row inside card */
+.submitButton:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 26px 84px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(0, 175, 196, 0.18);
+}
+
+.submitButton:disabled {
+  opacity: 0.82;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.submitSheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.2));
+  opacity: 0.25;
+  mix-blend-mode: screen;
+  transform: translateX(-120%) skewX(-18deg);
+  animation: sheen 3.6s ease-in-out infinite;
+}
+
+.submitButton:disabled .submitSheen {
+  animation-play-state: paused;
+  opacity: 0.15;
+}
+
 .formFooter {
-  margin-top: 0.85rem;
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.74rem;
-  color: #9ca3af;
+  margin-top: 0.75rem;
+  text-align: center;
+  color: rgba(231, 241, 245, 0.66);
+  font-size: 0.85rem;
+  line-height: 1.6;
 }
 
-/* Responsive tweaks */
-@media (max-width: 960px) {
-  .screen {
-    padding: 2.75rem 1rem;
+@keyframes sheen {
+  0% {
+    transform: translateX(-120%) skewX(-18deg);
   }
-
-  .shell {
-    border-radius: 32px;
+  50% {
+    transform: translateX(20%) skewX(-18deg);
   }
-
-  .curveShape {
-    inset: -20% 12% -20% 32%;
+  100% {
+    transform: translateX(120%) skewX(-18deg);
   }
+}
 
-  .roadGlow {
-    inset: 18% 14% 18% auto;
-    width: 62%;
-  }
-
-  .roadLine {
-    inset: 20% 18% 20% auto;
-    width: 60%;
-    transform: translateX(12%) rotate(-6deg);
-  }
-
-  .twoColumn {
+@media (max-width: 1180px) {
+  .layout {
     grid-template-columns: minmax(0, 1fr);
+    gap: 2.8rem;
   }
 
-  .formBg {
-    position: absolute;
-    inset: 6% 10% auto;
-    width: 88%;
-    border-radius: 28px;
-    box-shadow: 0 10px 50px rgba(15, 38, 78, 0.2);
+  .heroSection {
+    min-height: unset;
   }
 
-  .hero {
-    padding: 2.5rem 2.25rem 2.2rem;
+  .formSection {
+    justify-content: flex-start;
   }
 
-  .formSide {
-    padding: 2.25rem 2rem 2.5rem;
-    justify-content: center;
-  }
-
-  .formCard {
-    max-width: 460px;
+  .glassCard {
+    max-width: 520px;
   }
 }
 
-@media (max-width: 480px) {
-  .heroHeading h1 {
-    font-size: 2.15rem;
+@media (max-width: 960px) {
+  .content {
+    padding: 3rem 1.25rem 2.75rem;
   }
 
-  .roadLine {
-    inset: auto;
-    width: 90%;
-    height: 0;
-    border-width: 0;
+  .heroTitle {
+    font-size: clamp(2.1rem, 3vw + 1rem, 3rem);
   }
 
-  .truckScene {
-    width: 100%;
+  .heroSubtitle {
+    max-width: 640px;
+  }
+
+  .truckPlate {
+    width: min(100%, 520px);
+  }
+
+  .glassCard {
+    max-width: 420px;
   }
 }
 
-@media (min-width: 1024px) {
-  .truckScene {
-    margin-top: 2rem;
-    max-width: 28rem;
+@media (max-width: 768px) {
+  .content {
+    padding: 2.5rem 1rem 2.5rem;
   }
 
-  .truckRoad {
-    bottom: -24px;
-    width: 120%;
-    height: 34px;
+  .layout {
+    gap: 2.25rem;
+  }
+
+  .heroChip {
+    padding: 0.55rem 1.2rem;
+  }
+
+  .heroChipText {
+    font-size: 0.88rem;
+  }
+
+  .heroSubtitle {
+    font-size: 0.95rem;
+  }
+
+  .glassCard {
+    padding: 1.65rem;
+    max-width: 100%;
   }
 }
-/* END LoginFrozen.module.css */
+
+@media (max-width: 540px) {
+  .heroTitle {
+    font-size: 2.2rem;
+  }
+
+  .heroSubtitle {
+    font-size: 0.9rem;
+  }
+
+  .heroChip {
+    padding: 0.5rem 1rem;
+  }
+
+  .heroChipText {
+    font-size: 0.82rem;
+  }
+
+  .formMeta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .glassCard {
+    padding: 1.5rem;
+    border-radius: 22px;
+  }
+}
