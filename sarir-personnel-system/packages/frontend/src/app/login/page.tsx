@@ -1,25 +1,19 @@
 "use client";
 
+import React from "react";
 import Image from "next/image";
-import { FormEvent, useState } from "react";
-
 import styles from "./LoginPage.module.css";
 
 export default function LoginPage() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setSubmitting(true);
-    window.setTimeout(() => setSubmitting(false), 900);
-    // TODO: Connect to backend authentication when ready.
+  // TODO: اینجا به لاجیک لاگین فعلی‌ات وصلش کن
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // مثلا: await login(username, password)
   };
 
   return (
-    <main className={styles.page} dir="rtl" data-page="login">
-      {/* Background orbits + ghost SARIR text */}
+    <main className={styles.page} dir="rtl">
+      {/* بک‌گراند: اوربیت‌ها و SARIR محو */}
       <div className={styles.bgLayer}>
         <div className={`${styles.orbit} ${styles.orbit1}`} />
         <div className={`${styles.orbit} ${styles.orbit2}`} />
@@ -31,43 +25,39 @@ export default function LoginPage() {
       </div>
 
       <div className={styles.inner}>
-        {/* LEFT: hero text + truck */}
+        {/* ===== LEFT: تیتر + چیپ + کامیون ===== */}
         <section className={styles.hero}>
           <div className={styles.heroHeader}>
-            <h1 className={styles.heroTitle}>
-              هوشمند پرسنل
-              <br />
-              را شروع کن
-            </h1>
+            {/* تیتر بالا – تو می‌تونی متن خودت رو جایگزین کنی */}
+            <h1 className={styles.heroTitle}>ازموکوبود و نشانن</h1>
 
-            <div className={styles.chip}>
-              <span className={styles.chipDot} />
+            {/* چیپ رنگ #F89C2A مثل طرح */}
+            <button className={styles.chip} type="button">
               <span className={styles.chipText}>#F89C2A</span>
-            </div>
-
-            <p className={styles.heroSubtitle}>
-              سامانه یکپارچه سریر دسترسی شما به پرسنل مأموریت‌ها و گزارش‌ها را در لحظه فراهم
-              می‌کند.
-            </p>
+              <span className={styles.chipUnderline} />
+            </button>
           </div>
 
-          <div className={styles.heroTruck}>
-            <Image
-              src="/images/sarir-truck-login.png"
-              alt="Sarir Logistic Truck"
-              fill
-              className={styles.heroTruckImage}
-              priority
-              sizes="(max-width: 1024px) 80vw, 520px"
-            />
+          {/* کامیون پایینِ سمت چپ */}
+          <div className={styles.heroTruckWrapper}>
+            <div className={styles.heroTruck}>
+              <Image
+                src="/images/sarir-truck-login.png"
+                alt="Sarir Logistic Truck"
+                fill
+                className={styles.heroTruckImage}
+                priority
+              />
+            </div>
           </div>
 
           <p className={styles.heroTagline}>A NEW TRACK OF SUCCESS</p>
         </section>
 
-        {/* RIGHT: glassmorphism login card */}
+        {/* ===== RIGHT: کارت لاگین گلس ===== */}
         <section className={styles.loginPanel}>
           <div className={styles.loginCard}>
+            {/* لوگو بالا */}
             <header className={styles.loginHeader}>
               <div className={styles.loginLogo}>
                 <div className={styles.loginLogoIcon}>
@@ -76,85 +66,77 @@ export default function LoginPage() {
                     alt="Sarir Logistic"
                     fill
                     className={styles.logoImage}
-                    sizes="44px"
                   />
                 </div>
                 <div className={styles.loginLogoText}>
                   <div className={styles.loginTitle}>Sarir Logistic</div>
                   <div className={styles.loginSubtitle}>
-                    سریر لجستیک هوشمند ایرانیان (سهامی خاص)
+                    (تاین ماروورد دواتاس شاوآت)
                   </div>
                 </div>
               </div>
             </header>
 
-            <div className={styles.cardDivider} />
-
-            <div className={styles.cardTitleBlock}>
-              <h2 className={styles.cardTitle}>ورود به سامانه پرسنل</h2>
-              <p className={styles.cardDescription}>
-                نام کاربری و کلمه عبور خود را وارد کنید تا به سامانه دسترسی پیدا کنید.
-              </p>
-            </div>
-
             <form className={styles.form} onSubmit={handleSubmit}>
-              {/* Username */}
+              {/* فیلد شماره ۱ (hex + آیکن قفل سمت چپ و متن توضیح سمت راست) */}
               <label className={styles.field}>
-                <span className={styles.fieldLabel}>نام کاربری</span>
-                <div className={styles.fieldInput}>
-                  <input
-                    type="text"
-                    placeholder="مثلا user@sarir.ir"
-                    className={styles.input}
-                    name="username"
-                    value={username}
-                    onChange={(event) => setUsername(event.target.value)}
-                    autoComplete="username"
-                    required
-                  />
-                  <span className={styles.fieldIcon} aria-hidden="true">
-                    👤
-                  </span>
+                <div className={styles.fieldTopRow}>
+                  <span className={styles.fieldLabel}>صرداافش</span>
                 </div>
-              </label>
-
-              {/* Password */}
-              <label className={styles.field}>
-                <span className={styles.fieldLabel}>کلمه عبور</span>
                 <div className={styles.fieldInput}>
-                  <input
-                    type="password"
-                    placeholder=""
-                    className={styles.input}
-                    name="password"
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    autoComplete="current-password"
-                    required
-                  />
-                  <span className={styles.fieldIcon} aria-hidden="true">
+                  <span className={styles.fieldIconLeft} aria-hidden="true">
                     🔒
                   </span>
+                  <input
+                    type="text"
+                    name="field1"
+                    placeholder="#376D44"
+                    className={styles.input}
+                  />
+                  <span className={styles.fieldIconRight} aria-hidden="true">
+                    <span className={styles.dot} />
+                  </span>
                 </div>
               </label>
 
-              <div className={styles.formRow}>
-                <label className={styles.checkbox}>
-                  <input type="checkbox" />
-                  <span>مرا به خاطر بسپار</span>
-                </label>
+              {/* فیلد شماره ۲ */}
+              <label className={styles.field}>
+                <div className={styles.fieldTopRow}>
+                  <span className={styles.fieldLabel}>ممواسبی</span>
+                </div>
+                <div className={styles.fieldInput}>
+                  <span className={styles.fieldIconLeft} aria-hidden="true">
+                    🔒
+                  </span>
+                  <input
+                    type="password"
+                    name="field2"
+                    placeholder="#00517D"
+                    className={styles.input}
+                  />
+                  <span className={styles.fieldIconRight} aria-hidden="true">
+                    <span className={styles.dot} />
+                  </span>
+                </div>
+              </label>
 
-                <button type="button" className={styles.linkButton}>
-                  فراموشی رمز عبور
-                </button>
+              {/* سه نقطه‌ی زیر فیلدها */}
+              <div className={styles.dotsRow} aria-hidden="true">
+                <span className={`${styles.pagerDot} ${styles.pagerDotActive}`} />
+                <span className={styles.pagerDot} />
+                <span className={styles.pagerDot} />
               </div>
 
-              <button type="submit" className={styles.primaryButton} disabled={submitting}>
-                {submitting ? "در حال پردازش..." : "ورود"}
+              {/* دکمه‌ی گرادیانی مثل طرح */}
+              <button type="submit" className={styles.primaryButton}>
+                آزمونن
               </button>
 
+              {/* لینک ترم‌ها پایین کارت */}
               <p className={styles.cardFooterText}>
-                استفاده از این سامانه صرفا برای کاربران مجاز سریر مجاز است.
+                <a href="#" className={styles.footerLink}>
+                  توضیحات / terms اپلیکیشن
+                </a>
               </p>
             </form>
           </div>
